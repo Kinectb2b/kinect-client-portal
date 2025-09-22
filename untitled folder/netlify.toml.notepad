@@ -1,0 +1,1 @@
+{"bgColorIndex":0,"note":"[build]\n  functions = \"netlify\/functions\"\n\n[build.environment]\n  NODE_VERSION = \"18\"\n\n[[redirects]]\n  from = \"\/client-portal\/*\"\n  to = \"\/index.html\"\n  status = 200","textColorIndex":0}
