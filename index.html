@@ -1492,4 +1492,136 @@ Dynamic Duo`);
             }
         }
 
-        async function cancelAppointment(
+        async function cancelAppointment(appointmentIndex) {
+            if (!confirm('Are you sure you want to cancel this appointment?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/.netlify/functions/cancel-appointment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        appointmentIndex,
+                        clientName: 'Dynamic Duo'
+                    })
+                });
+
+                if (response.ok) {
+                    showSuccessMessage(appointmentIndex, 'Appointment cancelled successfully. Your account manager has been notified.');
+                    
+                    // Remove the appointment from the UI after a delay
+                    setTimeout(() => {
+                        loadClientData();
+                    }, 2000);
+                } else {
+                    throw new Error('Failed to cancel appointment');
+                }
+            } catch (error) {
+                console.error('Error cancelling appointment:', error);
+                alert('There was an error cancelling your appointment. Please try again or contact support.');
+            }
+        }
+
+        function showSuccessMessage(appointmentIndex, message) {
+            const successMessage = document.getElementById(`success-message-${appointmentIndex}`);
+            successMessage.textContent = message;
+            successMessage.classList.add('show');
+            
+            // Hide message after 5 seconds
+            setTimeout(() => {
+                successMessage.classList.remove('show');
+            }, 5000);
+        }
+
+        // Modal functions
+        function showPlanDetails() {
+            document.getElementById('planModal').style.display = 'block';
+        }
+
+        function showPlanOptions() {
+            document.getElementById('planOptionsModal').style.display = 'block';
+        }
+
+        function closePlanModal() {
+            document.getElementById('planModal').style.display = 'none';
+        }
+
+        function closePlanOptionsModal() {
+            document.getElementById('planOptionsModal').style.display = 'none';
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const planModal = document.getElementById('planModal');
+            const planOptionsModal = document.getElementById('planOptionsModal');
+            if (event.target == planModal) {
+                planModal.style.display = 'none';
+            }
+            if (event.target == planOptionsModal) {
+                planOptionsModal.style.display = 'none';
+            }
+        }
+
+        // Activity Chart
+        const ctx = document.getElementById('activityChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                datasets: [{
+                    label: 'Contacts Made',
+                    data: [165, 180, 195, 220, 205, 235, 250, 240, 247],
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: 'Appointments',
+                    data: [25, 28, 32, 35, 30, 38, 42, 38, 34],
+                    borderColor: '#764ba2',
+                    backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Add some interactive animations
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-5px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Auto-refresh data every 15 minutes
+        setInterval(loadClientData, 15 * 60 * 1000);
+    </script>
+</body>
+</html>
