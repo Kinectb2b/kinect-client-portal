@@ -1,0 +1,2290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kinect B2B - Client Portal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* Login Screen Styles */
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .login-button, .btn {
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .login-button {
+            width: 100%;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+        }
+
+        .btn-success {
+            background: #22c55e;
+        }
+
+        .btn:hover, .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-error {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        /* Admin Dashboard Styles */
+        .admin-dashboard {
+            display: none;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logout-btn {
+            padding: 10px 20px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .client-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .client-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .client-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .client-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .client-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .client-plan {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .client-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .client-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .view-btn {
+            background: #10b981;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* Dashboard Styles */
+        .dashboard {
+            display: none;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .welcome-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .welcome-text h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .welcome-text p {
+            font-size: 1.1rem;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .plan-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .current-plan {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .plan-info h2 {
+            font-size: 1.8rem;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        .plan-price {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .plan-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            font-weight: 500;
+            color: #64748b;
+        }
+
+        .metric-value {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #1e293b;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+
+        .appointments-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .appointment-item {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .appointment-item:hover {
+            background: #e2e8f0;
+            transform: translateX(5px);
+        }
+
+        .appointment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .appointment-time {
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .appointment-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-confirmed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .business-name {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 1.1rem;
+        }
+
+        .detail-item {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .cta-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .last-updated {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-top: 30px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        /* Plan details table */
+        .plan-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .plan-table th, .plan-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .plan-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .plan-table tr:hover {
+            background: #f8fafc;
+        }
+
+        /* Notification styles */
+        .notification-badge {
+            background: #ef4444;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 5px;
+        }
+
+        .notification-item {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .appointment-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .appointment-actions button {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .container, .admin-dashboard {
+                padding: 15px;
+            }
+            
+            .welcome-section {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .welcome-text h1 {
+                font-size: 2rem;
+            }
+            
+            .dashboard-grid, .client-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>Kinect B2B</h1>
+                <p>Portal Access</p>
+            </div>
+            
+            <div id="loginError" class="login-error"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="username">Username</label>
+                    <input type="text" id="username" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" class="form-input" required>
+                </div>
+                
+                <button type="submit" class="login-button">Access Portal</button>
+            </form>
+            
+            <div style="text-align: center; margin-top: 20px; font-size: 0.8rem; color: #64748b;">
+                Need help? Contact <a href="mailto:support@kinectb2b.com" style="color: #667eea;">support@kinectb2b.com</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="admin-dashboard">
+        <div class="admin-header">
+            <h1 class="admin-title">
+                Kinect B2B - Admin Dashboard
+                <span id="notificationBadge" class="notification-badge" style="display: none;">0</span>
+            </h1>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="admin-tabs">
+            <button class="tab-btn active" onclick="showTab('clients', this)">
+                Manage Clients
+                <span id="clientNotificationBadge" class="notification-badge" style="display: none;">0</span>
+            </button>
+            <button class="tab-btn" onclick="showTab('add-client', this)">Add New Client</button>
+            <button class="tab-btn" onclick="showTab('notifications', this)">
+                Notifications
+                <span id="mainNotificationBadge" class="notification-badge" style="display: none;">0</span>
+            </button>
+            <button class="tab-btn" onclick="showTab('settings', this)">Settings</button>
+        </div>
+
+        <!-- Manage Clients Tab -->
+        <div id="clientsTab" class="tab-content active">
+            <div class="client-grid" id="clientGrid">
+                <!-- Client cards will be populated here -->
+            </div>
+        </div>
+
+        <!-- Add New Client Tab -->
+        <div id="add-clientTab" class="tab-content">
+            <div style="max-width: 600px; margin: 0 auto;">
+                <div class="client-card">
+                    <h2 style="margin-bottom: 20px;">Add New Client</h2>
+                    <form id="addClientForm">
+                        <div class="form-group">
+                            <label class="form-label">Client Name</label>
+                            <input type="text" id="newClientName" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Username</label>
+                            <input type="text" id="newClientUsername" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="text" id="newClientPassword" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Plan</label>
+                            <select id="newClientPlan" class="form-select" required>
+                                <option value="">Select Plan</option>
+                                <option value="Pro Plan 100">Pro Plan 100</option>
+                                <option value="Pro Plan 200">Pro Plan 200</option>
+                                <option value="Pro Plan 300">Pro Plan 300</option>
+                                <option value="Pro Plan 400">Pro Plan 400</option>
+                                <option value="Pro Plan 500">Pro Plan 500</option>
+                                <option value="Pro Plan 600">Pro Plan 600</option>
+                                <option value="Pro Plan 700">Pro Plan 700</option>
+                                <option value="Pro Plan 800">Pro Plan 800</option>
+                                <option value="Pro Plan 900">Pro Plan 900</option>
+                                <option value="Pro Plan 1000">Pro Plan 1000</option>
+                                <option value="Pro Plan 1100">Pro Plan 1100</option>
+                                <option value="Pro Plan 1200">Pro Plan 1200</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Next Billing Date</label>
+                            <input type="date" id="newClientBilling" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select id="newClientStatus" class="form-select" required>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="paused">Paused</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn">Add Client</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications Tab -->
+        <div id="notificationsTab" class="tab-content">
+            <div style="max-width: 800px; margin: 0 auto;">
+                <div class="client-card">
+                    <h2 style="margin-bottom: 20px;">Client Notifications</h2>
+                    <div id="notificationsList">
+                        <!-- Notifications will be populated here -->
+                    </div>
+                    <button class="btn btn-secondary" onclick="clearAllNotifications()">Clear All Notifications</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settingsTab" class="tab-content">
+            <div style="max-width: 600px; margin: 0 auto;">
+                <div class="client-card">
+                    <h2 style="margin-bottom: 20px;">Portal Settings</h2>
+                    <div class="form-group">
+                        <label class="form-label">Support Email</label>
+                        <input type="email" id="supportEmail" class="form-input" value="support@kinectb2b.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Support Phone</label>
+                        <input type="tel" id="supportPhone" class="form-input" value="+1234567890">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Company Name</label>
+                        <input type="text" id="companyName" class="form-input" value="Kinect B2B">
+                    </div>
+                    <button class="btn" onclick="saveSettings()">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client Dashboard -->
+    <div id="dashboard" class="dashboard">
+        <div class="container">
+            <!-- Header Section -->
+            <div class="header">
+                <div class="welcome-section">
+                    <div class="welcome-text">
+                        <h1 id="clientWelcome">Welcome!</h1>
+                        <p>Your comprehensive business intelligence dashboard. Track activities, manage appointments, and monitor client progress all in one place.</p>
+                    </div>
+                    <div class="user-info">
+                        <div>
+                            <div style="font-weight: 600; color: #374151;">Logged in as:</div>
+                            <div id="loggedInUser" style="color: #667eea;"></div>
+                        </div>
+                        <button class="logout-btn" onclick="logout()">Logout</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Plan Section -->
+            <div class="plan-section">
+                <div class="current-plan">
+                    <div class="plan-info">
+                        <h2 id="currentPlan">Pro Plan</h2>
+                        <div class="plan-price" id="planPrice">Current Plan</div>
+                        <p style="color: #64748b; margin-top: 5px;">Next billing: <span id="nextBilling"></span></p>
+                    </div>
+                    <div class="plan-buttons">
+                        <button class="btn btn-primary" onclick="showPlanDetails()">View Plan Details</button>
+                        <button class="btn btn-secondary" onclick="showPlanOptions()">Change Plan</button>
+                        <button class="btn btn-secondary" onclick="window.open('https://kinectb2b-affiliate.com/', '_blank')">Become an Affiliate</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Activity Dashboard -->
+                <div class="card">
+                    <h2>
+                        <svg class="icon" viewBox="0 0 20 20">
+                            <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"/>
+                            <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"/>
+                        </svg>
+                        Activity Dashboard
+                    </h2>
+                    <div class="metric-row">
+                        <span class="metric-label">Total Appointments Set</span>
+                        <span class="metric-value" id="totalAppointments">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Businesses Contacted</span>
+                        <span class="metric-value" id="businessesContacted">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">People Called</span>
+                        <span class="metric-value" id="peopleCalled">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Total Contact Points</span>
+                        <span class="metric-value" id="totalContactPoints">0</span>
+                    </div>
+                </div>
+
+                <!-- Monthly Activity Chart -->
+                <div class="card">
+                    <h2>
+                        <svg class="icon" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                        </svg>
+                        Monthly Activity Trends
+                    </h2>
+                    <div class="chart-container">
+                        <canvas id="activityChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Upcoming Appointments -->
+                <div class="card">
+                    <h2>
+                        <svg class="icon" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"/>
+                        </svg>
+                        Upcoming Appointments
+                    </h2>
+                    <div id="appointmentsList" class="appointments-list">
+                        <!-- Appointments will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Current Prospects -->
+                <div class="card">
+                    <h2>
+                        <svg class="icon" viewBox="0 0 20 20">
+                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                        </svg>
+                        Current Prospects
+                    </h2>
+                    <div id="prospectsList" style="max-height: 400px; overflow-y: auto;">
+                        <!-- Prospects will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Call-to-Action Section -->
+            <div class="cta-section">
+                <h2 style="margin-bottom: 20px; color: #1e293b;">Need Support or Have Questions?</h2>
+                <p style="margin-bottom: 30px; color: #64748b; font-size: 1.1rem;">Our team is here to help you maximize your success. Reach out anytime for assistance with your campaigns or technical support.</p>
+                <button class="btn btn-primary" onclick="window.location.href='mailto:support@kinectb2b.com'">Contact Support</button>
+                <button class="btn btn-primary" onclick="window.location.href='tel:+1234567890'">Schedule Call</button>
+            </div>
+
+            <div class="last-updated">
+                Last updated: <span id="lastUpdated"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Client Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h2 id="editModalTitle">Edit Client</h2>
+            <form id="editClientForm">
+                <input type="hidden" id="editClientId">
+                <div class="form-group">
+                    <label class="form-label">Client Name</label>
+                    <input type="text" id="editClientName" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="editClientUsername" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="text" id="editClientPassword" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Plan</label>
+                    <select id="editClientPlan" class="form-select" required>
+                        <option value="Pro Plan 100">Pro Plan 100</option>
+                        <option value="Pro Plan 200">Pro Plan 200</option>
+                        <option value="Pro Plan 300">Pro Plan 300</option>
+                        <option value="Pro Plan 400">Pro Plan 400</option>
+                        <option value="Pro Plan 500">Pro Plan 500</option>
+                        <option value="Pro Plan 600">Pro Plan 600</option>
+                        <option value="Pro Plan 700">Pro Plan 700</option>
+                        <option value="Pro Plan 800">Pro Plan 800</option>
+                        <option value="Pro Plan 900">Pro Plan 900</option>
+                        <option value="Pro Plan 1000">Pro Plan 1000</option>
+                        <option value="Pro Plan 1100">Pro Plan 1100</option>
+                        <option value="Pro Plan 1200">Pro Plan 1200</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Total Appointments</label>
+                    <input type="number" id="editTotalAppointments" class="form-input" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Businesses Contacted</label>
+                    <input type="number" id="editBusinessesContacted" class="form-input" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">People Called</label>
+                    <input type="number" id="editPeopleCalled" class="form-input" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Total Contact Points</label>
+                    <input type="number" id="editTotalContactPoints" class="form-input" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Next Billing Date</label>
+                    <input type="date" id="editNextBilling" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select id="editClientStatus" class="form-select" required>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="paused">Paused</option>
+                    </select>
+                </div>
+                
+                <h3 style="margin: 20px 0;">Manage Appointments</h3>
+                <div id="adminAppointmentsList">
+                    <!-- Admin appointments management -->
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="addAppointment()">Add New Appointment</button>
+                
+                <h3 style="margin: 20px 0;">Manage Prospects</h3>
+                <div id="adminProspectsList">
+                    <!-- Admin prospects management -->
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="addProspect()">Add New Prospect</button>
+                
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                    <button type="submit" class="btn">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Plan Details Modal -->
+    <div id="planModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePlanModal()">&times;</span>
+            <h2>Plan Details</h2>
+            <div id="planDetailsContent">
+                <!-- Plan details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Plan Change Modal -->
+    <div id="planChangeModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePlanChangeModal()">&times;</span>
+            <h2>Change Plan</h2>
+            <div id="planChangeContent">
+                <div class="form-group">
+                    <label class="form-label">Select New Plan</label>
+                    <select id="newPlanSelect" class="form-select">
+                        <option value="">Choose a plan...</option>
+                        <option value="Pro Plan 100">Pro Plan 100</option>
+                        <option value="Pro Plan 200">Pro Plan 200</option>
+                        <option value="Pro Plan 300">Pro Plan 300</option>
+                        <option value="Pro Plan 400">Pro Plan 400</option>
+                        <option value="Pro Plan 500">Pro Plan 500</option>
+                        <option value="Pro Plan 600">Pro Plan 600</option>
+                        <option value="Pro Plan 700">Pro Plan 700</option>
+                        <option value="Pro Plan 800">Pro Plan 800</option>
+                        <option value="Pro Plan 900">Pro Plan 900</option>
+                        <option value="Pro Plan 1000">Pro Plan 1000</option>
+                        <option value="Pro Plan 1100">Pro Plan 1100</option>
+                        <option value="Pro Plan 1200">Pro Plan 1200</option>
+                    </select>
+                </div>
+                <div id="selectedPlanDetails" style="margin: 20px 0;"></div>
+                <div class="form-group">
+                    <label class="form-label">Reason for Change (Optional)</label>
+                    <textarea id="planChangeReason" class="form-textarea" placeholder="Tell us why you'd like to change plans..."></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button class="btn btn-secondary" onclick="closePlanChangeModal()">Cancel</button>
+                    <button class="btn btn-danger" onclick="cancelPlan()">Cancel My Plan</button>
+                    <button class="btn" onclick="requestPlanChange()">Request Plan Change</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointment Action Modal -->
+    <div id="appointmentModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAppointmentModal()">&times;</span>
+            <h2 id="appointmentModalTitle">Appointment Details</h2>
+            <div id="appointmentModalContent">
+                <!-- Appointment details and actions will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Default admin credentials and client data
+        const ADMIN_CREDENTIALS = {
+            username: 'admin',
+            password: 'kinect2024admin'
+        };
+
+        // Plan pricing data from your sheet
+        const PLAN_DATA = {
+            'Pro Plan 100': {
+                annualDiscount: 2750.00,
+                annual: 3000.00,
+                monthly: 250.00,
+                guarantees: 5,
+                businesses: 100,
+                peopleCalled: 300,
+                callsMade: 900,
+                emailMade: 900,
+                sms: 900,
+                totalContactPoints: 2700
+            },
+            'Pro Plan 200': {
+                annualDiscount: 5500.00,
+                annual: 6000.00,
+                monthly: 500.00,
+                guarantees: 10,
+                businesses: 200,
+                peopleCalled: 600,
+                callsMade: 1800,
+                emailMade: 1800,
+                sms: 1800,
+                totalContactPoints: 5400
+            },
+            'Pro Plan 300': {
+                annualDiscount: 8250.00,
+                annual: 9000.00,
+                monthly: 750.00,
+                guarantees: 15,
+                businesses: 300,
+                peopleCalled: 900,
+                callsMade: 2700,
+                emailMade: 2700,
+                sms: 2700,
+                totalContactPoints: 8100
+            },
+            'Pro Plan 400': {
+                annualDiscount: 11000.00,
+                annual: 12000.00,
+                monthly: 1000.00,
+                guarantees: 20,
+                businesses: 400,
+                peopleCalled: 1200,
+                callsMade: 3600,
+                emailMade: 3600,
+                sms: 3600,
+                totalContactPoints: 10800
+            },
+            'Pro Plan 500': {
+                annualDiscount: 13750.00,
+                annual: 15000.00,
+                monthly: 1250.00,
+                guarantees: 25,
+                businesses: 500,
+                peopleCalled: 1500,
+                callsMade: 4500,
+                emailMade: 4500,
+                sms: 4500,
+                totalContactPoints: 13500
+            },
+            'Pro Plan 600': {
+                annualDiscount: 16500.00,
+                annual: 18000.00,
+                monthly: 1500.00,
+                guarantees: 30,
+                businesses: 600,
+                peopleCalled: 1800,
+                callsMade: 5400,
+                emailMade: 5400,
+                sms: 5400,
+                totalContactPoints: 16200
+            },
+            'Pro Plan 700': {
+                annualDiscount: 19250.00,
+                annual: 21000.00,
+                monthly: 1750.00,
+                guarantees: 35,
+                businesses: 700,
+                peopleCalled: 2100,
+                callsMade: 6300,
+                emailMade: 6300,
+                sms: 6300,
+                totalContactPoints: 18900
+            },
+            'Pro Plan 800': {
+                annualDiscount: 22000.00,
+                annual: 24000.00,
+                monthly: 2000.00,
+                guarantees: 40,
+                businesses: 800,
+                peopleCalled: 2400,
+                callsMade: 7200,
+                emailMade: 7200,
+                sms: 7200,
+                totalContactPoints: 21600
+            },
+            'Pro Plan 900': {
+                annualDiscount: 24750.00,
+                annual: 27000.00,
+                monthly: 2250.00,
+                guarantees: 45,
+                businesses: 900,
+                peopleCalled: 2700,
+                callsMade: 8100,
+                emailMade: 8100,
+                sms: 8100,
+                totalContactPoints: 24300
+            },
+            'Pro Plan 1000': {
+                annualDiscount: 27500.00,
+                annual: 30000.00,
+                monthly: 2500.00,
+                guarantees: 50,
+                businesses: 1000,
+                peopleCalled: 3000,
+                callsMade: 9000,
+                emailMade: 9000,
+                sms: 9000,
+                totalContactPoints: 27000
+            },
+            'Pro Plan 1100': {
+                annualDiscount: 30250.00,
+                annual: 33000.00,
+                monthly: 2750.00,
+                guarantees: 55,
+                businesses: 1100,
+                peopleCalled: 3300,
+                callsMade: 9900,
+                emailMade: 9900,
+                sms: 9900,
+                totalContactPoints: 29700
+            },
+            'Pro Plan 1200': {
+                annualDiscount: 33000.00,
+                annual: 36000.00,
+                monthly: 3000.00,
+                guarantees: 60,
+                businesses: 1200,
+                peopleCalled: 3600,
+                callsMade: 10800,
+                emailMade: 10800,
+                sms: 10800,
+                totalContactPoints: 32400
+            }
+        };
+
+        // Client data storage
+        let CLIENT_DATA = {
+            'dynamic-duo': {
+                password: 'kinect2024',
+                name: 'Dynamic Duo',
+                plan: 'Pro Plan 300',
+                status: 'active',
+                nextBilling: '2025-10-22',
+                totalAppointments: 45,
+                businessesContacted: 25,
+                peopleCalled: 75,
+                totalContactPoints: 675,
+                appointments: [
+                    {
+                        date: '2025-09-24',
+                        time: '2:00 PM',
+                        company: 'TechStart Solutions',
+                        contact: 'John Mitchell',
+                        type: 'CRM Implementation',
+                        location: 'Downtown Office',
+                        status: 'confirmed',
+                        notes: ''
+                    },
+                    {
+                        date: '2025-09-25',
+                        time: '10:30 AM',
+                        company: 'Metro Retail Group',
+                        contact: 'Sarah Chen',
+                        type: 'Marketing Automation',
+                        location: 'Video Call',
+                        status: 'pending',
+                        notes: ''
+                    }
+                ],
+                prospects: [
+                    {
+                        businessName: 'Enterprise Solutions Inc.',
+                        location: 'Chicago, IL',
+                        service: 'CRM Implementation',
+                        status: 'Discovery'
+                    },
+                    {
+                        businessName: 'Regional Health Network',
+                        location: 'Milwaukee, WI',
+                        service: 'Marketing Automation',
+                        status: 'Proposal Sent'
+                    }
+                ]
+            },
+            'techstart': {
+                password: 'tech2024',
+                name: 'TechStart Solutions',
+                plan: 'Pro Plan 500',
+                status: 'active',
+                nextBilling: '2025-11-15',
+                totalAppointments: 78,
+                businessesContacted: 42,
+                peopleCalled: 125,
+                totalContactPoints: 1125,
+                appointments: [
+                    {
+                        date: '2025-09-26',
+                        time: '3:15 PM',
+                        company: 'Blue Ocean Consulting',
+                        contact: 'Mike Rodriguez',
+                        type: 'Sales Pipeline Setup',
+                        location: 'Client Site',
+                        status: 'confirmed',
+                        notes: ''
+                    }
+                ],
+                prospects: [
+                    {
+                        businessName: 'Midwest Manufacturing',
+                        location: 'Detroit, MI',
+                        service: 'Sales Pipeline',
+                        status: 'Negotiation'
+                    }
+                ]
+            }
+        };
+
+        // Notifications storage
+        let NOTIFICATIONS = [];
+
+        let currentUser = null;
+        let isAdmin = false;
+        let editingClientId = null;
+
+        // Load saved data from localStorage
+        function loadSavedData() {
+            const savedData = localStorage.getItem('kinectb2b_client_data');
+            if (savedData) {
+                CLIENT_DATA = { ...CLIENT_DATA, ...JSON.parse(savedData) };
+            }
+            
+            const savedNotifications = localStorage.getItem('kinectb2b_notifications');
+            if (savedNotifications) {
+                NOTIFICATIONS = JSON.parse(savedNotifications);
+            }
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('kinectb2b_client_data', JSON.stringify(CLIENT_DATA));
+            localStorage.setItem('kinectb2b_notifications', JSON.stringify(NOTIFICATIONS));
+        }
+
+        // Add notification
+        function addNotification(type, message, clientName) {
+            NOTIFICATIONS.unshift({
+                id: Date.now(),
+                type: type,
+                message: message,
+                clientName: clientName,
+                timestamp: new Date().toISOString(),
+                read: false
+            });
+            saveData();
+            updateNotificationBadges();
+        }
+
+        // Update notification badges
+        function updateNotificationBadges() {
+            const unreadCount = NOTIFICATIONS.filter(n => !n.read).length;
+            
+            const badges = [
+                document.getElementById('notificationBadge'),
+                document.getElementById('clientNotificationBadge'),
+                document.getElementById('mainNotificationBadge')
+            ];
+            
+            badges.forEach(badge => {
+                if (badge) {
+                    if (unreadCount > 0) {
+                        badge.textContent = unreadCount;
+                        badge.style.display = 'inline';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // Check if user is already logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSavedData();
+            updateNotificationBadges();
+            
+            const savedUser = localStorage.getItem('kinectb2b_user');
+            const savedAdmin = localStorage.getItem('kinectb2b_admin');
+            
+            if (savedAdmin) {
+                isAdmin = true;
+                showAdminDashboard();
+            } else if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showClientDashboard();
+            }
+            
+            // Setup event listeners
+            setupEventListeners();
+        });
+        
+        function setupEventListeners() {
+            // Handle add client form
+            const addClientForm = document.getElementById('addClientForm');
+            if (addClientForm) {
+                addClientForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const username = document.getElementById('newClientUsername').value.toLowerCase();
+                    
+                    if (CLIENT_DATA[username]) {
+                        alert('Username already exists!');
+                        return;
+                    }
+                    
+                    CLIENT_DATA[username] = {
+                        password: document.getElementById('newClientPassword').value,
+                        name: document.getElementById('newClientName').value,
+                        plan: document.getElementById('newClientPlan').value,
+                        nextBilling: document.getElementById('newClientBilling').value,
+                        status: document.getElementById('newClientStatus').value,
+                        totalAppointments: 0,
+                        businessesContacted: 0,
+                        peopleCalled: 0,
+                        totalContactPoints: 0,
+                        appointments: [],
+                        prospects: []
+                    };
+                    
+                    saveData();
+                    loadClientGrid();
+                    addClientForm.reset();
+                    showTab('clients');
+                    alert('Client added successfully!');
+                });
+            }
+            
+            // Handle edit client form
+            const editClientForm = document.getElementById('editClientForm');
+            if (editClientForm) {
+                editClientForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const oldUsername = document.getElementById('editClientId').value;
+                    const newUsername = document.getElementById('editClientUsername').value.toLowerCase();
+                    
+                    // If username changed, move data to new key
+                    if (oldUsername !== newUsername) {
+                        CLIENT_DATA[newUsername] = CLIENT_DATA[oldUsername];
+                        delete CLIENT_DATA[oldUsername];
+                    }
+                    
+                    CLIENT_DATA[newUsername] = {
+                        ...CLIENT_DATA[newUsername],
+                        name: document.getElementById('editClientName').value,
+                        password: document.getElementById('editClientPassword').value,
+                        plan: document.getElementById('editClientPlan').value,
+                        status: document.getElementById('editClientStatus').value,
+                        totalAppointments: parseInt(document.getElementById('editTotalAppointments').value),
+                        businessesContacted: parseInt(document.getElementById('editBusinessesContacted').value),
+                        peopleCalled: parseInt(document.getElementById('editPeopleCalled').value),
+                        totalContactPoints: parseInt(document.getElementById('editTotalContactPoints').value),
+                        nextBilling: document.getElementById('editNextBilling').value
+                    };
+                    
+                    saveData();
+                    loadClientGrid();
+                    closeEditModal();
+                    alert('Client updated successfully!');
+                });
+            }
+        }
+
+        // Handle login form
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.toLowerCase();
+            const password = document.getElementById('password').value;
+            
+            // Check admin login
+            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+                isAdmin = true;
+                localStorage.setItem('kinectb2b_admin', 'true');
+                showAdminDashboard();
+                return;
+            }
+            
+            // Check client login
+            if (CLIENT_DATA[username] && CLIENT_DATA[username].password === password) {
+                currentUser = {
+                    username: username,
+                    ...CLIENT_DATA[username]
+                };
+                
+                localStorage.setItem('kinectb2b_user', JSON.stringify(currentUser));
+                showClientDashboard();
+            } else {
+                showLoginError('Invalid username or password. Please try again.');
+            }
+        });
+
+        function showLoginError(message) {
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function showAdminDashboard() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'block';
+            document.getElementById('dashboard').style.display = 'none';
+            
+            loadClientGrid();
+            loadNotificationsList();
+        }
+
+        function showClientDashboard() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            
+            // Update dashboard with user info
+            const userData = CLIENT_DATA[currentUser.username];
+            document.getElementById('clientWelcome').textContent = `Welcome, ${userData.name}!`;
+            document.getElementById('loggedInUser').textContent = userData.name;
+            document.getElementById('currentPlan').textContent = userData.plan;
+            document.getElementById('planPrice').textContent = `$${PLAN_DATA[userData.plan].monthly.toFixed(0)}/month`;
+            document.getElementById('nextBilling').textContent = formatDate(userData.nextBilling);
+            
+            // Load client-specific data
+            loadClientData();
+        }
+
+        function logout() {
+            localStorage.removeItem('kinectb2b_user');
+            localStorage.removeItem('kinectb2b_admin');
+            currentUser = null;
+            isAdmin = false;
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('adminDashboard').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('loginError').style.display = 'none';
+        }
+
+        function showTab(tabName, buttonElement) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            const targetTab = document.getElementById(tabName + 'Tab');
+            if (targetTab) {
+                targetTab.classList.add('active');
+            } else {
+                console.error('Tab not found:', tabName + 'Tab');
+            }
+            
+            // Add active class to clicked button
+            if (buttonElement) {
+                buttonElement.classList.add('active');
+            }
+            
+            if (tabName === 'notifications') {
+                loadNotificationsList();
+            }
+            
+            console.log('Switching to tab:', tabName);
+        }
+
+        function loadClientGrid() {
+            const grid = document.getElementById('clientGrid');
+            grid.innerHTML = '';
+            
+            Object.keys(CLIENT_DATA).forEach(username => {
+                const client = CLIENT_DATA[username];
+                const statusColor = client.status === 'active' ? '#22c55e' : client.status === 'paused' ? '#f59e0b' : '#ef4444';
+                const card = document.createElement('div');
+                card.className = 'client-card';
+                card.innerHTML = `
+                    <div class="client-header">
+                        <div class="client-name">${client.name}</div>
+                        <div style="display: flex; gap: 5px; align-items: center;">
+                            <div class="client-plan">${client.plan}</div>
+                            <div style="background: ${statusColor}; color: white; padding: 4px 8px; border-radius: 15px; font-size: 0.7rem; font-weight: 600;">
+                                ${(client.status || 'active').toUpperCase()}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="client-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">${client.totalAppointments}</div>
+                            <div class="stat-label">Appointments</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${client.businessesContacted}</div>
+                            <div class="stat-label">Businesses</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${client.peopleCalled}</div>
+                            <div class="stat-label">People Called</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${client.totalContactPoints.toLocaleString()}</div>
+                            <div class="stat-label">Contact Points</div>
+                        </div>
+                    </div>
+                    <div class="client-actions">
+                        <button class="action-btn edit-btn" onclick="editClient('${username}')">Edit</button>
+                        <button class="action-btn view-btn" onclick="viewAsClient('${username}')">View Portal</button>
+                        <button class="action-btn delete-btn" onclick="deleteClient('${username}')">Delete</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function editClient(username) {
+            editingClientId = username;
+            const client = CLIENT_DATA[username];
+            document.getElementById('editClientId').value = username;
+            document.getElementById('editClientName').value = client.name;
+            document.getElementById('editClientUsername').value = username;
+            document.getElementById('editClientPassword').value = client.password;
+            document.getElementById('editClientPlan').value = client.plan;
+            document.getElementById('editTotalAppointments').value = client.totalAppointments;
+            document.getElementById('editBusinessesContacted').value = client.businessesContacted;
+            document.getElementById('editPeopleCalled').value = client.peopleCalled;
+            document.getElementById('editTotalContactPoints').value = client.totalContactPoints;
+            document.getElementById('editNextBilling').value = client.nextBilling;
+            document.getElementById('editClientStatus').value = client.status || 'active';
+            document.getElementById('editModalTitle').textContent = `Edit ${client.name}`;
+            
+            loadAdminAppointments(client.appointments || []);
+            loadAdminProspects(client.prospects || []);
+            
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function loadAdminAppointments(appointments) {
+            const container = document.getElementById('adminAppointmentsList');
+            container.innerHTML = appointments.map((apt, index) => `
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>${apt.company}</strong> - ${apt.contact}<br>
+                            <span style="color: ${apt.flexibleDate || apt.flexibleTime ? '#f59e0b' : '#374151'};">
+                                ${apt.flexibleDate ? `📅 ${apt.date}` : apt.date} at ${apt.flexibleTime ? `🕐 ${apt.time}` : apt.time} (${apt.status})
+                            </span><br>
+                            <small style="color: #64748b;">${apt.type} • ${apt.location}</small>
+                            ${apt.notes ? `<br><em style="color: #667eea;">Notes: ${apt.notes}</em>` : ''}
+                            ${apt.flexibleDate || apt.flexibleTime ? '<br><small style="color: #f59e0b; font-weight: 600;">⚠️ Flexible scheduling</small>' : ''}
+                        </div>
+                        <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem;" onclick="removeAppointment(${index})">Remove</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadAdminProspects(prospects) {
+            const container = document.getElementById('adminProspectsList');
+            container.innerHTML = prospects.map((prospect, index) => `
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>${prospect.businessName}</strong><br>
+                            ${prospect.location} - ${prospect.service} (${prospect.status})
+                        </div>
+                        <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem;" onclick="removeProspect(${index})">Remove</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addAppointment() {
+            // Create a modal for appointment input
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background: rgba(0,0,0,0.5); z-index: 2000; display: flex; 
+                align-items: center; justify-content: center;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 500px;">
+                    <h3 style="margin-bottom: 20px;">Add New Appointment</h3>
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="date" id="newAptDate" class="form-input" style="flex: 1;">
+                            <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+                                <input type="checkbox" id="flexibleDate" onchange="toggleFlexibleDate()"> Flexible Date
+                            </label>
+                        </div>
+                        <input type="text" id="flexibleDateText" class="form-input" placeholder="e.g., Any time on 9/21/25, Week of 9/23, Flexible" style="display: none; margin-top: 10px;">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Time</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="time" id="newAptTime" class="form-input" style="flex: 1;">
+                            <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+                                <input type="checkbox" id="flexibleTime" onchange="toggleFlexibleTime()"> Flexible Time
+                            </label>
+                        </div>
+                        <input type="text" id="flexibleTimeText" class="form-input" placeholder="e.g., Any time after 2 PM, Morning preferred, Flexible" style="display: none; margin-top: 10px;">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Company Name</label>
+                        <input type="text" id="newAptCompany" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Contact Person</label>
+                        <input type="text" id="newAptContact" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Appointment Type</label>
+                        <input type="text" id="newAptType" class="form-input" placeholder="e.g., Discovery Call, Product Demo" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Location</label>
+                        <input type="text" id="newAptLocation" class="form-input" placeholder="e.g., Video Call, Client Office">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea id="newAptNotes" class="form-textarea" placeholder="Any additional notes about this appointment..."></textarea>
+                    </div>
+                    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                        <button class="btn btn-secondary" onclick="this.closest('div').parentElement.remove()">Cancel</button>
+                        <button class="btn" onclick="saveNewAppointment()">Add Appointment</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Focus on first input
+            document.getElementById('newAptCompany').focus();
+            
+            // Set default date to today
+            document.getElementById('newAptDate').value = new Date().toISOString().split('T')[0];
+        }
+        
+        function toggleFlexibleDate() {
+            const checkbox = document.getElementById('flexibleDate');
+            const dateInput = document.getElementById('newAptDate');
+            const flexibleInput = document.getElementById('flexibleDateText');
+            
+            if (checkbox.checked) {
+                dateInput.style.display = 'none';
+                flexibleInput.style.display = 'block';
+                flexibleInput.required = true;
+                dateInput.required = false;
+                flexibleInput.focus();
+            } else {
+                dateInput.style.display = 'block';
+                flexibleInput.style.display = 'none';
+                flexibleInput.required = false;
+                dateInput.required = true;
+                flexibleInput.value = '';
+            }
+        }
+        
+        function toggleFlexibleTime() {
+            const checkbox = document.getElementById('flexibleTime');
+            const timeInput = document.getElementById('newAptTime');
+            const flexibleInput = document.getElementById('flexibleTimeText');
+            
+            if (checkbox.checked) {
+                timeInput.style.display = 'none';
+                flexibleInput.style.display = 'block';
+                flexibleInput.required = true;
+                timeInput.required = false;
+                flexibleInput.focus();
+            } else {
+                timeInput.style.display = 'block';
+                flexibleInput.style.display = 'none';
+                flexibleInput.required = false;
+                timeInput.required = true;
+                flexibleInput.value = '';
+            }
+        }
+        
+        function saveNewAppointment() {
+            const dateCheckbox = document.getElementById('flexibleDate').checked;
+            const timeCheckbox = document.getElementById('flexibleTime').checked;
+            
+            const date = dateCheckbox ? document.getElementById('flexibleDateText').value : document.getElementById('newAptDate').value;
+            const time = timeCheckbox ? document.getElementById('flexibleTimeText').value : document.getElementById('newAptTime').value;
+            
+            const company = document.getElementById('newAptCompany').value;
+            const contact = document.getElementById('newAptContact').value;
+            const type = document.getElementById('newAptType').value;
+            const location = document.getElementById('newAptLocation').value || 'TBD';
+            const notes = document.getElementById('newAptNotes').value;
+            
+            if (date && time && company && contact && type) {
+                if (!CLIENT_DATA[editingClientId].appointments) {
+                    CLIENT_DATA[editingClientId].appointments = [];
+                }
+                
+                CLIENT_DATA[editingClientId].appointments.push({
+                    date: date,
+                    time: time,
+                    company: company,
+                    contact: contact,
+                    type: type,
+                    location: location,
+                    status: 'pending',
+                    notes: notes,
+                    flexibleDate: dateCheckbox,
+                    flexibleTime: timeCheckbox
+                });
+                
+                loadAdminAppointments(CLIENT_DATA[editingClientId].appointments);
+                
+                // Remove the modal
+                document.querySelector('div[style*="position: fixed"]').remove();
+                
+                alert('Appointment added successfully!');
+            } else {
+                alert('Please fill in all required fields.');
+            }
+        }
+
+        function addProspect() {
+            const businessName = prompt('Enter business name:');
+            const location = prompt('Enter location:');
+            const service = prompt('Enter service:');
+            const status = prompt('Enter status:');
+            
+            if (businessName && location && service) {
+                if (!CLIENT_DATA[editingClientId].prospects) {
+                    CLIENT_DATA[editingClientId].prospects = [];
+                }
+                
+                CLIENT_DATA[editingClientId].prospects.push({
+                    businessName: businessName,
+                    location: location,
+                    service: service,
+                    status: status || 'Discovery'
+                });
+                
+                loadAdminProspects(CLIENT_DATA[editingClientId].prospects);
+            }
+        }
+
+        function removeAppointment(index) {
+            if (confirm('Remove this appointment?')) {
+                CLIENT_DATA[editingClientId].appointments.splice(index, 1);
+                loadAdminAppointments(CLIENT_DATA[editingClientId].appointments);
+            }
+        }
+
+        function removeProspect(index) {
+            if (confirm('Remove this prospect?')) {
+                CLIENT_DATA[editingClientId].prospects.splice(index, 1);
+                loadAdminProspects(CLIENT_DATA[editingClientId].prospects);
+            }
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            editingClientId = null;
+        }
+
+        function viewAsClient(username) {
+            // Temporarily log in as this client
+            currentUser = {
+                username: username,
+                ...CLIENT_DATA[username]
+            };
+            showClientDashboard();
+        }
+
+        function deleteClient(username) {
+            if (confirm(`Are you sure you want to delete ${CLIENT_DATA[username].name}?`)) {
+                delete CLIENT_DATA[username];
+                saveData();
+                loadClientGrid();
+            }
+        }
+
+        // Remove the old event listeners that were placed incorrectly
+        
+        function loadClientData() {
+            const userData = CLIENT_DATA[currentUser.username];
+            
+            // Update metrics
+            document.getElementById('totalAppointments').textContent = userData.totalAppointments;
+            document.getElementById('businessesContacted').textContent = userData.businessesContacted;
+            document.getElementById('peopleCalled').textContent = userData.peopleCalled;
+            document.getElementById('totalContactPoints').textContent = userData.totalContactPoints.toLocaleString();
+            
+            // Update appointments
+            updateAppointments(userData.appointments);
+            
+            // Update prospects
+            updateProspects(userData.prospects);
+            
+            // Update last updated time
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+            
+            // Initialize chart
+            initializeChart();
+        }
+
+        function updateAppointments(appointments) {
+            const container = document.getElementById('appointmentsList');
+            
+            if (!appointments || appointments.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #64748b; padding: 40px;">No upcoming appointments</div>';
+                return;
+            }
+            
+            container.innerHTML = appointments.map((apt, index) => `
+                <div class="appointment-item">
+                    <div class="appointment-header">
+                        <div class="appointment-time">${formatDisplayDate(apt.date)} at ${apt.time}</div>
+                        <div class="appointment-status status-${apt.status}">${apt.status.charAt(0).toUpperCase() + apt.status.slice(1)}</div>
+                    </div>
+                    <div class="business-name">${apt.company}</div>
+                    <div class="detail-item">${apt.contact} • ${apt.type} • ${apt.location}</div>
+                    <div class="appointment-actions">
+                        <button style="background: #3b82f6; color: white;" onclick="manageAppointment(${index}, 'notes')">Add Notes</button>
+                        <button style="background: #10b981; color: white;" onclick="manageAppointment(${index}, 'reschedule')">Reschedule</button>
+                        <button style="background: #22c55e; color: white;" onclick="manageAppointment(${index}, 'confirm')">Confirm</button>
+                    </div>
+                    ${apt.notes ? `<div style="margin-top: 10px; padding: 10px; background: #f0f9ff; border-radius: 6px; font-size: 0.9rem;"><strong>Notes:</strong> ${apt.notes}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function manageAppointment(index, action) {
+            const appointment = CLIENT_DATA[currentUser.username].appointments[index];
+            
+            if (action === 'notes') {
+                const notes = prompt('Add notes for this appointment:', appointment.notes || '');
+                if (notes !== null) {
+                    CLIENT_DATA[currentUser.username].appointments[index].notes = notes;
+                    saveData();
+                    addNotification('note_added', `${currentUser.name} added notes to appointment with ${appointment.company}`, currentUser.name);
+                    updateAppointments(CLIENT_DATA[currentUser.username].appointments);
+                }
+            } else if (action === 'reschedule') {
+                showAppointmentModal(index, 'reschedule');
+            } else if (action === 'confirm') {
+                CLIENT_DATA[currentUser.username].appointments[index].status = 'confirmed';
+                saveData();
+                addNotification('appointment_confirmed', `${currentUser.name} confirmed appointment with ${appointment.company}`, currentUser.name);
+                updateAppointments(CLIENT_DATA[currentUser.username].appointments);
+            }
+        }
+
+        function showAppointmentModal(index, action) {
+            const appointment = CLIENT_DATA[currentUser.username].appointments[index];
+            const modal = document.getElementById('appointmentModal');
+            const title = document.getElementById('appointmentModalTitle');
+            const content = document.getElementById('appointmentModalContent');
+            
+            if (action === 'reschedule') {
+                title.textContent = 'Reschedule Appointment';
+                content.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <strong>Current:</strong> ${appointment.company} - ${appointment.date} at ${appointment.time}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">New Date</label>
+                        <input type="date" id="newAppointmentDate" class="form-input" value="${appointment.date}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">New Time</label>
+                        <input type="time" id="newAppointmentTime" class="form-input" value="${appointment.time}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Reason for Reschedule</label>
+                        <textarea id="rescheduleReason" class="form-textarea" placeholder="Why are you rescheduling?"></textarea>
+                    </div>
+                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <button class="btn btn-secondary" onclick="closeAppointmentModal()">Cancel</button>
+                        <button class="btn" onclick="confirmReschedule(${index})">Reschedule</button>
+                    </div>
+                `;
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        function confirmReschedule(index) {
+            const newDate = document.getElementById('newAppointmentDate').value;
+            const newTime = document.getElementById('newAppointmentTime').value;
+            const reason = document.getElementById('rescheduleReason').value;
+            
+            if (newDate && newTime) {
+                const appointment = CLIENT_DATA[currentUser.username].appointments[index];
+                const oldDate = appointment.date;
+                const oldTime = appointment.time;
+                
+                CLIENT_DATA[currentUser.username].appointments[index].date = newDate;
+                CLIENT_DATA[currentUser.username].appointments[index].time = newTime;
+                CLIENT_DATA[currentUser.username].appointments[index].status = 'pending';
+                
+                saveData();
+                
+                addNotification('appointment_rescheduled', 
+                    `${currentUser.name} rescheduled appointment with ${appointment.company} from ${oldDate} ${oldTime} to ${newDate} ${newTime}. Reason: ${reason || 'Not specified'}`, 
+                    currentUser.name);
+                
+                updateAppointments(CLIENT_DATA[currentUser.username].appointments);
+                closeAppointmentModal();
+                alert('Appointment rescheduled successfully!');
+            }
+        }
+
+        function closeAppointmentModal() {
+            document.getElementById('appointmentModal').style.display = 'none';
+        }
+
+        function updateProspects(prospects) {
+            const container = document.getElementById('prospectsList');
+            
+            if (!prospects || prospects.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #64748b; padding: 40px;">No current prospects</div>';
+                return;
+            }
+            
+            container.innerHTML = prospects.map(prospect => `
+                <div style="background: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <div class="business-name">${prospect.businessName}</div>
+                        <div style="background: #667eea; color: white; padding: 4px 12px; border-radius: 15px; font-size: 0.8rem; font-weight: 600;">
+                            ${prospect.service}
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <strong>Location:</strong> ${prospect.location}<br>
+                        <strong>Status:</strong> ${prospect.status}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showPlanDetails() {
+            const userData = CLIENT_DATA[currentUser.username];
+            const planData = PLAN_DATA[userData.plan];
+            
+            const modal = document.getElementById('planModal');
+            const content = document.getElementById('planDetailsContent');
+            
+            content.innerHTML = `
+                <h3>${userData.plan} - Complete Details</h3>
+                <table class="plan-table">
+                    <tr>
+                        <th>Feature</th>
+                        <th>Included</th>
+                    </tr>
+                    <tr>
+                        <td>Monthly Price</td>
+                        <td>${planData.monthly.toLocaleString()}</td>
+                    </tr>
+                    <tr>
+                        <td>Annual Price</td>
+                        <td>${planData.annual.toLocaleString()}</td>
+                    </tr>
+                    <tr>
+                        <td>Annual Discount</td>
+                        <td>${planData.annualDiscount.toLocaleString()}</td>
+                    </tr>
+                    <tr>
+                        <td>Guarantees</td>
+                        <td>${planData.guarantees} appointments</td>
+                    </tr>
+                    <tr>
+                        <td>Different Businesses</td>
+                        <td>${planData.businesses.toLocaleString()}</td>
+                    </tr>
+                    <tr>
+                        <td>People Called</td>
+                        <td>${planData.peopleCalled.toLocaleString()}</td>
+                    </tr>
+                    <tr>
+                        <td>Calls Made</td>
+                        <td>${planData.callsMade.toLocaleString()}</td>
+                    </tr>
+                    <tr>
+                        <td>Emails Made</td>
+                        <td>${planData.emailMade.toLocaleString()}</td>
+                    </tr>
+                    <tr>
+                        <td>SMS Sent</td>
+                        <td>${planData.sms.toLocaleString()}</td>
+                    </tr>
+                    <tr>
+                        <td>Total Contact Points</td>
+                        <td>${planData.totalContactPoints.toLocaleString()}</td>
+                    </tr>
+                </table>
+                <div style="margin-top: 20px; text-align: center;">
+                    <button class="btn" onclick="closePlanModal()">Close</button>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+        }
+
+        function closePlanModal() {
+            document.getElementById('planModal').style.display = 'none';
+        }
+
+        function showPlanOptions() {
+            document.getElementById('planChangeModal').style.display = 'block';
+            
+            // Set up plan change listener
+            document.getElementById('newPlanSelect').addEventListener('change', function() {
+                const selectedPlan = this.value;
+                const detailsDiv = document.getElementById('selectedPlanDetails');
+                
+                if (selectedPlan && PLAN_DATA[selectedPlan]) {
+                    const planData = PLAN_DATA[selectedPlan];
+                    detailsDiv.innerHTML = `
+                        <div style="background: #f8fafc; padding: 20px; border-radius: 12px;">
+                            <h4>${selectedPlan}</h4>
+                            <p><strong>Monthly:</strong> ${planData.monthly.toLocaleString()}</p>
+                            <p><strong>Annual:</strong> ${planData.annual.toLocaleString()} (Save ${planData.annualDiscount.toLocaleString()})</p>
+                            <p><strong>Guarantees:</strong> ${planData.guarantees} appointments</p>
+                            <p><strong>Businesses:</strong> ${planData.businesses.toLocaleString()}</p>
+                            <p><strong>Total Contact Points:</strong> ${planData.totalContactPoints.toLocaleString()}</p>
+                        </div>
+                    `;
+                } else {
+                    detailsDiv.innerHTML = '';
+                }
+            });
+        }
+
+        function closePlanChangeModal() {
+            document.getElementById('planChangeModal').style.display = 'none';
+            document.getElementById('newPlanSelect').value = '';
+            document.getElementById('selectedPlanDetails').innerHTML = '';
+            document.getElementById('planChangeReason').value = '';
+        }
+
+        function requestPlanChange() {
+            const newPlan = document.getElementById('newPlanSelect').value;
+            const reason = document.getElementById('planChangeReason').value;
+            
+            if (!newPlan) {
+                alert('Please select a new plan.');
+                return;
+            }
+            
+            const userData = CLIENT_DATA[currentUser.username];
+            
+            addNotification('plan_change_request', 
+                `${userData.name} requested to change from ${userData.plan} to ${newPlan}. Reason: ${reason || 'Not specified'}`, 
+                userData.name);
+            
+            closePlanChangeModal();
+            alert('Plan change request submitted! We will contact you within 24 hours to process this change.');
+        }
+
+        function cancelPlan() {
+            const reason = document.getElementById('planChangeReason').value;
+            
+            if (confirm('Are you sure you want to cancel your plan? This action cannot be undone.')) {
+                const userData = CLIENT_DATA[currentUser.username];
+                
+                addNotification('plan_cancellation', 
+                    `${userData.name} requested to cancel their ${userData.plan}. Reason: ${reason || 'Not specified'}`, 
+                    userData.name);
+                
+                closePlanChangeModal();
+                alert('Plan cancellation request submitted. We will contact you within 24 hours to process this request.');
+            }
+        }
+
+        function loadNotificationsList() {
+            const container = document.getElementById('notificationsList');
+            
+            if (NOTIFICATIONS.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #64748b; padding: 40px;">No notifications</div>';
+                return;
+            }
+            
+            container.innerHTML = NOTIFICATIONS.map(notification => `
+                <div class="notification-item ${notification.read ? 'read' : 'unread'}" style="${!notification.read ? 'background: #fef3c7; border-color: #fbbf24;' : 'background: #f8fafc; border-color: #e2e8f0;'}">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 5px;">
+                        <strong>${notification.type.replace(/_/g, ' ').toUpperCase()}</strong>
+                        <small>${new Date(notification.timestamp).toLocaleString()}</small>
+                    </div>
+                    <div style="margin-bottom: 5px;">${notification.message}</div>
+                    <div style="font-size: 0.8rem; color: #64748b;">Client: ${notification.clientName}</div>
+                    ${!notification.read ? `<button class="btn" style="padding: 4px 8px; font-size: 0.8rem; margin-top: 5px;" onclick="markAsRead(${notification.id})">Mark as Read</button>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function markAsRead(notificationId) {
+            const notification = NOTIFICATIONS.find(n => n.id === notificationId);
+            if (notification) {
+                notification.read = true;
+                saveData();
+                updateNotificationBadges();
+                loadNotificationsList();
+            }
+        }
+
+        function clearAllNotifications() {
+            if (confirm('Clear all notifications?')) {
+                NOTIFICATIONS.length = 0;
+                saveData();
+                updateNotificationBadges();
+                loadNotificationsList();
+            }
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
+
+        function formatDisplayDate(dateString) {
+            const date = new Date(dateString);
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            if (date.toDateString() === today.toDateString()) {
+                return 'Today';
+            } else if (date.toDateString() === tomorrow.toDateString()) {
+                return 'Tomorrow';
+            } else {
+                return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            }
+        }
+
+        function initializeChart() {
+            const ctx = document.getElementById('activityChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                    datasets: [{
+                        label: 'Contacts Made',
+                        data: [45, 52, 48, 61, 55, 67, 73, 69, 75],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Appointments',
+                        data: [8, 12, 10, 15, 13, 18, 22, 19, 25],
+                        borderColor: '#764ba2',
+                        backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function saveSettings() {
+            alert('Settings saved successfully!');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modals = ['editModal', 'planModal', 'planChangeModal', 'appointmentModal'];
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
