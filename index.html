@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kinect B2B - Client Portal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -1075,6 +1076,14 @@
     </div>
 
     <script>
+        // Supabase configuration
+        const SUPABASE_URL = 'https://msyppaxbbdqdmreyxbna.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zeXBwYXhiYmRxZG1yZXl4Ym5hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg2Nzc1ODcsImV4cCI6MjA3NDI1MzU4N30.qU9PVX6aHviqAvKOAxtZvDpNGvlGhqwXIvvOt7nxtXc';
+        
+        // Initialize Supabase
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         // Default admin credentials and client data
         const ADMIN_CREDENTIALS = {
             username: 'admin',
@@ -1318,37 +1327,133 @@
         let isAdmin = false;
         let editingClientId = null;
 
-        // Load saved data from localStorage
-        function loadSavedData() {
-            const savedData = localStorage.getItem('kinectb2b_client_data');
-            if (savedData) {
-                CLIENT_DATA = { ...CLIENT_DATA, ...JSON.parse(savedData) };
-            }
-            
-            const savedNotifications = localStorage.getItem('kinectb2b_notifications');
-            if (savedNotifications) {
-                NOTIFICATIONS = JSON.parse(savedNotifications);
+        // Load saved data from Supabase
+        async function loadSavedData() {
+            try {
+                console.log('Loading data from Supabase...');
+                
+                // Load clients
+                const { data: clients, error: clientsError } = await supabaseClient
+                    .from('clients')
+                    .select('*');
+                
+                if (clientsError) {
+                    console.log('Clients table may not exist yet, using default data');
+                } else if (clients && clients.length > 0) {
+                    CLIENT_DATA = {};
+                    clients.forEach(client => {
+                        CLIENT_DATA[client.username] = {
+                            password: client.password,
+                            name: client.name,
+                            plan: client.plan,
+                            status: client.status || 'active',
+                            nextBilling: client.next_billing,
+                            totalAppointments: client.total_appointments || 0,
+                            businessesContacted: client.businesses_contacted || 0,
+                            peopleCalled: client.people_called || 0,
+                            totalContactPoints: client.total_contact_points || 0,
+                            appointments: client.appointments || [],
+                            prospects: client.prospects || []
+                        };
+                    });
+                    console.log('Loaded clients from Supabase:', Object.keys(CLIENT_DATA));
+                }
+                
+                // Load notifications
+                const { data: notifications, error: notificationsError } = await supabaseClient
+                    .from('notifications')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (notificationsError) {
+                    console.log('Notifications table may not exist yet');
+                } else if (notifications) {
+                    NOTIFICATIONS = notifications.map(n => ({
+                        id: n.id,
+                        type: n.type,
+                        message: n.message,
+                        clientName: n.client_name,
+                        timestamp: n.created_at,
+                        read: n.read || false
+                    }));
+                    console.log('Loaded notifications from Supabase:', NOTIFICATIONS.length);
+                }
+                
+            } catch (error) {
+                console.error('Error loading data from Supabase:', error);
+                console.log('Using default data for now');
             }
         }
 
-        // Save data to localStorage
-        function saveData() {
-            localStorage.setItem('kinectb2b_client_data', JSON.stringify(CLIENT_DATA));
-            localStorage.setItem('kinectb2b_notifications', JSON.stringify(NOTIFICATIONS));
+        // Save data to Supabase
+        async function saveData() {
+            try {
+                console.log('Saving data to Supabase...');
+                
+                // Save clients
+                for (const [username, clientData] of Object.entries(CLIENT_DATA)) {
+                    const { data, error } = await supabaseClient
+                        .from('clients')
+                        .upsert({
+                            username: username,
+                            password: clientData.password,
+                            name: clientData.name,
+                            plan: clientData.plan,
+                            status: clientData.status || 'active',
+                            next_billing: clientData.nextBilling,
+                            total_appointments: clientData.totalAppointments || 0,
+                            businesses_contacted: clientData.businessesContacted || 0,
+                            people_called: clientData.peopleCalled || 0,
+                            total_contact_points: clientData.totalContactPoints || 0,
+                            appointments: clientData.appointments || [],
+                            prospects: clientData.prospects || []
+                        }, {
+                            onConflict: 'username'
+                        });
+                    
+                    if (error) {
+                        console.error('Error saving client:', username, error);
+                    }
+                }
+                
+                console.log('Data saved to Supabase successfully');
+                
+            } catch (error) {
+                console.error('Error saving data to Supabase:', error);
+            }
         }
 
-        // Add notification
-        function addNotification(type, message, clientName) {
-            NOTIFICATIONS.unshift({
-                id: Date.now(),
+        // Add notification to Supabase
+        async function addNotification(type, message, clientName) {
+            const notification = {
                 type: type,
                 message: message,
-                clientName: clientName,
-                timestamp: new Date().toISOString(),
+                client_name: clientName,
                 read: false
-            });
-            saveData();
-            updateNotificationBadges();
+            };
+            
+            try {
+                const { data, error } = await supabaseClient
+                    .from('notifications')
+                    .insert([notification]);
+                
+                if (error) {
+                    console.error('Error saving notification:', error);
+                } else {
+                    // Add to local array for immediate UI update
+                    NOTIFICATIONS.unshift({
+                        id: Date.now(),
+                        type: type,
+                        message: message,
+                        clientName: clientName,
+                        timestamp: new Date().toISOString(),
+                        read: false
+                    });
+                    updateNotificationBadges();
+                }
+            } catch (error) {
+                console.error('Error adding notification:', error);
+            }
         }
 
         // Update notification badges
@@ -1374,8 +1479,8 @@
         }
 
         // Check if user is already logged in
-        document.addEventListener('DOMContentLoaded', function() {
-            loadSavedData();
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadSavedData();
             updateNotificationBadges();
             
             const savedUser = localStorage.getItem('kinectb2b_user');
@@ -1391,7 +1496,46 @@
             
             // Setup event listeners
             setupEventListeners();
+            
+            // Setup real-time subscriptions
+            setupRealtimeSubscriptions();
         });
+        
+        // Setup real-time subscriptions for live updates
+        function setupRealtimeSubscriptions() {
+            // Listen for client changes
+            supabaseClient
+                .channel('clients-channel')
+                .on('postgres_changes', 
+                    { event: '*', schema: 'public', table: 'clients' }, 
+                    async (payload) => {
+                        console.log('Client data changed:', payload);
+                        await loadSavedData();
+                        if (isAdmin) {
+                            loadClientGrid();
+                        } else if (currentUser) {
+                            loadClientData();
+                        }
+                    }
+                )
+                .subscribe();
+                
+            // Listen for notification changes
+            supabaseClient
+                .channel('notifications-channel')
+                .on('postgres_changes', 
+                    { event: '*', schema: 'public', table: 'notifications' }, 
+                    async (payload) => {
+                        console.log('Notifications changed:', payload);
+                        await loadSavedData();
+                        updateNotificationBadges();
+                        if (isAdmin && document.getElementById('notificationsTab').classList.contains('active')) {
+                            loadNotificationsList();
+                        }
+                    }
+                )
+                .subscribe();
+        }
         
         function setupEventListeners() {
             // Handle add client form
