@@ -2018,9 +2018,35 @@
 
         function deleteClient(username) {
             if (confirm(`Are you sure you want to delete ${CLIENT_DATA[username].name}?`)) {
+                deleteClientFromDatabase(username);
+            }
+        }
+
+        async function deleteClientFromDatabase(username) {
+            try {
+                // Delete from Supabase
+                const { error } = await supabaseClient
+                    .from('clients')
+                    .delete()
+                    .eq('username', username);
+                
+                if (error) {
+                    console.error('Error deleting client from database:', error);
+                    alert('Error deleting client. Please try again.');
+                    return;
+                }
+                
+                // Remove from local data
                 delete CLIENT_DATA[username];
-                saveData();
+                
+                // Refresh the grid
                 loadClientGrid();
+                
+                console.log('Client deleted successfully:', username);
+                
+            } catch (error) {
+                console.error('Error deleting client:', error);
+                alert('Error deleting client. Please try again.');
             }
         }
 
