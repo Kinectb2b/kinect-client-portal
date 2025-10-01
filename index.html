@@ -2668,14 +2668,17 @@ window.saveNewAppointment = async function() {
         if (client && client.email_notifications) {
             try {
                 const { data, error } = await supabaseClient.functions.invoke(
-                    'send-appointment-notification',
-                    {
-                        body: {
-                            clientUsername: editingClientId,
-                            appointment: newAppointment
-                        }
-                    }
-                );
+    'send-appointment-notification',
+    {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: {
+            clientUsername: editingClientId,
+            appointment: newAppointment
+        }
+    }
+);
                 
                 if (!error) {
                     console.log('✅ Email notification sent!');
