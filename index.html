@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2667,16 +2668,8 @@ window.saveNewAppointment = async function() {
         const client = CLIENT_DATA[editingClientId];
         if (client && client.email_notifications) {
             try {
-                const response = await fetch('/.netlify/functions/send-notification', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-        clientName: client.name,
-        clientEmail: client.notification_email || 'robert@kinectb2b.com',
-        appointment: newAppointment
-    })
-});
-const { data, error } = response.ok ? { data: await response.json(), error: null } : { data: null, error: 'Failed' };
+                const { data, error } = await supabaseClient.functions.invoke(
+    'send-appointment-notification',
     {
         headers: {
             'Content-Type': 'application/json',
