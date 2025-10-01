@@ -1419,10 +1419,13 @@
                     onConflict: 'username'
                 });
             
-            if (error) console.error('Error saving client:', username, error);
+            if (error) {
+                console.error('Error saving client:', username, error);
+            }
         }
         
         console.log('Data saved to Supabase successfully');
+        
     } catch (error) {
         console.error('Error saving data to Supabase:', error);
     }
