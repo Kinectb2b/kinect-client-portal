@@ -17,7 +17,7 @@ exports.handler = async (event, context) => {
   try {
     const { clientName, clientEmail, appointment } = JSON.parse(event.body);
     
-    const RESEND_API_KEY = 're_c5s2qMJm_NesgFKX1Y8A5mzhZTvo7wuey';
+    const RESEND_API_KEY = 're_RRLAciYN_EndTA6DsRqtwURDCFnvMGBTD';
     
     const emailRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
