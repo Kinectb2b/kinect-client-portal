@@ -2551,6 +2551,149 @@
                 }
             });
         }
+        // ==========================================
+// EMAIL NOTIFICATION FEATURE - ADDED
+// ==========================================
+
+// Add notification fields to edit modal when it opens
+const originalEditClient = window.editClient;
+window.editClient = function(username) {
+    originalEditClient(username);
+    
+    // Add notification fields to the modal if they don't exist
+    const statusField = document.getElementById('editClientStatus');
+    if (statusField && !document.getElementById('editEmailNotifications')) {
+        const notificationHTML = `
+            <div class="form-group">
+                <label class="form-label">📧 Email Notifications</label>
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" id="editEmailNotifications" style="width: 20px; height: 20px;">
+                    <span>Enable appointment email notifications</span>
+                </label>
+            </div>
+            <div class="form-group" id="notificationEmailGroup" style="display: none;">
+                <label class="form-label">Notification Email</label>
+                <input type="email" id="editNotificationEmail" class="form-input" placeholder="client@example.com">
+                <p style="font-size: 0.8rem; color: #64748b; margin-top: 5px;">Leave blank to use default email</p>
+            </div>
+        `;
+        statusField.closest('.form-group').insertAdjacentHTML('afterend', notificationHTML);
+    }
+    
+    // Load notification settings
+    const client = CLIENT_DATA[username];
+    if (document.getElementById('editEmailNotifications')) {
+        document.getElementById('editEmailNotifications').checked = client.email_notifications || false;
+        document.getElementById('editNotificationEmail').value = client.notification_email || '';
+        const emailGroup = document.getElementById('notificationEmailGroup');
+        if (emailGroup) {
+            emailGroup.style.display = client.email_notifications ? 'block' : 'none';
+        }
+    }
+};
+
+// Handle notification checkbox toggle
+document.addEventListener('change', function(e) {
+    if (e.target.id === 'editEmailNotifications') {
+        const emailGroup = document.getElementById('notificationEmailGroup');
+        if (emailGroup) {
+            emailGroup.style.display = e.target.checked ? 'block' : 'none';
+        }
+    }
+});
+
+// Wrap the original edit form submit to include notification settings
+const originalEditFormHandler = document.getElementById('editClientForm');
+if (originalEditFormHandler) {
+    originalEditFormHandler.addEventListener('submit', function(e) {
+        const emailNotificationsCheckbox = document.getElementById('editEmailNotifications');
+        const notificationEmailInput = document.getElementById('editNotificationEmail');
+        
+        if (emailNotificationsCheckbox && editingClientId) {
+            setTimeout(() => {
+                if (CLIENT_DATA[editingClientId] || CLIENT_DATA[document.getElementById('editClientUsername').value.toLowerCase()]) {
+                    const username = CLIENT_DATA[editingClientId] ? editingClientId : document.getElementById('editClientUsername').value.toLowerCase();
+                    CLIENT_DATA[username].email_notifications = emailNotificationsCheckbox.checked;
+                    CLIENT_DATA[username].notification_email = notificationEmailInput ? notificationEmailInput.value : null;
+                }
+            }, 100);
+        }
+    });
+}
+
+// Wrap saveNewAppointment to send notification
+const originalSaveNewAppointment = window.saveNewAppointment;
+window.saveNewAppointment = async function() {
+    const dateCheckbox = document.getElementById('flexibleDate')?.checked;
+    const timeCheckbox = document.getElementById('flexibleTime')?.checked;
+    
+    const date = dateCheckbox ? document.getElementById('flexibleDateText')?.value : document.getElementById('newAptDate')?.value;
+    const time = timeCheckbox ? document.getElementById('flexibleTimeText')?.value : document.getElementById('newAptTime')?.value;
+    const company = document.getElementById('newAptCompany')?.value;
+    const contact = document.getElementById('newAptContact')?.value;
+    const type = document.getElementById('newAptType')?.value;
+    const location = document.getElementById('newAptLocation')?.value || 'TBD';
+    const notes = document.getElementById('newAptNotes')?.value;
+    
+    if (date && time && company && contact && type && editingClientId) {
+        const newAppointment = {
+            date: date,
+            time: time,
+            company: company,
+            contact: contact,
+            type: type,
+            location: location,
+            status: 'pending',
+            notes: notes,
+            flexibleDate: dateCheckbox,
+            flexibleTime: timeCheckbox
+        };
+        
+        // Call original function
+        if (originalSaveNewAppointment) {
+            await originalSaveNewAppointment();
+        } else {
+            // Fallback if original doesn't exist
+            if (!CLIENT_DATA[editingClientId].appointments) {
+                CLIENT_DATA[editingClientId].appointments = [];
+            }
+            CLIENT_DATA[editingClientId].appointments.push(newAppointment);
+            loadAdminAppointments(CLIENT_DATA[editingClientId].appointments);
+            const modal = document.querySelector('div[style*="position: fixed"]');
+            if (modal) modal.remove();
+        }
+        
+        // Send notification
+        const client = CLIENT_DATA[editingClientId];
+        if (client && client.email_notifications) {
+            try {
+                const { data, error } = await supabaseClient.functions.invoke(
+                    'send-appointment-notification',
+                    {
+                        body: {
+                            clientUsername: editingClientId,
+                            appointment: newAppointment
+                        }
+                    }
+                );
+                
+                if (!error) {
+                    console.log('✅ Email notification sent!');
+                } else {
+                    console.error('❌ Notification error:', error);
+                }
+            } catch (error) {
+                console.error('Failed to send notification:', error);
+            }
+        }
+    }
+};
+
+console.log('✅ Email notification features loaded!');
+
+// ==========================================
+// END EMAIL NOTIFICATION FEATURE
+// ==========================================
     </script>
 </body>
 </html>
