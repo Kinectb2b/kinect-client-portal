@@ -1348,20 +1348,22 @@
                 } else if (clients && clients.length > 0) {
                     CLIENT_DATA = {};
                     clients.forEach(client => {
-                        CLIENT_DATA[client.username] = {
-                            password: client.password,
-                            name: client.name,
-                            plan: client.plan,
-                            status: client.status || 'active',
-                            nextBilling: client.next_billing,
-                            totalAppointments: client.total_appointments || 0,
-                            businessesContacted: client.businesses_contacted || 0,
-                            peopleCalled: client.people_called || 0,
-                            totalContactPoints: client.total_contact_points || 0,
-                            appointments: client.appointments || [],
-                            prospects: client.prospects || []
-                        };
-                    });
+    CLIENT_DATA[client.username] = {
+        password: client.password,
+        name: client.name,
+        plan: client.plan,
+        status: client.status || 'active',
+        nextBilling: client.next_billing,
+        totalAppointments: client.total_appointments || 0,
+        businessesContacted: client.businesses_contacted || 0,
+        peopleCalled: client.people_called || 0,
+        totalContactPoints: client.total_contact_points || 0,
+        appointments: client.appointments || [],
+        prospects: client.prospects || [],
+        email_notifications: client.email_notifications || false,
+        notification_email: client.notification_email || null
+    };
+});
                     console.log('Loaded clients from Supabase:', Object.keys(CLIENT_DATA));
                 }
                 
@@ -1391,36 +1393,40 @@
             }
         }
 
-        // Save data to Supabase
         async function saveData() {
-            try {
-                console.log('Saving data to Supabase...');
-                
-                // Save clients
-                for (const [username, clientData] of Object.entries(CLIENT_DATA)) {
-                    const { data, error } = await supabaseClient
-                        .from('clients')
-                        .upsert({
-                            username: username,
-                            password: clientData.password,
-                            name: clientData.name,
-                            plan: clientData.plan,
-                            status: clientData.status || 'active',
-                            next_billing: clientData.nextBilling,
-                            total_appointments: clientData.totalAppointments || 0,
-                            businesses_contacted: clientData.businessesContacted || 0,
-                            people_called: clientData.peopleCalled || 0,
-                            total_contact_points: clientData.totalContactPoints || 0,
-                            appointments: clientData.appointments || [],
-                            prospects: clientData.prospects || []
-                        }, {
-                            onConflict: 'username'
-                        });
-                    
-                    if (error) {
-                        console.error('Error saving client:', username, error);
-                    }
-                }
+    try {
+        console.log('Saving data to Supabase...');
+        
+        for (const [username, clientData] of Object.entries(CLIENT_DATA)) {
+            const { data, error } = await supabaseClient
+                .from('clients')
+                .upsert({
+                    username: username,
+                    password: clientData.password,
+                    name: clientData.name,
+                    plan: clientData.plan,
+                    status: clientData.status || 'active',
+                    next_billing: clientData.nextBilling,
+                    total_appointments: clientData.totalAppointments || 0,
+                    businesses_contacted: clientData.businessesContacted || 0,
+                    people_called: clientData.peopleCalled || 0,
+                    total_contact_points: clientData.totalContactPoints || 0,
+                    appointments: clientData.appointments || [],
+                    prospects: clientData.prospects || [],
+                    email_notifications: clientData.email_notifications || false,
+                    notification_email: clientData.notification_email || null
+                }, {
+                    onConflict: 'username'
+                });
+            
+            if (error) console.error('Error saving client:', username, error);
+        }
+        
+        console.log('Data saved to Supabase successfully');
+    } catch (error) {
+        console.error('Error saving data to Supabase:', error);
+    }
+}
                 
                 console.log('Data saved to Supabase successfully');
                 
@@ -1788,39 +1794,45 @@
         }
 
         function loadAdminAppointments(appointments) {
-            const container = document.getElementById('adminAppointmentsList');
-            container.innerHTML = appointments.map((apt, index) => `
-                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <strong>${apt.company}</strong> - ${apt.contact}<br>
-                            <span style="color: ${apt.flexibleDate || apt.flexibleTime ? '#f59e0b' : '#374151'};">
-                                ${apt.flexibleDate ? `📅 ${apt.date}` : apt.date} at ${apt.flexibleTime ? `🕐 ${apt.time}` : apt.time} (${apt.status})
-                            </span><br>
-                            <small style="color: #64748b;">${apt.type} • ${apt.location}</small>
-                            ${apt.notes ? `<br><em style="color: #667eea;">Notes: ${apt.notes}</em>` : ''}
-                            ${apt.flexibleDate || apt.flexibleTime ? '<br><small style="color: #f59e0b; font-weight: 600;">⚠️ Flexible scheduling</small>' : ''}
-                        </div>
-                        <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem;" onclick="removeAppointment(${index})">Remove</button>
-                    </div>
+    const container = document.getElementById('adminAppointmentsList');
+    container.innerHTML = appointments.map((apt, index) => `
+        <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong>${apt.company}</strong> - ${apt.contact}<br>
+                    ${apt.phone ? `📞 ${apt.phone}<br>` : ''}
+                    ${apt.email ? `📧 ${apt.email}<br>` : ''}
+                    <span style="color: ${apt.flexibleDate || apt.flexibleTime ? '#f59e0b' : '#374151'};">
+                        ${apt.flexibleDate ? `📅 ${apt.date}` : apt.date} at ${apt.flexibleTime ? `🕐 ${apt.time}` : apt.time} (${apt.status})
+                    </span><br>
+                    <small style="color: #64748b;">${apt.type} • ${apt.location}</small>
+                    ${apt.notes ? `<br><em style="color: #667eea;">Notes: ${apt.notes}</em>` : ''}
+                    ${apt.flexibleDate || apt.flexibleTime ? '<br><small style="color: #f59e0b; font-weight: 600;">⚠️ Flexible scheduling</small>' : ''}
+                    ${apt.convertedFromProspect ? '<br><small style="color: #22c55e; font-weight: 600;">✓ Converted from prospect</small>' : ''}
                 </div>
-            `).join('');
-        }
+                <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem;" onclick="removeAppointment(${index})">Remove</button>
+            </div>
+        </div>
+    `).join('');
+}
 
         function loadAdminProspects(prospects) {
-            const container = document.getElementById('adminProspectsList');
-            container.innerHTML = prospects.map((prospect, index) => `
-                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <strong>${prospect.businessName}</strong><br>
-                            ${prospect.location} - ${prospect.service} (${prospect.status})
-                        </div>
-                        <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem;" onclick="removeProspect(${index})">Remove</button>
-                    </div>
+    const container = document.getElementById('adminProspectsList');
+    container.innerHTML = prospects.map((prospect, index) => `
+        <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="flex: 1;">
+                    <strong>${prospect.businessName}</strong><br>
+                    ${prospect.location} - ${prospect.service} (${prospect.status})
                 </div>
-            `).join('');
-        }
+                <div style="display: flex; gap: 5px;">
+                    <button class="btn btn-success" style="padding: 5px 10px; font-size: 0.8rem;" onclick="convertProspectToAppointment(${index})">📅 Convert</button>
+                    <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem;" onclick="removeProspect(${index})">Remove</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
 
         function addAppointment() {
             // Create a modal for appointment input
@@ -1862,6 +1874,14 @@
                         <label class="form-label">Contact Person</label>
                         <input type="text" id="newAptContact" class="form-input" required>
                     </div>
+                    <div class="form-group">
+    <label class="form-label">Phone Number</label>
+    <input type="tel" id="newAptPhone" class="form-input" placeholder="(555) 123-4567">
+</div>
+<div class="form-group">
+    <label class="form-label">Email Address</label>
+    <input type="email" id="newAptEmail" class="form-input" placeholder="contact@company.com">
+</div>
                     <div class="form-group">
                         <label class="form-label">Appointment Type</label>
                         <input type="text" id="newAptType" class="form-input" placeholder="e.g., Discovery Call, Product Demo" required>
@@ -1931,46 +1951,75 @@
         }
         
         function saveNewAppointment() {
-            const dateCheckbox = document.getElementById('flexibleDate').checked;
-            const timeCheckbox = document.getElementById('flexibleTime').checked;
-            
-            const date = dateCheckbox ? document.getElementById('flexibleDateText').value : document.getElementById('newAptDate').value;
-            const time = timeCheckbox ? document.getElementById('flexibleTimeText').value : document.getElementById('newAptTime').value;
-            
-            const company = document.getElementById('newAptCompany').value;
-            const contact = document.getElementById('newAptContact').value;
-            const type = document.getElementById('newAptType').value;
-            const location = document.getElementById('newAptLocation').value || 'TBD';
-            const notes = document.getElementById('newAptNotes').value;
-            
-            if (date && time && company && contact && type) {
-                if (!CLIENT_DATA[editingClientId].appointments) {
-                    CLIENT_DATA[editingClientId].appointments = [];
-                }
-                
-                CLIENT_DATA[editingClientId].appointments.push({
-                    date: date,
-                    time: time,
-                    company: company,
-                    contact: contact,
-                    type: type,
-                    location: location,
-                    status: 'pending',
-                    notes: notes,
-                    flexibleDate: dateCheckbox,
-                    flexibleTime: timeCheckbox
-                });
-                
-                loadAdminAppointments(CLIENT_DATA[editingClientId].appointments);
-                
-                // Remove the modal
-                document.querySelector('div[style*="position: fixed"]').remove();
-                
-                alert('Appointment added successfully!');
-            } else {
-                alert('Please fill in all required fields.');
-            }
+    const dateCheckbox = document.getElementById('flexibleDate')?.checked;
+    const timeCheckbox = document.getElementById('flexibleTime')?.checked;
+    
+    const date = dateCheckbox ? document.getElementById('flexibleDateText')?.value : document.getElementById('newAptDate')?.value;
+    const time = timeCheckbox ? document.getElementById('flexibleTimeText')?.value : document.getElementById('newAptTime')?.value;
+    const company = document.getElementById('newAptCompany')?.value;
+    const contact = document.getElementById('newAptContact')?.value;
+    const phone = document.getElementById('newAptPhone')?.value || '';
+    const email = document.getElementById('newAptEmail')?.value || '';
+    const type = document.getElementById('newAptType')?.value;
+    const location = document.getElementById('newAptLocation')?.value || 'TBD';
+    const notes = document.getElementById('newAptNotes')?.value;
+    
+    if (date && time && company && contact && type && editingClientId) {
+        const newAppointment = {
+            date: date,
+            time: time,
+            company: company,
+            contact: contact,
+            phone: phone,
+            email: email,
+            type: type,
+            location: location,
+            status: 'pending',
+            notes: notes,
+            flexibleDate: dateCheckbox,
+            flexibleTime: timeCheckbox
+        };
+        
+        if (!CLIENT_DATA[editingClientId].appointments) {
+            CLIENT_DATA[editingClientId].appointments = [];
         }
+        CLIENT_DATA[editingClientId].appointments.push(newAppointment);
+        
+        saveData();
+        loadAdminAppointments(CLIENT_DATA[editingClientId].appointments);
+        
+        const modal = document.querySelector('div[style*="position: fixed"]');
+        if (modal) modal.remove();
+        
+        // Send notification if enabled
+        const client = CLIENT_DATA[editingClientId];
+        if (client && client.email_notifications && client.notification_email) {
+            fetch('/.netlify/functions/send-notification', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    clientName: client.name,
+                    clientEmail: client.notification_email,
+                    appointment: newAppointment
+                })
+            }).then(response => {
+                if (response.ok) {
+                    console.log('✅ Email notification sent!');
+                    alert('Appointment added and notification sent successfully!');
+                } else {
+                    alert('Appointment added, but notification failed to send.');
+                }
+            }).catch(error => {
+                console.error('Notification error:', error);
+                alert('Appointment added successfully!');
+            });
+        } else {
+            alert('Appointment added successfully!');
+        }
+    } else {
+        alert('Please fill in all required fields.');
+    }
+}
 
         function addProspect() {
             const businessName = prompt('Enter business name:');
@@ -2007,6 +2056,118 @@
                 loadAdminProspects(CLIENT_DATA[editingClientId].prospects);
             }
         }
+        function convertProspectToAppointment(prospectIndex) {
+    if (!editingClientId) return;
+    
+    const prospect = CLIENT_DATA[editingClientId].prospects[prospectIndex];
+    
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+        background: rgba(0,0,0,0.5); z-index: 2000; display: flex; 
+        align-items: center; justify-content: center;
+    `;
+    
+    modal.innerHTML = `
+        <div style="background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto;">
+            <h3 style="margin-bottom: 20px;">Convert Prospect to Appointment</h3>
+            <p style="color: #64748b; margin-bottom: 20px;">Converting: <strong>${prospect.businessName}</strong></p>
+            
+            <div class="form-group">
+                <label class="form-label">Date</label>
+                <input type="date" id="convertAptDate" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Time</label>
+                <input type="time" id="convertAptTime" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Contact Person</label>
+                <input type="text" id="convertAptContact" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input type="tel" id="convertAptPhone" class="form-input" placeholder="(555) 123-4567">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" id="convertAptEmail" class="form-input" placeholder="contact@company.com">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Appointment Type</label>
+                <input type="text" id="convertAptType" class="form-input" value="${prospect.service}" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Location</label>
+                <input type="text" id="convertAptLocation" class="form-input" value="${prospect.location}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Notes</label>
+                <textarea id="convertAptNotes" class="form-textarea">${prospect.notes || ''}</textarea>
+            </div>
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" id="removeProspectAfterConvert" checked>
+                    <span>Remove from prospects list after conversion</span>
+                </label>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="this.closest('div').parentElement.remove()">Cancel</button>
+                <button class="btn" onclick="confirmProspectConversion(${prospectIndex})">Create Appointment</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    document.getElementById('convertAptDate').value = new Date().toISOString().split('T')[0];
+}
+
+function confirmProspectConversion(prospectIndex) {
+    const date = document.getElementById('convertAptDate').value;
+    const time = document.getElementById('convertAptTime').value;
+    const contact = document.getElementById('convertAptContact').value;
+    const phone = document.getElementById('convertAptPhone').value;
+    const email = document.getElementById('convertAptEmail').value;
+    const type = document.getElementById('convertAptType').value;
+    const location = document.getElementById('convertAptLocation').value;
+    const notes = document.getElementById('convertAptNotes').value;
+    const removeProspect = document.getElementById('removeProspectAfterConvert').checked;
+    
+    const prospect = CLIENT_DATA[editingClientId].prospects[prospectIndex];
+    
+    if (date && time && contact && type) {
+        if (!CLIENT_DATA[editingClientId].appointments) {
+            CLIENT_DATA[editingClientId].appointments = [];
+        }
+        
+        CLIENT_DATA[editingClientId].appointments.push({
+            date: date,
+            time: time,
+            company: prospect.businessName,
+            contact: contact,
+            phone: phone || '',
+            email: email || '',
+            type: type,
+            location: location || prospect.location,
+            status: 'pending',
+            notes: notes,
+            convertedFromProspect: true
+        });
+        
+        if (removeProspect) {
+            CLIENT_DATA[editingClientId].prospects.splice(prospectIndex, 1);
+            loadAdminProspects(CLIENT_DATA[editingClientId].prospects);
+        }
+        
+        saveData();
+        loadAdminAppointments(CLIENT_DATA[editingClientId].appointments);
+        
+        document.querySelector('div[style*="position: fixed"]').remove();
+        alert('Prospect converted to appointment successfully!');
+    } else {
+        alert('Please fill in all required fields.');
+    }
+}
 
         function closeEditModal() {
             document.getElementById('editModal').style.display = 'none';
@@ -2081,30 +2242,49 @@
         }
 
         function updateAppointments(appointments) {
-            const container = document.getElementById('appointmentsList');
+    const container = document.getElementById('appointmentsList');
+    
+    if (!appointments || appointments.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #64748b; padding: 40px;">No upcoming appointments</div>';
+        return;
+    }
+    
+    container.innerHTML = appointments.map((apt, index) => `
+        <div class="appointment-item">
+            <div class="appointment-header">
+                <div class="appointment-time">${formatDisplayDate(apt.date)} at ${apt.time}</div>
+                <div class="appointment-status status-${apt.status}">${apt.status.charAt(0).toUpperCase() + apt.status.slice(1)}</div>
+            </div>
+            <div class="business-name">${apt.company}</div>
+            <div class="detail-item">${apt.contact} • ${apt.type} • ${apt.location}</div>
             
-            if (!appointments || appointments.length === 0) {
-                container.innerHTML = '<div style="text-align: center; color: #64748b; padding: 40px;">No upcoming appointments</div>';
-                return;
-            }
-            
-            container.innerHTML = appointments.map((apt, index) => `
-                <div class="appointment-item">
-                    <div class="appointment-header">
-                        <div class="appointment-time">${formatDisplayDate(apt.date)} at ${apt.time}</div>
-                        <div class="appointment-status status-${apt.status}">${apt.status.charAt(0).toUpperCase() + apt.status.slice(1)}</div>
-                    </div>
-                    <div class="business-name">${apt.company}</div>
-                    <div class="detail-item">${apt.contact} • ${apt.type} • ${apt.location}</div>
-                    <div class="appointment-actions">
-                        <button style="background: #3b82f6; color: white;" onclick="manageAppointment(${index}, 'notes')">Add Notes</button>
-                        <button style="background: #10b981; color: white;" onclick="manageAppointment(${index}, 'reschedule')">Reschedule</button>
-                        <button style="background: #22c55e; color: white;" onclick="manageAppointment(${index}, 'confirm')">Confirm</button>
-                    </div>
-                    ${apt.notes ? `<div style="margin-top: 10px; padding: 10px; background: #f0f9ff; border-radius: 6px; font-size: 0.9rem;"><strong>Notes:</strong> ${apt.notes}</div>` : ''}
+            ${apt.phone || apt.email ? `
+                <div style="background: #f0f9ff; padding: 12px; border-radius: 8px; margin-top: 10px; border-left: 3px solid #667eea;">
+                    <div style="font-weight: 600; color: #374151; margin-bottom: 5px; font-size: 0.9rem;">Contact Information:</div>
+                    ${apt.phone ? `
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                            <span style="color: #667eea;">📞</span>
+                            <a href="tel:${apt.phone}" style="color: #667eea; text-decoration: none; font-weight: 500;">${apt.phone}</a>
+                        </div>
+                    ` : ''}
+                    ${apt.email ? `
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="color: #667eea;">📧</span>
+                            <a href="mailto:${apt.email}" style="color: #667eea; text-decoration: none; font-weight: 500;">${apt.email}</a>
+                        </div>
+                    ` : ''}
                 </div>
-            `).join('');
-        }
+            ` : ''}
+            
+            <div class="appointment-actions">
+                <button style="background: #3b82f6; color: white;" onclick="manageAppointment(${index}, 'notes')">Add Notes</button>
+                <button style="background: #10b981; color: white;" onclick="manageAppointment(${index}, 'reschedule')">Reschedule</button>
+                <button style="background: #22c55e; color: white;" onclick="manageAppointment(${index}, 'confirm')">Confirm</button>
+            </div>
+            ${apt.notes ? `<div style="margin-top: 10px; padding: 10px; background: #f0f9ff; border-radius: 6px; font-size: 0.9rem;"><strong>Notes:</strong> ${apt.notes}</div>` : ''}
+        </div>
+    `).join('');
+}
 
         function manageAppointment(index, action) {
             const appointment = CLIENT_DATA[currentUser.username].appointments[index];
