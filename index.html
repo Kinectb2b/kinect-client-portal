@@ -2781,68 +2781,7 @@ document.addEventListener('change', function(e) {
     }
 });
 
-// Wrap the original edit form submit to include notification settings
-const originalEditFormHandler = document.getElementById('editClientForm');
-if (originalEditFormHandler) {
-    originalEditFormHandler.addEventListener('submit', function(e) {
-        const emailNotificationsCheckbox = document.getElementById('editEmailNotifications');
-        const notificationEmailInput = document.getElementById('editNotificationEmail');
-        
-        if (emailNotificationsCheckbox && editingClientId) {
-            setTimeout(() => {
-                if (CLIENT_DATA[editingClientId] || CLIENT_DATA[document.getElementById('editClientUsername').value.toLowerCase()]) {
-                    const username = CLIENT_DATA[editingClientId] ? editingClientId : document.getElementById('editClientUsername').value.toLowerCase();
-                    CLIENT_DATA[username].email_notifications = emailNotificationsCheckbox.checked;
-                    CLIENT_DATA[username].notification_email = notificationEmailInput ? notificationEmailInput.value : null;
-                }
-            }, 100);
-        }
-    });
-}
 
-
-        
-        // Call original function
-        if (originalSaveNewAppointment) {
-            await originalSaveNewAppointment();
-        } else {
-            // Fallback if original doesn't exist
-            if (!CLIENT_DATA[editingClientId].appointments) {
-                CLIENT_DATA[editingClientId].appointments = [];
-            }
-            CLIENT_DATA[editingClientId].appointments.push(newAppointment);
-            loadAdminAppointments(CLIENT_DATA[editingClientId].appointments);
-            const modal = document.querySelector('div[style*="position: fixed"]');
-            if (modal) modal.remove();
-        }
-        
-        // Send notification
-        const client = CLIENT_DATA[editingClientId];
-        if (client && client.email_notifications) {
-            try {
-                const response = await fetch('/.netlify/functions/send-notification', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-        clientName: client.name,
-        clientEmail: client.notification_email || 'robert@kinectb2b.com',
-        appointment: newAppointment
-    })
-});
-const data = response.ok ? await response.json() : null;
-const error = response.ok ? null : 'Failed';
-                
-                if (!error) {
-                    console.log('✅ Email notification sent!');
-                } else {
-                    console.error('❌ Notification error:', error);
-                }
-            } catch (error) {
-                console.error('Failed to send notification:', error);
-            }
-        }
-    }
-};
 
 console.log('✅ Email notification features loaded!');
 
