@@ -2119,6 +2119,45 @@
     document.body.appendChild(modal);
     document.getElementById('convertAptDate').value = new Date().toISOString().split('T')[0];
 }
+        function toggleConvertFlexibleDate() {
+    const checkbox = document.getElementById('convertFlexibleDate');
+    const dateInput = document.getElementById('convertAptDate');
+    const flexibleInput = document.getElementById('convertFlexibleDateText');
+    
+    if (checkbox.checked) {
+        dateInput.style.display = 'none';
+        flexibleInput.style.display = 'block';
+        flexibleInput.required = true;
+        dateInput.required = false;
+        flexibleInput.focus();
+    } else {
+        dateInput.style.display = 'block';
+        flexibleInput.style.display = 'none';
+        flexibleInput.required = false;
+        dateInput.required = true;
+        flexibleInput.value = '';
+    }
+}
+
+function toggleConvertFlexibleTime() {
+    const checkbox = document.getElementById('convertFlexibleTime');
+    const timeInput = document.getElementById('convertAptTime');
+    const flexibleInput = document.getElementById('convertFlexibleTimeText');
+    
+    if (checkbox.checked) {
+        timeInput.style.display = 'none';
+        flexibleInput.style.display = 'block';
+        flexibleInput.required = true;
+        timeInput.required = false;
+        flexibleInput.focus();
+    } else {
+        timeInput.style.display = 'block';
+        flexibleInput.style.display = 'none';
+        flexibleInput.required = false;
+        timeInput.required = true;
+        flexibleInput.value = '';
+    }
+}
 
 function confirmProspectConversion(prospectIndex) {
     const date = document.getElementById('convertAptDate').value;
