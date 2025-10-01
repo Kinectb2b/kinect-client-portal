@@ -26,7 +26,7 @@ exports.handler = async (event, context) => {
         'Authorization': `Bearer ${RESEND_API_KEY}`
       },
       body: JSON.stringify({
-        from: 'Kinect B2B <onboarding@resend.dev>',
+        from: 'Kinect B2B <notifications@kinectb2b.com>',
         to: clientEmail,
         subject: '🎉 New Appointment Added to Your Portal!',
         html: `
