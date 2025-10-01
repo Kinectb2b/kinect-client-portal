@@ -652,6 +652,82 @@
                 text-align: center;
             }
         }
+        /* Client Notification Banner */
+.notification-banner {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: white;
+    padding: 20px 30px;
+    border-radius: 15px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 30px rgba(251, 191, 36, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    animation: slideIn 0.5s ease;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.notification-banner-icon {
+    font-size: 2rem;
+    animation: wiggle 1s ease-in-out infinite;
+}
+
+@keyframes wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-10deg); }
+    75% { transform: rotate(10deg); }
+}
+
+.notification-banner-content {
+    flex: 1;
+}
+
+.notification-banner-content h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.notification-banner-content p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.95;
+}
+
+.notification-badge {
+    background: #ef4444;
+    color: white;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 700;
+    margin-left: 8px;
+    display: inline-block;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { 
+        transform: scale(1); 
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+    50% { 
+        transform: scale(1.1); 
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
+}
+
+@media (max-width: 768px) {
+    .notification-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+    }
+}
     </style>
 </head>
 <body>
@@ -1981,10 +2057,18 @@
         if (!CLIENT_DATA[editingClientId].appointments) {
             CLIENT_DATA[editingClientId].appointments = [];
         }
+        
         CLIENT_DATA[editingClientId].appointments.push(newAppointment);
+        
+// ✅ Increment totalAppointments counter
+if (!CLIENT_DATA[editingClientId].totalAppointments) {
+    CLIENT_DATA[editingClientId].totalAppointments = 0;
+}
+CLIENT_DATA[editingClientId].totalAppointments++;
         
         saveData();
         loadAdminAppointments(CLIENT_DATA[editingClientId].appointments);
+        updateEditModalStats();
         
         const modal = document.querySelector('div[style*="position: fixed"]');
         if (modal) modal.remove();
@@ -2002,11 +2086,11 @@
                 })
             }).then(response => {
                 if (response.ok) {
-                    console.log('✅ Email notification sent!');
-                    alert('Appointment added and notification sent successfully!');
-                } else {
-                    alert('Appointment added, but notification failed to send.');
-                }
+    console.log('✅ Email notification sent!');
+    alert('Appointment added successfully! Total appointments: ' + CLIENT_DATA[editingClientId].totalAppointments + '. Notification email sent!');
+} else {
+    alert('Appointment added successfully! Total appointments: ' + CLIENT_DATA[editingClientId].totalAppointments + '. But notification email failed to send.');
+}
             }).catch(error => {
                 console.error('Notification error:', error);
                 alert('Appointment added successfully!');
@@ -2016,6 +2100,14 @@
         }
     } else {
         alert('Please fill in all required fields.');
+    }
+}
+        function updateEditModalStats() {
+    if (editingClientId) {
+        const totalAptInput = document.getElementById('editTotalAppointments');
+        if (totalAptInput) {
+            totalAptInput.value = CLIENT_DATA[editingClientId].totalAppointments;
+        }
     }
 }
 
@@ -2041,12 +2133,20 @@
             }
         }
 
-        function removeAppointment(index) {
-            if (confirm('Remove this appointment?')) {
-                CLIENT_DATA[editingClientId].appointments.splice(index, 1);
-                loadAdminAppointments(CLIENT_DATA[editingClientId].appointments);
-            }
+      function removeAppointment(index) {
+    if (confirm('Remove this appointment?')) {
+        CLIENT_DATA[editingClientId].appointments.splice(index, 1);
+        
+        // Decrement counter
+        if (CLIENT_DATA[editingClientId].totalAppointments > 0) {
+            CLIENT_DATA[editingClientId].totalAppointments--;
         }
+        
+        saveData();
+        loadAdminAppointments(CLIENT_DATA[editingClientId].appointments);
+        updateEditModalStats();
+    }
+}
 
         function removeProspect(index) {
             if (confirm('Remove this prospect?')) {
@@ -2190,6 +2290,11 @@ function confirmProspectConversion(prospectIndex) {
             notes: notes,
             convertedFromProspect: true
         });
+        // Increment totalAppointments counter
+if (!CLIENT_DATA[editingClientId].totalAppointments) {
+    CLIENT_DATA[editingClientId].totalAppointments = 0;
+}
+CLIENT_DATA[editingClientId].totalAppointments++;
         
         if (removeProspect) {
             CLIENT_DATA[editingClientId].prospects.splice(prospectIndex, 1);
@@ -2198,9 +2303,10 @@ function confirmProspectConversion(prospectIndex) {
         
         saveData();
         loadAdminAppointments(CLIENT_DATA[editingClientId].appointments);
+        updateEditModalStats();
         
         document.querySelector('div[style*="position: fixed"]').remove();
-        alert('Prospect converted to appointment successfully!');
+        alert('Prospect converted to appointment successfully! Total appointments: ' + CLIENT_DATA[editingClientId].totalAppointments);
     } else {
         alert('Please fill in all required fields.');
     }
@@ -2257,26 +2363,87 @@ function confirmProspectConversion(prospectIndex) {
         // Remove the old event listeners that were placed incorrectly
         
         function loadClientData() {
-            const userData = CLIENT_DATA[currentUser.username];
-            
-            // Update metrics
-            document.getElementById('totalAppointments').textContent = userData.totalAppointments;
-            document.getElementById('businessesContacted').textContent = userData.businessesContacted;
-            document.getElementById('peopleCalled').textContent = userData.peopleCalled;
-            document.getElementById('totalContactPoints').textContent = userData.totalContactPoints.toLocaleString();
-            
-            // Update appointments
-            updateAppointments(userData.appointments);
-            
-            // Update prospects
-            updateProspects(userData.prospects);
-            
-            // Update last updated time
-            document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
-            
-            // Initialize chart
-            initializeChart();
-        }
+    const userData = CLIENT_DATA[currentUser.username];
+    
+    // Update metrics
+    document.getElementById('totalAppointments').textContent = userData.totalAppointments;
+    document.getElementById('businessesContacted').textContent = userData.businessesContacted;
+    document.getElementById('peopleCalled').textContent = userData.peopleCalled;
+    document.getElementById('totalContactPoints').textContent = userData.totalContactPoints.toLocaleString();
+    
+    // Check for unconfirmed appointments
+    const unconfirmedCount = userData.appointments?.filter(apt => 
+        apt.status === 'pending' || apt.status !== 'confirmed'
+    ).length || 0;
+    
+    // Show notification banner if there are unconfirmed appointments
+    if (unconfirmedCount > 0) {
+        showClientNotificationBanner(unconfirmedCount);
+        updateWelcomeBadge(unconfirmedCount);
+    }
+    
+    // Update appointments
+    updateAppointments(userData.appointments);
+    
+    // Update prospects
+    updateProspects(userData.prospects);
+    
+    // Update last updated time
+    document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+    
+    // Initialize chart
+    initializeChart();
+}
+        function showClientNotificationBanner(count) {
+    let banner = document.getElementById('clientNotificationBanner');
+    
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'clientNotificationBanner';
+        banner.className = 'notification-banner';
+        
+        const container = document.querySelector('.container');
+        const planSection = document.querySelector('.plan-section');
+        planSection.insertAdjacentElement('afterend', banner);
+    }
+    
+    banner.innerHTML = `
+        <div class="notification-banner-icon">⚠️</div>
+        <div class="notification-banner-content" style="flex: 1;">
+            <h3>Action Required: Confirm Your Appointments</h3>
+            <p>You have <strong>${count}</strong> appointment${count > 1 ? 's' : ''} waiting for confirmation. Please review and confirm below.</p>
+        </div>
+        <button class="btn" style="background: white; color: #f59e0b; white-space: nowrap;" onclick="scrollToAppointments()">
+            View Now
+        </button>
+    `;
+}
+
+function scrollToAppointments() {
+    const appointmentsCard = document.querySelector('.appointments-list').closest('.card');
+    appointmentsCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    appointmentsCard.style.transform = 'scale(1.02)';
+    appointmentsCard.style.boxShadow = '0 30px 60px rgba(102, 126, 234, 0.3)';
+    setTimeout(() => {
+        appointmentsCard.style.transform = '';
+        appointmentsCard.style.boxShadow = '';
+    }, 1000);
+}
+
+function updateWelcomeBadge(count) {
+    const welcomeText = document.querySelector('.welcome-text h1');
+    
+    const existingBadge = welcomeText.querySelector('.notification-badge');
+    if (existingBadge) existingBadge.remove();
+    
+    if (count > 0) {
+        const badge = document.createElement('span');
+        badge.className = 'notification-badge';
+        badge.textContent = count;
+        welcomeText.appendChild(badge);
+    }
+}
 
         function updateAppointments(appointments) {
     const container = document.getElementById('appointmentsList');
