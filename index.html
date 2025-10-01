@@ -2800,33 +2800,7 @@ if (originalEditFormHandler) {
     });
 }
 
-// Wrap saveNewAppointment to send notification
-const originalSaveNewAppointment = window.saveNewAppointment;
-window.saveNewAppointment = async function() {
-    const dateCheckbox = document.getElementById('flexibleDate')?.checked;
-    const timeCheckbox = document.getElementById('flexibleTime')?.checked;
-    
-    const date = dateCheckbox ? document.getElementById('flexibleDateText')?.value : document.getElementById('newAptDate')?.value;
-    const time = timeCheckbox ? document.getElementById('flexibleTimeText')?.value : document.getElementById('newAptTime')?.value;
-    const company = document.getElementById('newAptCompany')?.value;
-    const contact = document.getElementById('newAptContact')?.value;
-    const type = document.getElementById('newAptType')?.value;
-    const location = document.getElementById('newAptLocation')?.value || 'TBD';
-    const notes = document.getElementById('newAptNotes')?.value;
-    
-    if (date && time && company && contact && type && editingClientId) {
-        const newAppointment = {
-            date: date,
-            time: time,
-            company: company,
-            contact: contact,
-            type: type,
-            location: location,
-            status: 'pending',
-            notes: notes,
-            flexibleDate: dateCheckbox,
-            flexibleTime: timeCheckbox
-        };
+
         
         // Call original function
         if (originalSaveNewAppointment) {
