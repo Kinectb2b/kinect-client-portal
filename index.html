@@ -1950,6 +1950,12 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     });
 }
 
+         function loadClientData() {
+    // ADD THESE SAFETY CHECKS AT THE TOP
+    if (!currentUser || !currentUser.username) {
+        console.error('No current user found');
+        return;
+    }
 
        function showClientDashboard() {
     console.log('showClientDashboard called');
@@ -2729,12 +2735,7 @@ CLIENT_DATA[editingClientId].totalAppointments++;
 
         // Remove the old event listeners that were placed incorrectly
         
-        function loadClientData() {
-    // ADD THESE SAFETY CHECKS AT THE TOP
-    if (!currentUser || !currentUser.username) {
-        console.error('No current user found');
-        return;
-    }
+       
     
     const userData = CLIENT_DATA[currentUser.username];
     
