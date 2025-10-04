@@ -1893,32 +1893,29 @@
 
         // Handle login form
         document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('username').value.toLowerCase();
-            const password = document.getElementById('password').value;
-            
-            // Check admin login
-            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-                isAdmin = true;
-                localStorage.setItem('kinectb2b_admin', 'true');
-                showAdminDashboard();
-                return;
-            }
-            
-            // Check client login
-            if (CLIENT_DATA[username] && CLIENT_DATA[username].password === password) {
-                currentUser = {
-                    username: username,
-                    ...CLIENT_DATA[username]
-                };
-                
-                localStorage.setItem('kinectb2b_user', JSON.stringify(currentUser));
-                showClientDashboard();
-            } else {
-                showLoginError('Invalid username or password. Please try again.');
-            }
-        });
+    e.preventDefault();
+    
+    const username = document.getElementById('username').value.toLowerCase();
+    const password = document.getElementById('password').value;
+    
+    if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+        isAdmin = true;
+        localStorage.setItem('kinectb2b_admin', 'true');
+        showAdminDashboard();
+        return;
+    }
+    
+    if (CLIENT_DATA[username] && CLIENT_DATA[username].password === password) {
+        currentUser = {
+            username: username,
+            ...CLIENT_DATA[username]
+        };
+        localStorage.setItem('kinectb2b_user', JSON.stringify(currentUser));
+        showClientDashboard();
+    } else {
+        showLoginError('Invalid username or password.');
+    }
+});
 
         function showLoginError(message) {
             const errorDiv = document.getElementById('loginError');
