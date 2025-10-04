@@ -1901,6 +1901,7 @@
     const username = document.getElementById('username').value.toLowerCase();
     const password = document.getElementById('password').value;
     
+    // Check admin login
     if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
         isAdmin = true;
         localStorage.setItem('kinectb2b_admin', 'true');
@@ -1908,7 +1909,8 @@
         return;
     }
     
-    if (CLIENT_DATA[username] && CLIENT_DATA[username].password === password) {
+    // Check client login - FIX: Make sure CLIENT_DATA exists
+    if (CLIENT_DATA && CLIENT_DATA[username] && CLIENT_DATA[username].password === password) {
         currentUser = {
             username: username,
             ...CLIENT_DATA[username]
@@ -1927,13 +1929,17 @@
         }
 
         function showAdminDashboard() {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('adminDashboard').style.display = 'block';
-            document.getElementById('dashboard').style.display = 'none';
-            
-            loadClientGrid();
-            loadNotificationsList();
-        }
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminDashboard').style.display = 'block';
+    document.getElementById('dashboard').style.display = 'none';
+    
+    loadClientGrid();
+    
+    // FIX: Only call if function exists
+    if (typeof loadNotificationsList === 'function') {
+        loadNotificationsList();
+    }
+}
 
         function formatDate(dateString) {
     if (!dateString) return 'Not set';
@@ -2035,9 +2041,13 @@
         buttonElement.classList.add('active');
     }
     
-    // ADD THIS CHECK:
+    // FIX: Safely load notifications
     if (tabName === 'notifications') {
-        loadNotificationsList();
+        if (typeof loadNotificationsList === 'function') {
+            loadNotificationsList();
+        } else {
+            console.error('loadNotificationsList function not found');
+        }
     }
     
     console.log('Switching to tab:', tabName);
@@ -2089,6 +2099,32 @@
                 grid.appendChild(card);
             });
         }
+        function loadNotificationsList() {
+    const container = document.getElementById('notificationsList');
+    
+    if (!container) {
+        console.error('Notifications list container not found');
+        return;
+    }
+    
+    if (!NOTIFICATIONS || NOTIFICATIONS.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #64748b; padding: 40px;">No notifications</div>';
+        return;
+    }
+    
+    container.innerHTML = NOTIFICATIONS.map(notification => `
+        <div class="notification-item ${notification.read ? 'read' : 'unread'}" 
+             style="${!notification.read ? 'background: #fef3c7; border-color: #fbbf24;' : 'background: #f8fafc; border-color: #e2e8f0;'}">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 5px;">
+                <strong>${notification.type.replace(/_/g, ' ').toUpperCase()}</strong>
+                <small>${new Date(notification.timestamp).toLocaleString()}</small>
+            </div>
+            <div style="margin-bottom: 5px;">${notification.message}</div>
+            <div style="font-size: 0.8rem; color: #64748b;">Client: ${notification.clientName}</div>
+            ${!notification.read ? `<button class="btn" style="padding: 4px 8px; font-size: 0.8rem; margin-top: 5px;" onclick="markAsRead(${notification.id})">Mark as Read</button>` : ''}
+        </div>
+    `).join('');
+}
 
         function editClient(username) {
             editingClientId = username;
