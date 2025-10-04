@@ -2124,6 +2124,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
         </div>
     `).join('');
 }
+        }  // <-- This closes loadNotificationsList at line 2126
 
         function markAsRead(notificationId) {
             const notification = NOTIFICATIONS.find(n => n.id === notificationId);
