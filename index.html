@@ -627,7 +627,163 @@
             cursor: pointer;
             font-weight: 600;
         }
+/* Messages Styles */
+.messages-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
 
+.message-thread {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.message-item {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 15px;
+}
+
+.message-item.admin {
+    flex-direction: row-reverse;
+}
+
+.message-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.message-content {
+    flex: 1;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.message-sender {
+    font-weight: 600;
+    color: #374151;
+}
+
+.message-time {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.message-text {
+    background: #f8fafc;
+    padding: 12px 16px;
+    border-radius: 12px;
+    color: #1e293b;
+    line-height: 1.5;
+}
+
+.message-item.admin .message-text {
+    background: #667eea;
+    color: white;
+}
+
+.message-input-container {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.message-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+}
+
+.send-btn {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.send-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Settings Section Styles */
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.settings-section {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.settings-section h3 {
+    color: #374151;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.info-display {
+    background: #f8fafc;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.info-value {
+    color: #1e293b;
+    font-weight: 500;
+}
+
+.edit-icon {
+    color: #667eea;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.unread-badge {
+    background: #ef4444;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 5px;
+}
         @media (max-width: 768px) {
             .container, .admin-dashboard {
                 padding: 15px;
@@ -756,7 +912,7 @@
             </form>
             
             <div style="text-align: center; margin-top: 20px; font-size: 0.8rem; color: #64748b;">
-                Need help? Contact <a href="mailto:support@kinectb2b.com" style="color: #667eea;">support@kinectb2b.com</a>
+                Need help? Contact <a href="mailto:accounts@kinectb2b.com" style="color: #667eea;">support@kinectb2b.com</a>
             </div>
         </div>
     </div>
@@ -778,10 +934,16 @@
             </button>
             <button class="tab-btn" onclick="showTab('add-client', this)">Add New Client</button>
             <button class="tab-btn" onclick="showTab('notifications', this)">
+            <button class="tab-btn" onclick="showTab('messages', this)">
+        Messages
+        <span id="adminUnreadBadge" class="notification-badge" style="display: none;">0</span>
+    </button>
+    <button class="tab-btn" onclick="showTab('admin-settings', this)">Admin Settings</button>
                 Notifications
                 <span id="mainNotificationBadge" class="notification-badge" style="display: none;">0</span>
             </button>
             <button class="tab-btn" onclick="showTab('settings', this)">Settings</button>
+            <button class="tab-btn" onclick="showTab('admin-settings', this)">Admin Settings</button>
         </div>
 
         <!-- Manage Clients Tab -->
@@ -888,6 +1050,45 @@
                         <input type="text" id="companyName" class="form-input" value="Kinect B2B">
                     </div>
                     <button class="btn" onclick="saveSettings()">Save Settings</button>
+                </div>
+            </div>
+        </div>
+        <!-- Messages Tab -->
+        <div id="messagesTab" class="tab-content">
+            <div class="messages-container">
+                <div class="client-card">
+                    <h2 style="margin-bottom: 20px;">Client Messages</h2>
+                    <div id="adminMessagesList">
+                        <!-- Client message threads will be shown here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Settings Tab -->
+        <div id="admin-settingsTab" class="tab-content">
+            <div style="max-width: 800px; margin: 0 auto;">
+                <div class="client-card">
+                    <h2 style="margin-bottom: 20px;">Admin Settings</h2>
+                    
+                    <div class="settings-grid">
+                        <div class="settings-section">
+                            <h3>Change Password</h3>
+                            <div class="form-group">
+                                <label class="form-label">Current Password</label>
+                                <input type="password" id="adminCurrentPassword" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">New Password</label>
+                                <input type="password" id="adminNewPassword" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Confirm Password</label>
+                                <input type="password" id="adminConfirmPassword" class="form-input">
+                            </div>
+                            <button class="btn" onclick="updateAdminPassword()">Update Password</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
