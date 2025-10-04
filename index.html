@@ -3240,34 +3240,13 @@ window.editClient = function(username) {
                     <span>Enable appointment email notifications</span>
                 </label>
             </div>
-            <div class="form-group" id="notificationEmailGroup" style="display: none;">
-                <label class="form-label">Notification Email</label>
-                <input type="email" id="editNotificationEmail" class="form-input" placeholder="client@example.com">
-                <p style="font-size: 0.8rem; color: #64748b; margin-top: 5px;">Leave blank to use default email</p>
-            </div>
+           
         `;
         statusField.closest('.form-group').insertAdjacentHTML('afterend', notificationHTML);
     }
-    
 
-// Handle notification checkbox toggle
-document.addEventListener('change', function(e) {
-    if (e.target.id === 'editEmailNotifications') {
-        const emailGroup = document.getElementById('notificationEmailGroup');
-        if (emailGroup) {
-            emailGroup.style.display = e.target.checked ? 'block' : 'none';
-        }
     }
-});
-
-
-console.log('✅ Email notification features loaded!');
-
-// ==========================================
-// END EMAIL NOTIFICATION FEATURE
-// ==========================================
 }
-    }
 </script>
 </body>
 </html>
