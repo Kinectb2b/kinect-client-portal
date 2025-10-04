@@ -599,11 +599,12 @@
     background: #ef4444;
     color: white;
     font-size: 0.7rem;
-    padding: 2px 8px;
+    padding: 2px 6px;
     border-radius: 10px;
-    margin-left: 5px;
+    margin-left: 8px;
     display: inline-block;
     vertical-align: middle;
+    line-height: 1;
 }
 
         .notification-item {
@@ -940,7 +941,7 @@
         Messages
         <span id="adminUnreadBadge" class="notification-badge" style="display: none;">0</span>
     </button>
-    <button class="tab-btn" onclick="showTab('admin-settings', this)">Admin Settings</button>
+    
                 Notifications
                 <span id="mainNotificationBadge" class="notification-badge" style="display: none;">0</span>
             </button>
@@ -1934,22 +1935,31 @@
             loadNotificationsList();
         }
 
-        function showClientDashboard() {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('adminDashboard').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
-            
-            // Update dashboard with user info
-            const userData = CLIENT_DATA[currentUser.username];
-            document.getElementById('clientWelcome').textContent = `Welcome, ${userData.name}!`;
-            document.getElementById('loggedInUser').textContent = userData.name;
-            document.getElementById('currentPlan').textContent = userData.plan;
-            document.getElementById('planPrice').textContent = `$${PLAN_DATA[userData.plan].monthly.toFixed(0)}/month`;
-            document.getElementById('nextBilling').textContent = formatDate(userData.nextBilling);
-            
-            // Load client-specific data
-            loadClientData();
+       function showClientDashboard() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminDashboard').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    
+    // Update dashboard with user info
+    const userData = CLIENT_DATA[currentUser.username];
+    document.getElementById('clientWelcome').textContent = `Welcome, ${userData.name}!`;
+    document.getElementById('loggedInUser').textContent = userData.name;
+    document.getElementById('currentPlan').textContent = userData.plan;
+    
+    if (document.getElementById('planPrice')) {
+        const planData = PLAN_DATA[userData.plan];
+        if (planData) {
+            document.getElementById('planPrice').textContent = `$${planData.monthly.toFixed(0)}/month`;
         }
+    }
+    
+    if (document.getElementById('nextBilling')) {
+        document.getElementById('nextBilling').textContent = formatDate(userData.nextBilling);
+    }
+    
+    // Load client-specific data
+    loadClientData();
+}
 
         function logout() {
             localStorage.removeItem('kinectb2b_user');
@@ -2559,6 +2569,13 @@ CLIENT_DATA[editingClientId].totalAppointments++;
         
         function loadClientData() {
     const userData = CLIENT_DATA[currentUser.username];
+    
+    // Make sure all the required fields exist
+    if (!userData.email) userData.email = '';
+    if (!userData.phone) userData.phone = '';
+    if (!userData.address) userData.address = '';
+    if (!userData.website) userData.website = '';
+    if (!userData.ein) userData.ein = '';
     
     // Update metrics
     document.getElementById('totalAppointments').textContent = userData.totalAppointments;
