@@ -2124,6 +2124,28 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
         </div>
     `).join('');
 }
+        }  // <-- This closes loadNotificationsList at line 2126
+
+        function markAsRead(notificationId) {
+            const notification = NOTIFICATIONS.find(n => n.id === notificationId);
+            if (notification) {
+                notification.read = true;
+                saveData();
+                updateNotificationBadges();
+                loadNotificationsList();
+            }
+        }
+
+        function clearAllNotifications() {
+            if (confirm('Clear all notifications?')) {
+                NOTIFICATIONS.length = 0;
+                saveData();
+                updateNotificationBadges();
+                loadNotificationsList();
+            }
+        }
+
+        function editClient(username) {  // <-- This should be the next function
 
         function editClient(username) {
             editingClientId = username;
