@@ -2017,6 +2017,71 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
             document.getElementById('password').value = '';
             document.getElementById('loginError').style.display = 'none';
         }
+        // View client portal as this client
+function viewAsClient(username) {
+    if (!CLIENT_DATA[username]) {
+        alert('Client not found!');
+        return;
+    }
+    
+    // Temporarily log in as this client
+    currentUser = {
+        username: username,
+        ...CLIENT_DATA[username]
+    };
+    
+    // Save to localStorage so the session persists
+    localStorage.setItem('kinectb2b_user', JSON.stringify(currentUser));
+    localStorage.removeItem('kinectb2b_admin'); // Remove admin flag
+    
+    // Show client dashboard
+    showClientDashboard();
+}
+
+// Delete client
+function deleteClient(username) {
+    if (!CLIENT_DATA[username]) {
+        alert('Client not found!');
+        return;
+    }
+    
+    const clientName = CLIENT_DATA[username].name;
+    
+    if (confirm(`Are you sure you want to delete ${clientName}?\n\nThis action cannot be undone and will:\n- Remove all client data\n- Delete all appointments\n- Delete all prospects\n- Remove access to the portal`)) {
+        deleteClientFromDatabase(username);
+    }
+}
+
+// Delete client from Supabase database
+async function deleteClientFromDatabase(username) {
+    try {
+        // Delete from Supabase
+        const { error } = await supabaseClient
+            .from('clients')
+            .delete()
+            .eq('username', username);
+        
+        if (error) {
+            console.error('Error deleting client from database:', error);
+            alert('Error deleting client from database. Please try again.');
+            return;
+        }
+        
+        // Remove from local data
+        delete CLIENT_DATA[username];
+        
+        // Refresh the grid
+        loadClientGrid();
+        
+        alert(`Client deleted successfully!`);
+        
+        console.log('Client deleted successfully:', username);
+        
+    } catch (error) {
+        console.error('Error deleting client:', error);
+        alert('Error deleting client. Please try again.');
+    }
+}
 
         function showTab(tabName, buttonElement) {
     // Hide all tabs
