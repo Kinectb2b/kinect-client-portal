@@ -596,13 +596,15 @@
 
         /* Notification styles */
         .notification-badge {
-            background: #ef4444;
-            color: white;
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            border-radius: 10px;
-            margin-left: 5px;
-        }
+    background: #ef4444;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 5px;
+    display: inline-block;
+    vertical-align: middle;
+}
 
         .notification-item {
             background: #fef3c7;
@@ -943,7 +945,6 @@
                 <span id="mainNotificationBadge" class="notification-badge" style="display: none;">0</span>
             </button>
             <button class="tab-btn" onclick="showTab('settings', this)">Settings</button>
-            <button class="tab-btn" onclick="showTab('admin-settings', this)">Admin Settings</button>
         </div>
 
         <!-- Manage Clients Tab -->
@@ -1039,11 +1040,28 @@
                     <h3 style="margin: 20px 0 10px 0; color: #374151;">Portal Configuration</h3>
                     <div class="form-group">
                         <label class="form-label">Support Email</label>
-                        <input type="email" id="supportEmail" class="form-input" value="support@kinectb2b.com">
+                        <input type="email" id="supportEmail" class="form-input" value="accounts@kinectb2b.com">
+                        <h3 style="margin: 20px 0 10px 0; color: #374151;">Admin Account</h3>
+            <div class="settings-section">
+                <h3>Change Admin Password</h3>
+                <div class="form-group">
+                    <label class="form-label">Current Password</label>
+                    <input type="password" id="adminCurrentPassword" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">New Password</label>
+                    <input type="password" id="adminNewPassword" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    <input type="password" id="adminConfirmPassword" class="form-input">
+                </div>
+                <button class="btn" onclick="updateAdminPassword()">Update Password</button>
+            </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Support Phone</label>
-                        <input type="tel" id="supportPhone" class="form-input" value="+1234567890">
+                        <input type="tel" id="supportPhone" class="form-input" value="+2192707863">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Company Name</label>
@@ -1065,35 +1083,6 @@
             </div>
         </div>
 
-        <!-- Admin Settings Tab -->
-        <div id="admin-settingsTab" class="tab-content">
-            <div style="max-width: 800px; margin: 0 auto;">
-                <div class="client-card">
-                    <h2 style="margin-bottom: 20px;">Admin Settings</h2>
-                    
-                    <div class="settings-grid">
-                        <div class="settings-section">
-                            <h3>Change Password</h3>
-                            <div class="form-group">
-                                <label class="form-label">Current Password</label>
-                                <input type="password" id="adminCurrentPassword" class="form-input">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">New Password</label>
-                                <input type="password" id="adminNewPassword" class="form-input">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Confirm Password</label>
-                                <input type="password" id="adminConfirmPassword" class="form-input">
-                            </div>
-                            <button class="btn" onclick="updateAdminPassword()">Update Password</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Client Dashboard -->
     <div id="dashboard" class="dashboard">
         <div class="container">
@@ -1105,12 +1094,17 @@
                         <p>Your comprehensive business intelligence dashboard. Track activities, manage appointments, and monitor client progress all in one place.</p>
                     </div>
                     <div class="user-info">
-                        <div>
-                            <div style="font-weight: 600; color: #374151;">Logged in as:</div>
-                            <div id="loggedInUser" style="color: #667eea;"></div>
-                        </div>
-                        <button class="logout-btn" onclick="logout()">Logout</button>
-                    </div>
+    <button class="btn btn-secondary" onclick="showClientSettings()">⚙️ Settings</button>
+    <button class="btn btn-secondary" onclick="showClientMessages()">
+        💬 Messages
+        <span id="clientUnreadBadge" class="notification-badge" style="display: none;">0</span>
+    </button>
+    <div>
+        <div style="font-weight: 600; color: #374171;">Logged in as:</div>
+        <div id="loggedInUser" style="color: #667eea;"></div>
+    </div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
                 </div>
             </div>
 
@@ -1203,7 +1197,7 @@
             <div class="cta-section">
                 <h2 style="margin-bottom: 20px; color: #1e293b;">Need Support or Have Questions?</h2>
                 <p style="margin-bottom: 30px; color: #64748b; font-size: 1.1rem;">Our team is here to help you maximize your success. Reach out anytime for assistance with your campaigns or technical support.</p>
-                <button class="btn btn-primary" onclick="window.location.href='mailto:support@kinectb2b.com'">Contact Support</button>
+                <button class="btn btn-primary" onclick="window.location.href='mailto:accounts@kinectb2b.com'">Contact Support</button>
                 <button class="btn btn-primary" onclick="window.location.href='tel:+1234567890'">Schedule Call</button>
             </div>
 
