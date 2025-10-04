@@ -1895,13 +1895,13 @@
         }
 
         // Handle login form
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+document.getElementById('loginForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
     const username = document.getElementById('username').value.toLowerCase();
     const password = document.getElementById('password').value;
     
-    // Check admin login
+    // Check admin credentials
     if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
         isAdmin = true;
         localStorage.setItem('kinectb2b_admin', 'true');
@@ -1909,8 +1909,8 @@
         return;
     }
     
-    // Check client login - FIX: Make sure CLIENT_DATA exists
-    if (CLIENT_DATA && CLIENT_DATA[username] && CLIENT_DATA[username].password === password) {
+    // Check client credentials
+    if (CLIENT_DATA[username] && CLIENT_DATA[username].password === password) {
         currentUser = {
             username: username,
             ...CLIENT_DATA[username]
