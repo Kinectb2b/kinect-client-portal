@@ -1620,20 +1620,20 @@
                     CLIENT_DATA = {};
                     clients.forEach(client => {
     CLIENT_DATA[client.username] = {
-        password: client.password,
-        name: client.name,
-        plan: client.plan,
-        status: client.status || 'active',
-        nextBilling: client.next_billing,
-        totalAppointments: client.total_appointments || 0,
-        businessesContacted: client.businesses_contacted || 0,
-        peopleCalled: client.people_called || 0,
-        totalContactPoints: client.total_contact_points || 0,
-        appointments: client.appointments || [],
-        prospects: client.prospects || [],
-        email_notifications: client.email_notifications || false,
-        notification_email: client.notification_email || null
-    };
+    password: client.password,
+    name: client.name,
+    plan: client.plan,
+    status: client.status || 'active',
+    nextBilling: client.next_billing,
+    totalAppointments: client.total_appointments || 0,
+    businessesContacted: client.businesses_contacted || 0,
+    peopleCalled: client.people_called || 0,
+    totalContactPoints: client.total_contact_points || 0,
+    appointments: client.appointments || [],
+    prospects: client.prospects || [],
+    email_notifications: client.email || false,  // Use 'email' boolean column
+    notification_email: client.Email || null  // Use 'Email' text column from Stripe
+};
 });
                     console.log('Loaded clients from Supabase:', Object.keys(CLIENT_DATA));
                 }
@@ -1670,25 +1670,25 @@
         
         for (const [username, clientData] of Object.entries(CLIENT_DATA)) {
             const { data, error } = await supabaseClient
-                .from('clients')
-                .upsert({
-                    username: username,
-                    password: clientData.password,
-                    name: clientData.name,
-                    plan: clientData.plan,
-                    status: clientData.status || 'active',
-                    next_billing: clientData.nextBilling,
-                    total_appointments: clientData.totalAppointments || 0,
-                    businesses_contacted: clientData.businessesContacted || 0,
-                    people_called: clientData.peopleCalled || 0,
-                    total_contact_points: clientData.totalContactPoints || 0,
-                    appointments: clientData.appointments || [],
-                    prospects: clientData.prospects || [],
-                    email_notifications: clientData.email_notifications || false,
-                    notification_email: clientData.notification_email || null
-                }, {
-                    onConflict: 'username'
-                });
+    .from('clients')
+    .upsert({
+        username: username,
+        password: clientData.password,
+        name: clientData.name,
+        plan: clientData.plan,
+        status: clientData.status || 'active',
+        next_billing: clientData.nextBilling,
+        total_appointments: clientData.totalAppointments || 0,
+        businesses_contacted: clientData.businessesContacted || 0,
+        people_called: clientData.peopleCalled || 0,
+        total_contact_points: clientData.totalContactPoints || 0,
+        appointments: clientData.appointments || [],
+        prospects: clientData.prospects || [],
+        email: clientData.email_notifications || false,  // Save to 'email' boolean
+        Email: clientData.notification_email || null  // Save to 'Email' text
+    }, {
+        onConflict: 'username'
+    });
             
             if (error) {
                 console.error('Error saving client:', username, error);
