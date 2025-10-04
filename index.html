@@ -1631,6 +1631,8 @@
         totalContactPoints: client.total_contact_points || 0,
         appointments: client.appointments || [],
         prospects: client.prospects || [],
+        email_notifications: client.email_notifications || false,
+        notification_email: client.notification_email || null
     };
 });
                     console.log('Loaded clients from Supabase:', Object.keys(CLIENT_DATA));
@@ -1682,6 +1684,8 @@
                     total_contact_points: clientData.totalContactPoints || 0,
                     appointments: clientData.appointments || [],
                     prospects: clientData.prospects || [],
+                    email_notifications: clientData.email_notifications || false,
+                    notification_email: clientData.notification_email || null
                 }, {
                     onConflict: 'username'
                 });
@@ -2370,7 +2374,31 @@ CLIENT_DATA[editingClientId].totalAppointments++;
         const modal = document.querySelector('div[style*="position: fixed"]');
         if (modal) modal.remove();
         
-        alert('Appointment added successfully! Total appointments: ' + CLIENT_DATA[editingClientId].totalAppointments);
+        // Send notification if enabled
+        const client = CLIENT_DATA[editingClientId];
+        if (client && client.email_notifications && client.notification_email) {
+            fetch('/.netlify/functions/send-notification', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    clientName: client.name,
+                    clientEmail: client.notification_email,
+                    appointment: newAppointment
+                })
+            }).then(response => {
+                if (response.ok) {
+    console.log('✅ Email notification sent!');
+    alert('Appointment added successfully! Total appointments: ' + CLIENT_DATA[editingClientId].totalAppointments + '. Notification email sent!');
+} else {
+    alert('Appointment added successfully! Total appointments: ' + CLIENT_DATA[editingClientId].totalAppointments + '. But notification email failed to send.');
+}
+            }).catch(error => {
+                console.error('Notification error:', error);
+                alert('Appointment added successfully!');
+            });
+        } else {
+            alert('Appointment added successfully!');
+        }
     } else {
         alert('Please fill in all required fields.');
     }
@@ -3220,10 +3248,64 @@ function updateWelcomeBadge(count) {
                 }
             });
         }
+        // ==========================================
+// EMAIL NOTIFICATION FEATURE - ADDED
+// ==========================================
 
-
+// Add notification fields to edit modal when it opens
+const originalEditClient = window.editClient;
+window.editClient = function(username) {
+    originalEditClient(username);
+    
+    // Add notification fields to the modal if they don't exist
+    const statusField = document.getElementById('editClientStatus');
+    if (statusField && !document.getElementById('editEmailNotifications')) {
+        const notificationHTML = `
+            <div class="form-group">
+                <label class="form-label">📧 Email Notifications</label>
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" id="editEmailNotifications" style="width: 20px; height: 20px;">
+                    <span>Enable appointment email notifications</span>
+                </label>
+            </div>
+            <div class="form-group" id="notificationEmailGroup" style="display: none;">
+                <label class="form-label">Notification Email</label>
+                <input type="email" id="editNotificationEmail" class="form-input" placeholder="client@example.com">
+                <p style="font-size: 0.8rem; color: #64748b; margin-top: 5px;">Leave blank to use default email</p>
+            </div>
+        `;
+        statusField.closest('.form-group').insertAdjacentHTML('afterend', notificationHTML);
     }
-}
-</script>
+    
+    // Load notification settings
+    const client = CLIENT_DATA[username];
+    if (document.getElementById('editEmailNotifications')) {
+        document.getElementById('editEmailNotifications').checked = client.email_notifications || false;
+        document.getElementById('editNotificationEmail').value = client.notification_email || '';
+        const emailGroup = document.getElementById('notificationEmailGroup');
+        if (emailGroup) {
+            emailGroup.style.display = client.email_notifications ? 'block' : 'none';
+        }
+    }
+};
+
+// Handle notification checkbox toggle
+document.addEventListener('change', function(e) {
+    if (e.target.id === 'editEmailNotifications') {
+        const emailGroup = document.getElementById('notificationEmailGroup');
+        if (emailGroup) {
+            emailGroup.style.display = e.target.checked ? 'block' : 'none';
+        }
+    }
+});
+
+
+console.log('✅ Email notification features loaded!');
+
+// ==========================================
+// END EMAIL NOTIFICATION FEATURE
+// ==========================================
+       }
+    </script>
 </body>
 </html>
