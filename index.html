@@ -3220,30 +3220,7 @@ function updateWelcomeBadge(count) {
                 }
             });
         }
-        // ==========================================
-// EMAIL NOTIFICATION FEATURE - ADDED
-// ==========================================
 
-// Add notification fields to edit modal when it opens
-const originalEditClient = window.editClient;
-window.editClient = function(username) {
-    originalEditClient(username);
-    
-    // Add notification fields to the modal if they don't exist
-    const statusField = document.getElementById('editClientStatus');
-    if (statusField && !document.getElementById('editEmailNotifications')) {
-        const notificationHTML = `
-            <div class="form-group">
-                <label class="form-label">📧 Email Notifications</label>
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <input type="checkbox" id="editEmailNotifications" style="width: 20px; height: 20px;">
-                    <span>Enable appointment email notifications</span>
-                </label>
-            </div>
-           
-        `;
-        statusField.closest('.form-group').insertAdjacentHTML('afterend', notificationHTML);
-    }
 
     }
 }
