@@ -1936,22 +1936,36 @@
         }
 
        function showClientDashboard() {
+    console.log('showClientDashboard called');
+    console.log('currentUser:', currentUser);
+    
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminDashboard').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
+    
+    const dashboardElement = document.getElementById('dashboard');
+    console.log('Dashboard element:', dashboardElement);
+    
+    if (dashboardElement) {
+        dashboardElement.style.display = 'block';
+        console.log('Dashboard display set to block');
+    } else {
+        console.error('Dashboard element not found!');
+        return;
+    }
     
     // Update dashboard with user info
     const userData = CLIENT_DATA[currentUser.username];
-    document.getElementById('clientWelcome').textContent = `Welcome, ${userData.name}!`;
-    document.getElementById('loggedInUser').textContent = userData.name;
-    document.getElementById('currentPlan').textContent = userData.plan;
+    console.log('userData:', userData);
     
-    if (document.getElementById('planPrice')) {
-        const planData = PLAN_DATA[userData.plan];
-        if (planData) {
-            document.getElementById('planPrice').textContent = `$${planData.monthly.toFixed(0)}/month`;
-        }
-    }
+    const welcomeEl = document.getElementById('clientWelcome');
+    const loggedInEl = document.getElementById('loggedInUser');
+    
+    if (welcomeEl) welcomeEl.textContent = `Welcome, ${userData.name}!`;
+    if (loggedInEl) loggedInEl.textContent = userData.name;
+    
+    // Load client-specific data
+    loadClientData();
+}
     
     if (document.getElementById('nextBilling')) {
         document.getElementById('nextBilling').textContent = formatDate(userData.nextBilling);
