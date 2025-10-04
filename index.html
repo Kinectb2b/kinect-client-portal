@@ -2603,19 +2603,6 @@ CLIENT_DATA[editingClientId].totalAppointments++;
         showClientNotificationBanner(unconfirmedCount);
         updateWelcomeBadge(unconfirmedCount);
     }
-    
-    // Update appointments
-    updateAppointments(userData.appointments);
-    
-    // Update prospects
-    updateProspects(userData.prospects);
-    
-    // Update last updated time
-    document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
-    
-    // Initialize chart
-    initializeChart();
-}
         function showClientNotificationBanner(count) {
     let banner = document.getElementById('clientNotificationBanner');
     
