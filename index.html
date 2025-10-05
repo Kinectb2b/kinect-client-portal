@@ -2745,14 +2745,7 @@ CLIENT_DATA[editingClientId].totalAppointments++;
             editingClientId = null;
         }
 
-        function viewAsClient(username) {
-            // Temporarily log in as this client
-            currentUser = {
-                username: username,
-                ...CLIENT_DATA[username]
-            };
-            showClientDashboard();
-        }
+    
 
         function deleteClient(username) {
             if (confirm(`Are you sure you want to delete ${CLIENT_DATA[username].name}?`)) {
