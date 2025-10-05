@@ -1361,6 +1361,268 @@
         const { createClient } = supabase;
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // ============================================
+// CORE FUNCTIONS - MUST BE AT TOP
+// ============================================
+
+function logout() {
+    localStorage.removeItem('kinectb2b_user');
+    localStorage.removeItem('kinectb2b_admin');
+    currentUser = null;
+    isAdmin = false;
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('adminDashboard').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
+    document.getElementById('loginError').style.display = 'none';
+}
+
+function showTab(tabName, buttonElement) {
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    const targetTab = document.getElementById(tabName + 'Tab');
+    if (targetTab) {
+        targetTab.classList.add('active');
+    }
+    
+    if (buttonElement) {
+        buttonElement.classList.add('active');
+    }
+    
+    if (tabName === 'notifications' && typeof loadNotificationsList === 'function') {
+        loadNotificationsList();
+    }
+}
+
+function loadClientGrid() {
+    const grid = document.getElementById('clientGrid');
+    if (!grid) return;
+    
+    grid.innerHTML = '';
+    
+    Object.keys(CLIENT_DATA).forEach(username => {
+        const client = CLIENT_DATA[username];
+        const statusColor = client.status === 'active' ? '#22c55e' : client.status === 'paused' ? '#f59e0b' : '#ef4444';
+        const card = document.createElement('div');
+        card.className = 'client-card';
+        card.innerHTML = `
+            <div class="client-header">
+                <div class="client-name">${client.name}</div>
+                <div style="display: flex; gap: 5px; align-items: center;">
+                    <div class="client-plan">${client.plan}</div>
+                    <div style="background: ${statusColor}; color: white; padding: 4px 8px; border-radius: 15px; font-size: 0.7rem; font-weight: 600;">
+                        ${(client.status || 'active').toUpperCase()}
+                    </div>
+                </div>
+            </div>
+            <div class="client-stats">
+                <div class="stat-item">
+                    <div class="stat-number">${client.totalAppointments}</div>
+                    <div class="stat-label">Appointments</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${client.businessesContacted}</div>
+                    <div class="stat-label">Businesses</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${client.peopleCalled}</div>
+                    <div class="stat-label">People Called</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${client.totalContactPoints.toLocaleString()}</div>
+                    <div class="stat-label">Contact Points</div>
+                </div>
+            </div>
+            <div class="client-actions">
+                <button class="action-btn edit-btn" onclick="editClient('${username}')">Edit</button>
+                <button class="action-btn view-btn" onclick="viewAsClient('${username}')">View Portal</button>
+                <button class="action-btn delete-btn" onclick="deleteClient('${username}')">Delete</button>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+function loadNotificationsList() {
+    const container = document.getElementById('notificationsList');
+    if (!container) return;
+    
+    if (!NOTIFICATIONS || NOTIFICATIONS.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #64748b; padding: 40px;">No notifications</div>';
+        return;
+    }
+    
+    container.innerHTML = NOTIFICATIONS.map(notification => `
+        <div class="notification-item">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 5px;">
+                <strong>${notification.type.replace(/_/g, ' ').toUpperCase()}</strong>
+                <small>${new Date(notification.timestamp).toLocaleString()}</small>
+            </div>
+            <div style="margin-bottom: 5px;">${notification.message}</div>
+            <div style="font-size: 0.8rem; color: #64748b;">Client: ${notification.clientName}</div>
+        </div>
+    `).join('');
+}
+
+function viewAsClient(username) {
+    if (!CLIENT_DATA[username]) {
+        alert('Client not found!');
+        return;
+    }
+    
+    currentUser = {
+        username: username,
+        ...CLIENT_DATA[username]
+    };
+    
+    localStorage.setItem('kinectb2b_user', JSON.stringify(currentUser));
+    localStorage.removeItem('kinectb2b_admin');
+    
+    showClientDashboard();
+}
+
+function deleteClient(username) {
+    if (!CLIENT_DATA[username]) {
+        alert('Client not found!');
+        return;
+    }
+    
+    const clientName = CLIENT_DATA[username].name;
+    
+    if (confirm(`Are you sure you want to delete ${clientName}?\\n\\nThis action cannot be undone.`)) {
+        deleteClientFromDatabase(username);
+    }
+}
+
+async function deleteClientFromDatabase(username) {
+    try {
+        const { error } = await supabaseClient
+            .from('clients')
+            .delete()
+            .eq('username', username);
+        
+        if (error) {
+            console.error('Error deleting client:', error);
+            alert('Error deleting client. Please try again.');
+            return;
+        }
+        
+        delete CLIENT_DATA[username];
+        loadClientGrid();
+        alert('Client deleted successfully!');
+        
+    } catch (error) {
+        console.error('Error deleting client:', error);
+        alert('Error deleting client. Please try again.');
+    }
+}
+
+function editClient(username) {
+    editingClientId = username;
+    const client = CLIENT_DATA[username];
+    
+    if (!client) {
+        alert('Client not found!');
+        return;
+    }
+    
+    document.getElementById('editClientId').value = username;
+    document.getElementById('editClientName').value = client.name;
+    document.getElementById('editClientUsername').value = username;
+    document.getElementById('editClientPassword').value = client.password;
+    document.getElementById('editClientPlan').value = client.plan;
+    document.getElementById('editTotalAppointments').value = client.totalAppointments || 0;
+    document.getElementById('editBusinessesContacted').value = client.businessesContacted || 0;
+    document.getElementById('editPeopleCalled').value = client.peopleCalled || 0;
+    document.getElementById('editTotalContactPoints').value = client.totalContactPoints || 0;
+    document.getElementById('editNextBilling').value = client.nextBilling;
+    document.getElementById('editClientStatus').value = client.status || 'active';
+    document.getElementById('editModalTitle').textContent = `Edit ${client.name}`;
+    
+    if (typeof loadAdminAppointments === 'function') {
+        loadAdminAppointments(client.appointments || []);
+    }
+    if (typeof loadAdminProspects === 'function') {
+        loadAdminProspects(client.prospects || []);
+    }
+    
+    document.getElementById('editModal').style.display = 'block';
+}
+
+function showClientDashboard() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminDashboard').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    
+    if (currentUser && currentUser.username) {
+        const userData = CLIENT_DATA[currentUser.username];
+        if (userData) {
+            document.getElementById('clientWelcome').textContent = `Welcome, ${userData.name}!`;
+            document.getElementById('loggedInUser').textContent = userData.name;
+        }
+    }
+    
+    loadClientData();
+}
+
+function loadClientData() {
+    if (!currentUser || !currentUser.username) {
+        console.error('No current user found');
+        return;
+    }
+    
+    const userData = CLIENT_DATA[currentUser.username];
+    
+    if (!userData) {
+        console.error('User data not found for:', currentUser.username);
+        return;
+    }
+    
+    if (document.getElementById('totalAppointments')) {
+        document.getElementById('totalAppointments').textContent = userData.totalAppointments || 0;
+    }
+    if (document.getElementById('businessesContacted')) {
+        document.getElementById('businessesContacted').textContent = userData.businessesContacted || 0;
+    }
+    if (document.getElementById('peopleCalled')) {
+        document.getElementById('peopleCalled').textContent = userData.peopleCalled || 0;
+    }
+    if (document.getElementById('totalContactPoints')) {
+        document.getElementById('totalContactPoints').textContent = (userData.totalContactPoints || 0).toLocaleString();
+    }
+    
+    if (document.getElementById('currentPlan')) {
+        document.getElementById('currentPlan').textContent = userData.plan;
+    }
+    if (document.getElementById('nextBilling')) {
+        document.getElementById('nextBilling').textContent = formatDate(userData.nextBilling);
+    }
+    
+    if (typeof updateAppointments === 'function') {
+        updateAppointments(userData.appointments || []);
+    }
+    if (typeof updateProspects === 'function') {
+        updateProspects(userData.prospects || []);
+    }
+    if (typeof initializeChart === 'function') {
+        initializeChart();
+    }
+    
+    if (document.getElementById('lastUpdated')) {
+        document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+    }
+}
+
+// ============================================
+// END CORE FUNCTIONS
+// ============================================
+
         // Default admin credentials and client data
         const ADMIN_CREDENTIALS = {
             username: 'admin',
@@ -1926,52 +2188,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
             errorDiv.textContent = message;
             errorDiv.style.display = 'block';
         }
-         function loadClientGrid() {
-            const grid = document.getElementById('clientGrid');
-            grid.innerHTML = '';
-            
-            Object.keys(CLIENT_DATA).forEach(username => {
-                const client = CLIENT_DATA[username];
-                const statusColor = client.status === 'active' ? '#22c55e' : client.status === 'paused' ? '#f59e0b' : '#ef4444';
-                const card = document.createElement('div');
-                card.className = 'client-card';
-                card.innerHTML = `
-                    <div class="client-header">
-                        <div class="client-name">${client.name}</div>
-                        <div style="display: flex; gap: 5px; align-items: center;">
-                            <div class="client-plan">${client.plan}</div>
-                            <div style="background: ${statusColor}; color: white; padding: 4px 8px; border-radius: 15px; font-size: 0.7rem; font-weight: 600;">
-                                ${(client.status || 'active').toUpperCase()}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="client-stats">
-                        <div class="stat-item">
-                            <div class="stat-number">${client.totalAppointments}</div>
-                            <div class="stat-label">Appointments</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">${client.businessesContacted}</div>
-                            <div class="stat-label">Businesses</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">${client.peopleCalled}</div>
-                            <div class="stat-label">People Called</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">${client.totalContactPoints.toLocaleString()}</div>
-                            <div class="stat-label">Contact Points</div>
-                        </div>
-                    </div>
-                    <div class="client-actions">
-                        <button class="action-btn edit-btn" onclick="editClient('${username}')">Edit</button>
-                        <button class="action-btn view-btn" onclick="viewAsClient('${username}')">View Portal</button>
-                        <button class="action-btn delete-btn" onclick="deleteClient('${username}')">Delete</button>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
+    
 
         function showAdminDashboard() {
     document.getElementById('loginScreen').style.display = 'none';
@@ -1996,113 +2213,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     });
 }
 
-         function loadClientData() {
-    // ADD THESE SAFETY CHECKS AT THE TOP
-    if (!currentUser || !currentUser.username) {
-        console.error('No current user found');
-        return;
-    }
-
-       function showClientDashboard() {
-    console.log('showClientDashboard called');
-    console.log('currentUser:', currentUser);
-    
-    // Hide other screens
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('adminDashboard').style.display = 'none';
-    
-    // Show dashboard
-    const dashboardElement = document.getElementById('dashboard');
-    console.log('Dashboard element:', dashboardElement);
-    
-    if (dashboardElement) {
-        dashboardElement.style.display = 'block';
-        console.log('Dashboard display set to block');
-    } else {
-        console.error('Dashboard element not found!');
-        return;
-    }
-    
-    // Validate user data exists
-    if (!currentUser || !currentUser.username) {
-        console.error('No current user');
-        return;
-    }
-    
-    const userData = CLIENT_DATA[currentUser.username];
-    
-    if (!userData) {
-        console.error('User data not found for:', currentUser.username);
-        return;
-    }
-    
-    console.log('userData:', userData);
-    
-    // Update welcome text
-    const welcomeEl = document.getElementById('clientWelcome');
-    const loggedInEl = document.getElementById('loggedInUser');
-    
-    if (welcomeEl) welcomeEl.textContent = `Welcome, ${userData.name}!`;
-    if (loggedInEl) loggedInEl.textContent = userData.name;
-    
-    // Load client-specific data
-    loadClientData();
-}
-    
-    if (document.getElementById('nextBilling')) {
-        document.getElementById('nextBilling').textContent = formatDate(userData.nextBilling);
-    }
-
        
-    // Load client-specific data
-    loadClientData();
-
-        function logout() {
-            localStorage.removeItem('kinectb2b_user');
-            localStorage.removeItem('kinectb2b_admin');
-            currentUser = null;
-            isAdmin = false;
-            document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('adminDashboard').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'none';
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-            document.getElementById('loginError').style.display = 'none';
-        }
-        // View client portal as this client
-function viewAsClient(username) {
-    if (!CLIENT_DATA[username]) {
-        alert('Client not found!');
-        return;
-    }
-    
-    // Temporarily log in as this client
-    currentUser = {
-        username: username,
-        ...CLIENT_DATA[username]
-    };
-    
-    // Save to localStorage so the session persists
-    localStorage.setItem('kinectb2b_user', JSON.stringify(currentUser));
-    localStorage.removeItem('kinectb2b_admin'); // Remove admin flag
-    
-    // Show client dashboard
-    showClientDashboard();
-}
-
-// Delete client
-function deleteClient(username) {
-    if (!CLIENT_DATA[username]) {
-        alert('Client not found!');
-        return;
-    }
-    
-    const clientName = CLIENT_DATA[username].name;
-    
-    if (confirm(`Are you sure you want to delete ${clientName}?\n\nThis action cannot be undone and will:\n- Remove all client data\n- Delete all appointments\n- Delete all prospects\n- Remove access to the portal`)) {
-        deleteClientFromDatabase(username);
-    }
-}
 
 // Delete client from Supabase database
 async function deleteClientFromDatabase(username) {
@@ -2134,54 +2245,6 @@ async function deleteClientFromDatabase(username) {
         alert('Error deleting client. Please try again.');
     }
 }
-
-        function showTab(tabName, buttonElement) {
-    // Hide all tabs
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    // Show selected tab
-    const targetTab = document.getElementById(tabName + 'Tab');
-    if (targetTab) {
-        targetTab.classList.add('active');
-    } else {
-        console.error('Tab not found:', tabName + 'Tab');
-    }
-    
-    // Add active class to clicked button
-    if (buttonElement) {
-        buttonElement.classList.add('active');
-    }
-    
-    // FIX: Safely load notifications
-    if (tabName === 'notifications') {
-        if (typeof loadNotificationsList === 'function') {
-            loadNotificationsList();
-        } else {
-            console.error('loadNotificationsList function not found');
-        }
-    }
-    
-    console.log('Switching to tab:', tabName);
-}
-
-       
-        function loadNotificationsList() {
-    const container = document.getElementById('notificationsList');
-    
-    if (!container) {
-        console.error('Notifications list container not found');
-        return;
-    }
-    
-    if (!NOTIFICATIONS || NOTIFICATIONS.length === 0) {
-        container.innerHTML = '<div style="text-align: center; color: #64748b; padding: 40px;">No notifications</div>';
-        return;
-    }
     
     container.innerHTML = NOTIFICATIONS.map(notification => `
         <div class="notification-item ${notification.read ? 'read' : 'unread'}" 
