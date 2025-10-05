@@ -2272,30 +2272,6 @@ async function deleteClientFromDatabase(username) {
             }
         }
 
-        function editClient(username) {  // <-- This should be the next function
-
-        function editClient(username) {
-            editingClientId = username;
-            const client = CLIENT_DATA[username];
-            document.getElementById('editClientId').value = username;
-            document.getElementById('editClientName').value = client.name;
-            document.getElementById('editClientUsername').value = username;
-            document.getElementById('editClientPassword').value = client.password;
-            document.getElementById('editClientPlan').value = client.plan;
-            document.getElementById('editTotalAppointments').value = client.totalAppointments;
-            document.getElementById('editBusinessesContacted').value = client.businessesContacted;
-            document.getElementById('editPeopleCalled').value = client.peopleCalled;
-            document.getElementById('editTotalContactPoints').value = client.totalContactPoints;
-            document.getElementById('editNextBilling').value = client.nextBilling;
-            document.getElementById('editClientStatus').value = client.status || 'active';
-            document.getElementById('editModalTitle').textContent = `Edit ${client.name}`;
-            
-            loadAdminAppointments(client.appointments || []);
-            loadAdminProspects(client.prospects || []);
-            
-            document.getElementById('editModal').style.display = 'block';
-        }
-
         function loadAdminAppointments(appointments) {
     const container = document.getElementById('adminAppointmentsList');
     container.innerHTML = appointments.map((apt, index) => `
