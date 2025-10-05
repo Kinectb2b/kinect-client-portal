@@ -2052,41 +2052,41 @@ function loadClientData() {
     }
 });
         
-        // Setup real-time subscriptions for live updates
-        function setupRealtimeSubscriptions() {
-            // Listen for client changes
-            supabaseClient
-                .channel('clients-channel')
-                .on('postgres_changes', 
-                    { event: '*', schema: 'public', table: 'clients' }, 
-                    async (payload) => {
-                        console.log('Client data changed:', payload);
-                        await loadSavedData();
-                        if (isAdmin) {
-                            loadClientGrid();
-                       } else if (currentUser) {
-    if (currentUser && !isAdmin) {
-        loadClientData();
-    }
+      // Setup real-time subscriptions for live updates
+function setupRealtimeSubscriptions() {
+    // Listen for client changes
+    supabaseClient
+        .channel('clients-channel')
+        .on('postgres_changes', 
+            { event: '*', schema: 'public', table: 'clients' }, 
+            async (payload) => {
+                console.log('Client data changed:', payload);
+                await loadSavedData();
+                if (isAdmin) {
+                    loadClientGrid();
+                } else if (currentUser && !isAdmin) {
+                    loadClientData();
+                }
+            }
+        )
+        .subscribe();
+    
+    // Listen for notification changes
+    supabaseClient
+        .channel('notifications-channel')
+        .on('postgres_changes', 
+            { event: '*', schema: 'public', table: 'notifications' }, 
+            async (payload) => {
+                console.log('Notifications changed:', payload);
+                await loadSavedData();
+                updateNotificationBadges();
+                if (isAdmin && document.getElementById('notificationsTab').classList.contains('active')) {
+                    loadNotificationsList();
+                }
+            }
+        )
+        .subscribe();
 }
-                
-                
-            // Listen for notification changes
-            supabaseClient
-                .channel('notifications-channel')
-                .on('postgres_changes', 
-                    { event: '*', schema: 'public', table: 'notifications' }, 
-                    async (payload) => {
-                        console.log('Notifications changed:', payload);
-                        await loadSavedData();
-                        updateNotificationBadges();
-                        if (isAdmin && document.getElementById('notificationsTab').classList.contains('active')) {
-                            loadNotificationsList();
-                        }
-                    }
-                )
-                .subscribe();
-        }
                     
         
         function setupEventListeners() {
