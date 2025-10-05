@@ -2065,8 +2065,9 @@ function loadClientData() {
                         if (isAdmin) {
                             loadClientGrid();
                         } else if (currentUser) {
-                            loadClientData();
-                        }
+                       if (currentUser && !isAdmin) {
+    loadClientData();
+}
                     }
                 )
                 .subscribe();
@@ -2784,13 +2785,6 @@ CLIENT_DATA[editingClientId].totalAppointments++;
         // Remove the old event listeners that were placed incorrectly
         
        
-    
-    const userData = CLIENT_DATA[currentUser.username];
-    
-    if (!userData) {
-        console.error('User data not found for:', currentUser.username);
-        return;
-    }
     
     // Make sure all required fields exist
     if (!userData.email) userData.email = '';
