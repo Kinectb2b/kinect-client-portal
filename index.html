@@ -1460,7 +1460,7 @@ function loadNotificationsList() {
     }
     
      
-     container.innerHTML = NOTIFICATIONS.map(...)'
+     container.innerHTML = NOTIFICATIONS.map(notification => `
         <div class="notification-item">
             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 5px;">
                 <strong>${notification.type.replace(/_/g, ' ').toUpperCase()}</strong>
