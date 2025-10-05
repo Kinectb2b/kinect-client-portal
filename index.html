@@ -2064,11 +2064,11 @@ function loadClientData() {
                         await loadSavedData();
                         if (isAdmin) {
                             loadClientGrid();
-                        } else if (currentUser) {
-                       if (currentUser && !isAdmin) {
-    loadClientData();
+                       } else if (currentUser) {
+    if (currentUser && !isAdmin) {
+        loadClientData();
+    }
 }
-                    }
                 
                 
             // Listen for notification changes
@@ -3397,7 +3397,6 @@ console.log('✅ Email notification features loaded!');
 // ==========================================
             
      }
-        }
     </script>
 </body>
 </html>
