@@ -2258,7 +2258,6 @@ async function deleteClientFromDatabase(username) {
             ${!notification.read ? `<button class="btn" style="padding: 4px 8px; font-size: 0.8rem; margin-top: 5px;" onclick="markAsRead(${notification.id})">Mark as Read</button>` : ''}
         </div>
     `).join('');
-}
        
 
         function markAsRead(notificationId) {
