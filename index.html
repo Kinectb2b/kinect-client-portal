@@ -1525,6 +1525,10 @@ async function deleteClientFromDatabase(username) {
 }
 
 function editClient(username) {
+    if (!username) {
+        console.error('No username provided');
+        return;
+    }
     editingClientId = username;
     const client = CLIENT_DATA[username];
     
