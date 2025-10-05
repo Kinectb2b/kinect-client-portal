@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1458,7 +1457,10 @@ function loadNotificationsList() {
         return;
     }
     
-    container.innerHTML = NOTIFICATIONS.map(notification => `
+   const container = document.getElementById('notificationsList');
+     if (!container) return;
+     
+     container.innerHTML = NOTIFICATIONS.map(...)`
         <div class="notification-item">
             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 5px;">
                 <strong>${notification.type.replace(/_/g, ' ').toUpperCase()}</strong>
