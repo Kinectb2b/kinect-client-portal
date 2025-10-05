@@ -2246,19 +2246,6 @@ async function deleteClientFromDatabase(username) {
         alert('Error deleting client. Please try again.');
     }
 }
-    
-    container.innerHTML = NOTIFICATIONS.map(notification => `
-        <div class="notification-item ${notification.read ? 'read' : 'unread'}" 
-             style="${!notification.read ? 'background: #fef3c7; border-color: #fbbf24;' : 'background: #f8fafc; border-color: #e2e8f0;'}">
-            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 5px;">
-                <strong>${notification.type.replace(/_/g, ' ').toUpperCase()}</strong>
-                <small>${new Date(notification.timestamp).toLocaleString()}</small>
-            </div>
-            <div style="margin-bottom: 5px;">${notification.message}</div>
-            <div style="font-size: 0.8rem; color: #64748b;">Client: ${notification.clientName}</div>
-            ${!notification.read ? `<button class="btn" style="padding: 4px 8px; font-size: 0.8rem; margin-top: 5px;" onclick="markAsRead(${notification.id})">Mark as Read</button>` : ''}
-        </div>
-    `).join('');
        
 
         function markAsRead(notificationId) {
