@@ -2758,33 +2758,7 @@ CLIENT_DATA[editingClientId].totalAppointments++;
             }
         }
 
-        // Remove the old event listeners that were placed incorrectly
-        
-       
-    
-    // Make sure all required fields exist
-    if (!userData.email) userData.email = '';
-    if (!userData.phone) userData.phone = '';
-    if (!userData.address) userData.address = '';
-    if (!userData.website) userData.website = '';
-    if (!userData.ein) userData.ein = '';
-    
-    // Update metrics
-    document.getElementById('totalAppointments').textContent = userData.totalAppointments;
-    document.getElementById('businessesContacted').textContent = userData.businessesContacted;
-    document.getElementById('peopleCalled').textContent = userData.peopleCalled;
-    document.getElementById('totalContactPoints').textContent = userData.totalContactPoints.toLocaleString();
-    
-    // Check for unconfirmed appointments
-    const unconfirmedCount = userData.appointments?.filter(apt => 
-        apt.status === 'pending' || apt.status !== 'confirmed'
-    ).length || 0;
-    
-    // Show notification banner if there are unconfirmed appointments
-    if (unconfirmedCount > 0) {
-        showClientNotificationBanner(unconfirmedCount);
-        updateWelcomeBadge(unconfirmedCount);
-    }
+  
         function showClientNotificationBanner(count) {
     let banner = document.getElementById('clientNotificationBanner');
     
@@ -3372,7 +3346,7 @@ console.log('✅ Email notification features loaded!');
 // END EMAIL NOTIFICATION FEATURE
 // ==========================================
               
-  
+
 </script>
 </body>
 </html>
