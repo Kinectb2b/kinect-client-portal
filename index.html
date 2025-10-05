@@ -3,6 +3,7 @@
 <html lang="en">
 <head>
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kinect B2B">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -1459,7 +1460,7 @@ function loadNotificationsList() {
     }
     
      
-     container.innerHTML = NOTIFICATIONS.map(...)`
+     container.innerHTML = NOTIFICATIONS.map(...)
         <div class="notification-item">
             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 5px;">
                 <strong>${notification.type.replace(/_/g, ' ').toUpperCase()}</strong>
@@ -1468,7 +1469,7 @@ function loadNotificationsList() {
             <div style="margin-bottom: 5px;">${notification.message}</div>
             <div style="font-size: 0.8rem; color: #64748b;">Client: ${notification.clientName}</div>
         </div>
-    `).join('');
+    .join('');
 }
 
 function viewAsClient(username) {
