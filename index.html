@@ -1926,6 +1926,52 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
             errorDiv.textContent = message;
             errorDiv.style.display = 'block';
         }
+         function loadClientGrid() {
+            const grid = document.getElementById('clientGrid');
+            grid.innerHTML = '';
+            
+            Object.keys(CLIENT_DATA).forEach(username => {
+                const client = CLIENT_DATA[username];
+                const statusColor = client.status === 'active' ? '#22c55e' : client.status === 'paused' ? '#f59e0b' : '#ef4444';
+                const card = document.createElement('div');
+                card.className = 'client-card';
+                card.innerHTML = `
+                    <div class="client-header">
+                        <div class="client-name">${client.name}</div>
+                        <div style="display: flex; gap: 5px; align-items: center;">
+                            <div class="client-plan">${client.plan}</div>
+                            <div style="background: ${statusColor}; color: white; padding: 4px 8px; border-radius: 15px; font-size: 0.7rem; font-weight: 600;">
+                                ${(client.status || 'active').toUpperCase()}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="client-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">${client.totalAppointments}</div>
+                            <div class="stat-label">Appointments</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${client.businessesContacted}</div>
+                            <div class="stat-label">Businesses</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${client.peopleCalled}</div>
+                            <div class="stat-label">People Called</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${client.totalContactPoints.toLocaleString()}</div>
+                            <div class="stat-label">Contact Points</div>
+                        </div>
+                    </div>
+                    <div class="client-actions">
+                        <button class="action-btn edit-btn" onclick="editClient('${username}')">Edit</button>
+                        <button class="action-btn view-btn" onclick="viewAsClient('${username}')">View Portal</button>
+                        <button class="action-btn delete-btn" onclick="deleteClient('${username}')">Delete</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
 
         function showAdminDashboard() {
     document.getElementById('loginScreen').style.display = 'none';
@@ -2123,52 +2169,7 @@ async function deleteClientFromDatabase(username) {
     console.log('Switching to tab:', tabName);
 }
 
-        function loadClientGrid() {
-            const grid = document.getElementById('clientGrid');
-            grid.innerHTML = '';
-            
-            Object.keys(CLIENT_DATA).forEach(username => {
-                const client = CLIENT_DATA[username];
-                const statusColor = client.status === 'active' ? '#22c55e' : client.status === 'paused' ? '#f59e0b' : '#ef4444';
-                const card = document.createElement('div');
-                card.className = 'client-card';
-                card.innerHTML = `
-                    <div class="client-header">
-                        <div class="client-name">${client.name}</div>
-                        <div style="display: flex; gap: 5px; align-items: center;">
-                            <div class="client-plan">${client.plan}</div>
-                            <div style="background: ${statusColor}; color: white; padding: 4px 8px; border-radius: 15px; font-size: 0.7rem; font-weight: 600;">
-                                ${(client.status || 'active').toUpperCase()}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="client-stats">
-                        <div class="stat-item">
-                            <div class="stat-number">${client.totalAppointments}</div>
-                            <div class="stat-label">Appointments</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">${client.businessesContacted}</div>
-                            <div class="stat-label">Businesses</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">${client.peopleCalled}</div>
-                            <div class="stat-label">People Called</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">${client.totalContactPoints.toLocaleString()}</div>
-                            <div class="stat-label">Contact Points</div>
-                        </div>
-                    </div>
-                    <div class="client-actions">
-                        <button class="action-btn edit-btn" onclick="editClient('${username}')">Edit</button>
-                        <button class="action-btn view-btn" onclick="viewAsClient('${username}')">View Portal</button>
-                        <button class="action-btn delete-btn" onclick="deleteClient('${username}')">Delete</button>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
+       
         function loadNotificationsList() {
     const container = document.getElementById('notificationsList');
     
