@@ -949,70 +949,8 @@
                         <button class="btn btn-primary" onclick="showPlanDetails()">View Plan Details</button>
                         <button class="btn btn-secondary" onclick="showPlanOptions()">Change Plan</button>
                         <button class="btn btn-secondary" onclick="window.open('https://kinectb2b-affiliate.com/', '_blank')">Become an Affiliate</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- NEW: Client Settings Section -->
-            <div class="settings-section">
-                <h2 style="font-size: 1.8rem; color: #1e293b; margin-bottom: 25px;">Account Settings</h2>
-                
-                <div class="settings-card">
-                    <h3>Personal Information</h3>
-                    <form id="personalInfoForm">
-                        <div class="form-group">
-                            <label class="form-label">Full Name</label>
-                            <input type="text" id="clientFullName" class="form-input" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Email Address</label>
-                            <input type="email" id="clientEmail" class="form-input" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Phone Number</label>
-                            <input type="tel" id="clientPhone" class="form-input" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Billing Address</label>
-                            <textarea id="clientBillingAddress" class="form-textarea" rows="3" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Save Personal Info</button>
-                    </form>
-                </div>
-                
-                <div class="settings-card">
-                    <h3>Change Password</h3>
-                    <form id="changePasswordForm">
-                        <div class="form-group">
-                            <label class="form-label">Current Password</label>
-                            <input type="password" id="currentPassword" class="form-input" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">New Password</label>
-                            <input type="password" id="newPassword" class="form-input" required minlength="8">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Confirm New Password</label>
-                            <input type="password" id="confirmPassword" class="form-input" required minlength="8">
-                        </div>
-                        <button type="submit" class="btn btn-primary">Change Password</button>
-                    </form>
-                </div>
-                
-                <div class="settings-card">
-                    <h3>Messages</h3>
-                    <div class="message-thread" id="messageThread">
-                        <!-- Messages will be loaded here -->
-                    </div>
-                    
-                    <div class="compose-message">
-                        <form id="sendMessageForm">
-                            <div class="form-group">
-                                <label class="form-label">Send a Message to Admin</label>
-                                <textarea id="messageContent" class="form-textarea" rows="4" placeholder="Type your message here..." required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Send Message</button>
-                        </form>
+                        <button class="btn btn-secondary" onclick="scrollToMessages()">📧 Messages</button>
+                        <button class="btn btn-secondary" onclick="scrollToSettings()">⚙️ Account Settings</button>
                     </div>
                 </div>
             </div>
@@ -1086,6 +1024,137 @@
                 </div>
             </div>
 
+            <!-- NEW: Messages Section -->
+            <div id="messagesSection" class="settings-section">
+                <h2 style="font-size: 1.8rem; color: #1e293b; margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
+                    📧 Messages
+                    <span id="clientUnreadBadge" class="notification-badge" style="display: none;">0</span>
+                </h2>
+                
+                <div class="settings-card">
+                    <h3>Conversation with Admin</h3>
+                    <div class="message-thread" id="messageThread">
+                        <!-- Messages will be loaded here -->
+                    </div>
+                    
+                    <div class="compose-message">
+                        <form id="sendMessageForm">
+                            <div class="form-group">
+                                <label class="form-label">Send a Message</label>
+                                <textarea id="messageContent" class="form-textarea" rows="4" placeholder="Type your message here..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW: Account Settings Section (Redesigned) -->
+            <div id="accountSettingsSection" class="settings-section">
+                <h2 style="font-size: 1.8rem; color: #1e293b; margin-bottom: 25px;">⚙️ Account Settings</h2>
+                
+                <!-- Personal Information Profile View -->
+                <div class="settings-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3>Personal Information</h3>
+                        <button class="btn btn-secondary" onclick="toggleEditProfile()" id="editProfileBtn">
+                            ✏️ Edit Profile
+                        </button>
+                    </div>
+                    
+                    <!-- Profile View Mode -->
+                    <div id="profileViewMode">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                            <div>
+                                <div style="font-weight: 600; color: #64748b; font-size: 0.85rem; margin-bottom: 5px;">FULL NAME</div>
+                                <div style="font-size: 1.1rem; color: #1e293b;" id="displayFullName">-</div>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; color: #64748b; font-size: 0.85rem; margin-bottom: 5px;">EMAIL ADDRESS</div>
+                                <div style="font-size: 1.1rem; color: #1e293b;" id="displayEmail">-</div>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; color: #64748b; font-size: 0.85rem; margin-bottom: 5px;">PHONE NUMBER</div>
+                                <div style="font-size: 1.1rem; color: #1e293b;" id="displayPhone">-</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 20px;">
+                            <div style="font-weight: 600; color: #64748b; font-size: 0.85rem; margin-bottom: 5px;">BILLING ADDRESS</div>
+                            <div style="font-size: 1.1rem; color: #1e293b;" id="displayBillingAddress">-</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile Edit Mode -->
+                    <div id="profileEditMode" style="display: none;">
+                        <form id="personalInfoForm">
+                            <div class="form-group">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" id="clientFullName" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" id="clientEmail" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone Number</label>
+                                <input type="tel" id="clientPhone" class="form-input" placeholder="(123) 456-7890" required>
+                            </div>
+                            
+                            <h4 style="margin: 20px 0 15px 0; color: #374151;">Billing Address</h4>
+                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px;">
+                                <div class="form-group">
+                                    <label class="form-label">Street Address</label>
+                                    <input type="text" id="clientStreet" class="form-input" placeholder="123 Main Street" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Apt/Suite</label>
+                                    <input type="text" id="clientApt" class="form-input" placeholder="Suite 100">
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px;">
+                                <div class="form-group">
+                                    <label class="form-label">City</label>
+                                    <input type="text" id="clientCity" class="form-input" placeholder="Chicago" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">State</label>
+                                    <input type="text" id="clientState" class="form-input" placeholder="IL" maxlength="2" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Zip Code</label>
+                                    <input type="text" id="clientZip" class="form-input" placeholder="60601" maxlength="10" required>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                <button type="button" class="btn btn-secondary" onclick="cancelEditProfile()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="settings-card">
+                    <h3>Change Password</h3>
+                    <form id="changePasswordForm">
+                        <div class="form-group">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" id="currentPassword" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">New Password</label>
+                            <input type="password" id="newPassword" class="form-input" required minlength="8">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Confirm New Password</label>
+                            <input type="password" id="confirmPassword" class="form-input" required minlength="8">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Change Password</button>
+                    </form>
+                </div>
+            </div>
+
             <!-- Call-to-Action Section -->
             <div class="cta-section">
                 <h2 style="margin-bottom: 20px; color: #1e293b;">Need Support or Have Questions?</h2>
@@ -1129,7 +1198,30 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Billing Address</label>
-                    <textarea id="editClientBillingAddress" class="form-textarea" rows="3"></textarea>
+                </div>
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label class="form-label">Street Address</label>
+                        <input type="text" id="editClientStreet" class="form-input" placeholder="123 Main Street">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Apt/Suite</label>
+                        <input type="text" id="editClientApt" class="form-input" placeholder="Suite 100">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label class="form-label">City</label>
+                        <input type="text" id="editClientCity" class="form-input" placeholder="Chicago">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">State</label>
+                        <input type="text" id="editClientState" class="form-input" placeholder="IL" maxlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Zip Code</label>
+                        <input type="text" id="editClientZip" class="form-input" placeholder="60601" maxlength="10">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Plan</label>
@@ -1427,7 +1519,11 @@
                 name: 'Dynamic Duo',
                 email: 'dynamicduo@example.com',
                 phone: '+1234567890',
-                billingAddress: '123 Main St, City, State 12345',
+                street: '123 Main St',
+                apt: 'Suite 100',
+                city: 'Chicago',
+                state: 'IL',
+                zip: '60601',
                 plan: 'Pro Plan 300',
                 status: 'active',
                 nextBilling: '2025-10-22',
@@ -1478,7 +1574,11 @@
                 name: 'TechStart Solutions',
                 email: 'techstart@example.com',
                 phone: '+1987654321',
-                billingAddress: '456 Tech Ave, Silicon Valley, CA 94000',
+                street: '456 Tech Ave',
+                apt: '',
+                city: 'Silicon Valley',
+                state: 'CA',
+                zip: '94000',
                 plan: 'Pro Plan 500',
                 status: 'active',
                 nextBilling: '2025-11-15',
@@ -1537,7 +1637,11 @@
                             name: client.name,
                             email: client.email || '',
                             phone: client.phone || '',
-                            billingAddress: client.billing_address || '',
+                            street: client.street || '',
+                            apt: client.apt || '',
+                            city: client.city || '',
+                            state: client.state || '',
+                            zip: client.zip || '',
                             plan: client.plan,
                             status: client.status || 'active',
                             nextBilling: client.next_billing,
@@ -1594,7 +1698,11 @@
                             name: clientData.name,
                             email: clientData.email || '',
                             phone: clientData.phone || '',
-                            billing_address: clientData.billingAddress || '',
+                            street: clientData.street || '',
+                            apt: clientData.apt || '',
+                            city: clientData.city || '',
+                            state: clientData.state || '',
+                            zip: clientData.zip || '',
                             plan: clientData.plan,
                             status: clientData.status || 'active',
                             next_billing: clientData.nextBilling,
@@ -1834,7 +1942,11 @@
                         name: document.getElementById('newClientName').value,
                         email: document.getElementById('newClientEmail').value,
                         phone: document.getElementById('newClientPhone').value,
-                        billingAddress: '',
+                        street: '',
+                        apt: '',
+                        city: '',
+                        state: '',
+                        zip: '',
                         plan: document.getElementById('newClientPlan').value,
                         nextBilling: document.getElementById('newClientBilling').value,
                         status: document.getElementById('newClientStatus').value,
@@ -1876,7 +1988,11 @@
                         password: document.getElementById('editClientPassword').value,
                         email: document.getElementById('editClientEmail').value,
                         phone: document.getElementById('editClientPhone').value,
-                        billingAddress: document.getElementById('editClientBillingAddress').value,
+                        street: document.getElementById('editClientStreet').value,
+                        apt: document.getElementById('editClientApt').value,
+                        city: document.getElementById('editClientCity').value,
+                        state: document.getElementById('editClientState').value,
+                        zip: document.getElementById('editClientZip').value,
                         plan: document.getElementById('editClientPlan').value,
                         status: document.getElementById('editClientStatus').value,
                         totalAppointments: parseInt(document.getElementById('editTotalAppointments').value),
@@ -2058,7 +2174,11 @@
             document.getElementById('editClientPassword').value = client.password;
             document.getElementById('editClientEmail').value = client.email || '';
             document.getElementById('editClientPhone').value = client.phone || '';
-            document.getElementById('editClientBillingAddress').value = client.billingAddress || '';
+            document.getElementById('editClientStreet').value = client.street || '';
+            document.getElementById('editClientApt').value = client.apt || '';
+            document.getElementById('editClientCity').value = client.city || '';
+            document.getElementById('editClientState').value = client.state || '';
+            document.getElementById('editClientZip').value = client.zip || '';
             document.getElementById('editClientPlan').value = client.plan;
             document.getElementById('editTotalAppointments').value = client.totalAppointments;
             document.getElementById('editBusinessesContacted').value = client.businessesContacted;
@@ -2435,12 +2555,88 @@
         // NEW: Load client settings
         function loadClientSettings() {
             const userData = CLIENT_DATA[currentUser.username];
+            
+            // Load profile view
+            document.getElementById('displayFullName').textContent = userData.name || '-';
+            document.getElementById('displayEmail').textContent = userData.email || '-';
+            document.getElementById('displayPhone').textContent = userData.phone || '-';
+            
+            const addressParts = [];
+            if (userData.street) addressParts.push(userData.street);
+            if (userData.apt) addressParts.push(userData.apt);
+            if (userData.city || userData.state || userData.zip) {
+                const cityStateZip = [userData.city, userData.state, userData.zip].filter(Boolean).join(', ');
+                if (cityStateZip) addressParts.push(cityStateZip);
+            }
+            document.getElementById('displayBillingAddress').textContent = addressParts.length > 0 ? addressParts.join(', ') : '-';
+            
+            // Load form fields
             document.getElementById('clientFullName').value = userData.name || '';
             document.getElementById('clientEmail').value = userData.email || '';
             document.getElementById('clientPhone').value = userData.phone || '';
-            document.getElementById('clientBillingAddress').value = userData.billingAddress || '';
+            document.getElementById('clientStreet').value = userData.street || '';
+            document.getElementById('clientApt').value = userData.apt || '';
+            document.getElementById('clientCity').value = userData.city || '';
+            document.getElementById('clientState').value = userData.state || '';
+            document.getElementById('clientZip').value = userData.zip || '';
             
             loadMessages();
+            updateClientMessageBadge();
+        }
+
+        // NEW: Toggle edit profile mode
+        function toggleEditProfile() {
+            const viewMode = document.getElementById('profileViewMode');
+            const editMode = document.getElementById('profileEditMode');
+            const editBtn = document.getElementById('editProfileBtn');
+            
+            if (editMode.style.display === 'none') {
+                viewMode.style.display = 'none';
+                editMode.style.display = 'block';
+                editBtn.textContent = '❌ Cancel';
+            } else {
+                cancelEditProfile();
+            }
+        }
+
+        // NEW: Cancel edit profile
+        function cancelEditProfile() {
+            const viewMode = document.getElementById('profileViewMode');
+            const editMode = document.getElementById('profileEditMode');
+            const editBtn = document.getElementById('editProfileBtn');
+            
+            viewMode.style.display = 'block';
+            editMode.style.display = 'none';
+            editBtn.textContent = '✏️ Edit Profile';
+            
+            // Reset form to current values
+            loadClientSettings();
+        }
+
+        // NEW: Scroll to messages section
+        function scrollToMessages() {
+            document.getElementById('messagesSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // NEW: Scroll to settings section
+        function scrollToSettings() {
+            document.getElementById('accountSettingsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // NEW: Update client message badge
+        function updateClientMessageBadge() {
+            const userData = CLIENT_DATA[currentUser.username];
+            const unreadCount = userData.messages ? userData.messages.filter(msg => msg.from === 'admin' && !msg.read).length : 0;
+            
+            const badge = document.getElementById('clientUnreadBadge');
+            if (badge) {
+                if (unreadCount > 0) {
+                    badge.textContent = unreadCount;
+                    badge.style.display = 'inline';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
         }
 
         // NEW: Setup client settings event listeners
@@ -2470,7 +2666,11 @@
             userData.name = document.getElementById('clientFullName').value;
             userData.email = document.getElementById('clientEmail').value;
             userData.phone = document.getElementById('clientPhone').value;
-            userData.billingAddress = document.getElementById('clientBillingAddress').value;
+            userData.street = document.getElementById('clientStreet').value;
+            userData.apt = document.getElementById('clientApt').value;
+            userData.city = document.getElementById('clientCity').value;
+            userData.state = document.getElementById('clientState').value.toUpperCase();
+            userData.zip = document.getElementById('clientZip').value;
             
             await saveData();
             
@@ -2482,6 +2682,10 @@
             // Update the welcome message with new name
             document.getElementById('clientWelcome').textContent = `Welcome, ${userData.name}!`;
             document.getElementById('loggedInUser').textContent = userData.name;
+            
+            // Update profile view
+            loadClientSettings();
+            cancelEditProfile();
             
             alert('Personal information updated successfully!');
         }
@@ -2535,6 +2739,20 @@
                 return;
             }
             
+            // Mark admin messages as read when viewing
+            let hasUnread = false;
+            userData.messages.forEach(msg => {
+                if (msg.from === 'admin' && !msg.read) {
+                    msg.read = true;
+                    hasUnread = true;
+                }
+            });
+            
+            if (hasUnread) {
+                saveData();
+                updateClientMessageBadge();
+            }
+            
             messageThread.innerHTML = userData.messages.map(msg => `
                 <div class="message-item ${msg.from === 'admin' ? 'admin' : ''}">
                     <div class="message-header">
@@ -2584,6 +2802,7 @@
             document.getElementById('messageContent').value = '';
             loadMessages();
             updateNotificationBadges();
+            updateClientMessageBadge();
             
             alert('Message sent successfully! Admin will respond shortly.');
         }
