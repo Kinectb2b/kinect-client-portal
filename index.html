@@ -308,8 +308,12 @@
 
         /* Dashboard Styles */
         .dashboard {
-            display: none;
-        }
+    display: none;
+}
+
+.dashboard.active {
+    display: block !important;
+}
 
         .container {
             max-width: 1400px;
@@ -1371,9 +1375,13 @@ function logout() {
     localStorage.removeItem('kinectb2b_admin');
     currentUser = null;
     isAdmin = false;
+    
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('adminDashboard').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'none';
+    
+    // Remove active class
+    document.getElementById('dashboard').classList.remove('active');
+    
     document.getElementById('username').value = '';
     document.getElementById('password').value = '';
     document.getElementById('loginError').style.display = 'none';
@@ -1561,22 +1569,34 @@ function editClient(username) {
 }
 
 function showClientDashboard() {
+    console.log('📱 Showing client dashboard...');
+    
+    // Hide other screens
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminDashboard').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
     
+    // Show dashboard using class
+    const dashboardEl = document.getElementById('dashboard');
+    dashboardEl.classList.add('active');
+    
+    console.log('Dashboard classes:', dashboardEl.className);
+    
+    // Update welcome message
     if (currentUser && currentUser.username) {
         const userData = CLIENT_DATA[currentUser.username];
         if (userData) {
-            document.getElementById('clientWelcome').textContent = `Welcome, ${userData.name}!`;
-            document.getElementById('loggedInUser').textContent = userData.name;
+            const welcomeEl = document.getElementById('clientWelcome');
+            const loggedInEl = document.getElementById('loggedInUser');
+            
+            if (welcomeEl) welcomeEl.textContent = `Welcome, ${userData.name}!`;
+            if (loggedInEl) loggedInEl.textContent = userData.name;
         }
     }
     
-    // ✅ ADD A SMALL DELAY TO LET THE DOM UPDATE
+    // Load data with small delay
     setTimeout(() => {
         loadClientData();
-    }, 100);
+    }, 150);
 }
 
 function loadClientData() {
