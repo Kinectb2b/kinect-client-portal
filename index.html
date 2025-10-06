@@ -1628,23 +1628,24 @@
                     .select('*');
                 
                 if (clientsError) {
-                    console.log('Clients table may not exist yet, using default data');
+                    console.log('Clients table error:', clientsError);
+                    console.log('Using default data');
                 } else if (clients && clients.length > 0) {
                     CLIENT_DATA = {};
                     clients.forEach(client => {
                         CLIENT_DATA[client.username] = {
-                            password: client.password,
-                            name: client.name,
-                            email: client.email || '',
+                            password: client.password || '',
+                            name: client.name || '',
+                            email: client.email_address || client.notification_email || '',
                             phone: client.phone || '',
                             street: client.street || '',
                             apt: client.apt || '',
                             city: client.city || '',
                             state: client.state || '',
                             zip: client.zip || '',
-                            plan: client.plan,
+                            plan: client.plan || 'Pro Plan 100',
                             status: client.status || 'active',
-                            nextBilling: client.next_billing,
+                            nextBilling: client.next_billing || '',
                             totalAppointments: client.total_appointments || 0,
                             businessesContacted: client.businesses_contacted || 0,
                             peopleCalled: client.people_called || 0,
@@ -1696,13 +1697,14 @@
                             username: username,
                             password: clientData.password,
                             name: clientData.name,
-                            email: clientData.email || '',
-                            phone: clientData.phone || '',
-                            street: clientData.street || '',
-                            apt: clientData.apt || '',
-                            city: clientData.city || '',
-                            state: clientData.state || '',
-                            zip: clientData.zip || '',
+                            email_address: clientData.email || null,
+                            notification_email: clientData.email || null,
+                            phone: clientData.phone || null,
+                            street: clientData.street || null,
+                            apt: clientData.apt || null,
+                            city: clientData.city || null,
+                            state: clientData.state || null,
+                            zip: clientData.zip || null,
                             plan: clientData.plan,
                             status: clientData.status || 'active',
                             next_billing: clientData.nextBilling,
@@ -1719,6 +1721,8 @@
                     
                     if (error) {
                         console.error('Error saving client:', username, error);
+                    } else {
+                        console.log('Successfully saved client:', username);
                     }
                 }
                 
