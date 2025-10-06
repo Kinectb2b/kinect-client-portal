@@ -309,7 +309,7 @@
         
         /* Dashboard Styles */
 .dashboard {
-    display: none !important;
+    display: none;
 }
 
 .dashboard.active {
@@ -1570,36 +1570,27 @@ function editClient(username) {
 }
 
 function showClientDashboard() {
-    console.log('📱 Showing client dashboard...');
-    
-    // Hide other screens
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminDashboard').style.display = 'none';
     
-    // Show dashboard with inline style (most forceful)
-    const dashboardEl = document.getElementById('dashboard');
-    dashboardEl.style.display = 'block';
-    dashboardEl.style.visibility = 'visible';
-    dashboardEl.style.opacity = '1';
+    // Use class instead of inline style
+    document.getElementById('dashboard').classList.add('active');
     
-    console.log('Dashboard display:', window.getComputedStyle(dashboardEl).display);
-    
-    // Update welcome message
+    // Update dashboard with user info
     if (currentUser && currentUser.username) {
         const userData = CLIENT_DATA[currentUser.username];
         if (userData) {
-            const welcomeEl = document.getElementById('clientWelcome');
-            const loggedInEl = document.getElementById('loggedInUser');
-            
-            if (welcomeEl) welcomeEl.textContent = `Welcome, ${userData.name}!`;
-            if (loggedInEl) loggedInEl.textContent = userData.name;
+            document.getElementById('clientWelcome').textContent = `Welcome, ${userData.name}!`;
+            document.getElementById('loggedInUser').textContent = userData.name;
+            document.getElementById('currentPlan').textContent = userData.plan;
+            if (PLAN_DATA[userData.plan]) {
+                document.getElementById('planPrice').textContent = `$${PLAN_DATA[userData.plan].monthly.toFixed(0)}/month`;
+            }
+            document.getElementById('nextBilling').textContent = formatDate(userData.nextBilling);
         }
     }
     
-    // Load data with small delay
-    setTimeout(() => {
-        loadClientData();
-    }, 150);
+    loadClientData();
 }
 
 function loadClientData() {
