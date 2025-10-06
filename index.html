@@ -1573,7 +1573,10 @@ function showClientDashboard() {
         }
     }
     
-    loadClientData();
+    // ✅ ADD A SMALL DELAY TO LET THE DOM UPDATE
+    setTimeout(() => {
+        loadClientData();
+    }, 100);
 }
 
 function loadClientData() {
@@ -1589,39 +1592,60 @@ function loadClientData() {
         return;
     }
     
-    if (document.getElementById('totalAppointments')) {
-        document.getElementById('totalAppointments').textContent = userData.totalAppointments || 0;
-    }
-    if (document.getElementById('businessesContacted')) {
-        document.getElementById('businessesContacted').textContent = userData.businessesContacted || 0;
-    }
-    if (document.getElementById('peopleCalled')) {
-        document.getElementById('peopleCalled').textContent = userData.peopleCalled || 0;
-    }
-    if (document.getElementById('totalContactPoints')) {
-        document.getElementById('totalContactPoints').textContent = (userData.totalContactPoints || 0).toLocaleString();
+    // ✅ UPDATE METRICS WITH SAFETY CHECKS
+    const totalAppointmentsEl = document.getElementById('totalAppointments');
+    if (totalAppointmentsEl) {
+        totalAppointmentsEl.textContent = userData.totalAppointments || 0;
     }
     
-    if (document.getElementById('currentPlan')) {
-        document.getElementById('currentPlan').textContent = userData.plan;
-    }
-    if (document.getElementById('nextBilling')) {
-        document.getElementById('nextBilling').textContent = formatDate(userData.nextBilling);
+    const businessesContactedEl = document.getElementById('businessesContacted');
+    if (businessesContactedEl) {
+        businessesContactedEl.textContent = userData.businessesContacted || 0;
     }
     
+    const peopleCalledEl = document.getElementById('peopleCalled');
+    if (peopleCalledEl) {
+        peopleCalledEl.textContent = userData.peopleCalled || 0;
+    }
+    
+    const totalContactPointsEl = document.getElementById('totalContactPoints');
+    if (totalContactPointsEl) {
+        totalContactPointsEl.textContent = (userData.totalContactPoints || 0).toLocaleString();
+    }
+    
+    // ✅ UPDATE PLAN INFO
+    const currentPlanEl = document.getElementById('currentPlan');
+    if (currentPlanEl) {
+        currentPlanEl.textContent = userData.plan;
+    }
+    
+    const nextBillingEl = document.getElementById('nextBilling');
+    if (nextBillingEl) {
+        nextBillingEl.textContent = formatDate(userData.nextBilling);
+    }
+    
+    // ✅ UPDATE APPOINTMENTS
     if (typeof updateAppointments === 'function') {
         updateAppointments(userData.appointments || []);
     }
+    
+    // ✅ UPDATE PROSPECTS
     if (typeof updateProspects === 'function') {
         updateProspects(userData.prospects || []);
     }
+    
+    // ✅ INITIALIZE CHART
     if (typeof initializeChart === 'function') {
         initializeChart();
     }
     
-    if (document.getElementById('lastUpdated')) {
-        document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+    // ✅ UPDATE LAST UPDATED
+    const lastUpdatedEl = document.getElementById('lastUpdated');
+    if (lastUpdatedEl) {
+        lastUpdatedEl.textContent = new Date().toLocaleString();
     }
+    
+    console.log('✅ Client data loaded successfully for:', userData.name);
 }
 
 // ============================================
