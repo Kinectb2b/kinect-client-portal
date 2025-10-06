@@ -1020,109 +1020,78 @@
                 </div>
             </div>
 
-            <!-- NEW: Account Settings Section (Redesigned) -->
+            <!-- NEW: Account Settings Section (Simplified Profile View) -->
             <div id="accountSettingsSection" class="settings-section">
-                <h2 style="font-size: 1.8rem; color: #1e293b; margin-bottom: 25px;">⚙️ Account Settings</h2>
+                <h2 style="font-size: 1.8rem; color: #1e293b; margin-bottom: 25px;">Account Information</h2>
                 
-                <!-- Personal Information Profile View -->
+                <!-- Profile Information Display Only -->
                 <div class="settings-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h3>Personal Information</h3>
-                        <button class="btn btn-secondary" onclick="toggleEditProfile()" id="editProfileBtn">
-                            ✏️ Edit Profile
-                        </button>
-                    </div>
+                    <h3>Your Profile</h3>
                     
-                    <!-- Profile View Mode -->
-                    <div id="profileViewMode">
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-                            <div>
-                                <div style="font-weight: 600; color: #64748b; font-size: 0.85rem; margin-bottom: 5px;">FULL NAME</div>
-                                <div style="font-size: 1.1rem; color: #1e293b;" id="displayFullName">-</div>
-                            </div>
-                            <div>
-                                <div style="font-weight: 600; color: #64748b; font-size: 0.85rem; margin-bottom: 5px;">EMAIL ADDRESS</div>
-                                <div style="font-size: 1.1rem; color: #1e293b;" id="displayEmail">-</div>
-                            </div>
-                            <div>
-                                <div style="font-weight: 600; color: #64748b; font-size: 0.85rem; margin-bottom: 5px;">PHONE NUMBER</div>
-                                <div style="font-size: 1.1rem; color: #1e293b;" id="displayPhone">-</div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 20px;">
+                        <div>
+                            <div style="font-weight: 600; color: #64748b; font-size: 0.85rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Username</div>
+                            <div style="font-size: 1.1rem; color: #1e293b; padding: 12px; background: #f8fafc; border-radius: 8px;" id="displayUsername">-</div>
+                        </div>
+                        
+                        <div>
+                            <div style="font-weight: 600; color: #64748b; font-size: 0.85rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Password</div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="font-size: 1.1rem; color: #1e293b; padding: 12px; background: #f8fafc; border-radius: 8px; flex: 1;" id="displayPassword">••••••••</div>
+                                <button class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" onclick="togglePasswordVisibility()">
+                                    <span id="passwordToggleText">Show</span>
+                                </button>
                             </div>
                         </div>
                         
-                        <div style="margin-top: 20px;">
-                            <div style="font-weight: 600; color: #64748b; font-size: 0.85rem; margin-bottom: 5px;">BILLING ADDRESS</div>
-                            <div style="font-size: 1.1rem; color: #1e293b;" id="displayBillingAddress">-</div>
+                        <div>
+                            <div style="font-weight: 600; color: #64748b; font-size: 0.85rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Full Name</div>
+                            <div style="font-size: 1.1rem; color: #1e293b; padding: 12px; background: #f8fafc; border-radius: 8px;" id="displayFullName">-</div>
                         </div>
-                    </div>
-                    
-                    <!-- Profile Edit Mode -->
-                    <div id="profileEditMode" style="display: none;">
-                        <form id="personalInfoForm">
-                            <div class="form-group">
-                                <label class="form-label">Full Name</label>
-                                <input type="text" id="clientFullName" class="form-input" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Email Address</label>
-                                <input type="email" id="clientEmail" class="form-input" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Phone Number</label>
-                                <input type="tel" id="clientPhone" class="form-input" placeholder="(123) 456-7890" required>
-                            </div>
-                            
-                            <h4 style="margin: 20px 0 15px 0; color: #374151;">Billing Address</h4>
-                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px;">
-                                <div class="form-group">
-                                    <label class="form-label">Street Address</label>
-                                    <input type="text" id="clientStreet" class="form-input" placeholder="123 Main Street" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Apt/Suite</label>
-                                    <input type="text" id="clientApt" class="form-input" placeholder="Suite 100">
-                                </div>
-                            </div>
-                            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px;">
-                                <div class="form-group">
-                                    <label class="form-label">City</label>
-                                    <input type="text" id="clientCity" class="form-input" placeholder="Chicago" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">State</label>
-                                    <input type="text" id="clientState" class="form-input" placeholder="IL" maxlength="2" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Zip Code</label>
-                                    <input type="text" id="clientZip" class="form-input" placeholder="60601" maxlength="10" required>
-                                </div>
-                            </div>
-                            
-                            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                                <button type="submit" class="btn btn-primary">Save Changes</button>
-                                <button type="button" class="btn btn-secondary" onclick="cancelEditProfile()">Cancel</button>
-                            </div>
-                        </form>
+                        
+                        <div>
+                            <div style="font-weight: 600; color: #64748b; font-size: 0.85rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">EIN Number</div>
+                            <div style="font-size: 1.1rem; color: #1e293b; padding: 12px; background: #f8fafc; border-radius: 8px;" id="displayEIN">-</div>
+                        </div>
+                        
+                        <div>
+                            <div style="font-weight: 600; color: #64748b; font-size: 0.85rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Email Address</div>
+                            <div style="font-size: 1.1rem; color: #1e293b; padding: 12px; background: #f8fafc; border-radius: 8px;" id="displayEmail">-</div>
+                        </div>
                     </div>
                 </div>
                 
+                <!-- Account Manager Information -->
                 <div class="settings-card">
-                    <h3>Change Password</h3>
-                    <form id="changePasswordForm">
-                        <div class="form-group">
-                            <label class="form-label">Current Password</label>
-                            <input type="password" id="currentPassword" class="form-input" required>
+                    <h3>Your Account Manager</h3>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 20px;">
+                        <div>
+                            <div style="font-weight: 600; color: #64748b; font-size: 0.85rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Manager Name</div>
+                            <div style="font-size: 1.1rem; color: #1e293b; padding: 12px; background: #f8fafc; border-radius: 8px;" id="displayAccountManager">Not Assigned</div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">New Password</label>
-                            <input type="password" id="newPassword" class="form-input" required minlength="8">
+                        
+                        <div>
+                            <div style="font-weight: 600; color: #64748b; font-size: 0.85rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Manager Phone</div>
+                            <div style="font-size: 1.1rem; color: #1e293b; padding: 12px; background: #f8fafc; border-radius: 8px;" id="displayAccountManagerPhone">
+                                <a href="#" id="managerPhoneLink" style="color: #667eea; text-decoration: none;">-</a>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Confirm New Password</label>
-                            <input type="password" id="confirmPassword" class="form-input" required minlength="8">
+                        
+                        <div>
+                            <div style="font-weight: 600; color: #64748b; font-size: 0.85rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Manager Email</div>
+                            <div style="font-size: 1.1rem; color: #1e293b; padding: 12px; background: #f8fafc; border-radius: 8px;" id="displayAccountManagerEmail">
+                                <a href="#" id="managerEmailLink" style="color: #667eea; text-decoration: none;">-</a>
+                            </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Change Password</button>
-                    </form>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 20px; background: #f0f9ff; border-left: 4px solid #667eea; border-radius: 8px;">
+                    <p style="color: #1e293b; margin: 0;">
+                        <strong>Need to update your information?</strong> Contact your account manager or email 
+                        <a href="mailto:accounts@kinectb2b.com" style="color: #667eea; font-weight: 600;">accounts@kinectb2b.com</a>
+                    </p>
                 </div>
             </div>
 
