@@ -1570,23 +1570,53 @@ function editClient(username) {
 }
 
 function showClientDashboard() {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('adminDashboard').style.display = 'none';
+    console.log('📱 Showing client dashboard...');
     
-    // Use class instead of inline style
-    document.getElementById('dashboard').classList.add('active');
+    const loginScreen = document.getElementById('loginScreen');
+    const adminDashboard = document.getElementById('adminDashboard');
+    const dashboardEl = document.getElementById('dashboard');
+    
+    console.log('Login screen exists:', !!loginScreen);
+    console.log('Admin dashboard exists:', !!adminDashboard);
+    console.log('Client dashboard exists:', !!dashboardEl);
+    console.log('Dashboard innerHTML length:', dashboardEl ? dashboardEl.innerHTML.length : 0);
+    
+    if (loginScreen) loginScreen.style.display = 'none';
+    if (adminDashboard) adminDashboard.style.display = 'none';
+    
+    if (dashboardEl) {
+        // Try multiple methods
+        dashboardEl.style.display = 'block';
+        dashboardEl.classList.add('active');
+        dashboardEl.classList.remove('dashboard'); // Remove the hiding class entirely
+        
+        console.log('Dashboard classes after:', dashboardEl.className);
+        console.log('Dashboard computed display:', window.getComputedStyle(dashboardEl).display);
+    }
     
     // Update dashboard with user info
     if (currentUser && currentUser.username) {
         const userData = CLIENT_DATA[currentUser.username];
         if (userData) {
-            document.getElementById('clientWelcome').textContent = `Welcome, ${userData.name}!`;
-            document.getElementById('loggedInUser').textContent = userData.name;
-            document.getElementById('currentPlan').textContent = userData.plan;
-            if (PLAN_DATA[userData.plan]) {
-                document.getElementById('planPrice').textContent = `$${PLAN_DATA[userData.plan].monthly.toFixed(0)}/month`;
+            const welcomeEl = document.getElementById('clientWelcome');
+            const loggedInEl = document.getElementById('loggedInUser');
+            
+            console.log('Welcome element exists:', !!welcomeEl);
+            console.log('Logged in element exists:', !!loggedInEl);
+            
+            if (welcomeEl) welcomeEl.textContent = `Welcome, ${userData.name}!`;
+            if (loggedInEl) loggedInEl.textContent = userData.name;
+            
+            const currentPlanEl = document.getElementById('currentPlan');
+            if (currentPlanEl) currentPlanEl.textContent = userData.plan;
+            
+            const planPriceEl = document.getElementById('planPrice');
+            if (planPriceEl && PLAN_DATA[userData.plan]) {
+                planPriceEl.textContent = `$${PLAN_DATA[userData.plan].monthly.toFixed(0)}/month`;
             }
-            document.getElementById('nextBilling').textContent = formatDate(userData.nextBilling);
+            
+            const nextBillingEl = document.getElementById('nextBilling');
+            if (nextBillingEl) nextBillingEl.textContent = formatDate(userData.nextBilling);
         }
     }
     
