@@ -1577,6 +1577,10 @@
                             password: client.password || '',
                             name: client.name || '',
                             email: client.email_address || client.notification_email || '',
+                            ein: client.ein || '',
+                            accountManager: client.account_manager || '',
+                            accountManagerPhone: client.account_manager_phone || '',
+                            accountManagerEmail: client.account_manager_email || '',
                             phone: client.phone || '',
                             street: client.street || '',
                             apt: client.apt || '',
@@ -2048,7 +2052,6 @@
             
             loadClientGrid();
             loadNotificationsList();
-            loadAdminMessages();
             updateNotificationBadges();
         }
 
@@ -2109,9 +2112,6 @@
             // Load content based on tab
             if (tabName === 'notifications') {
                 loadNotificationsList();
-            } else if (tabName === 'messages') {
-                console.log('Loading messages tab...');
-                loadAdminMessages();
             } else if (tabName === 'clients') {
                 loadClientGrid();
             }
@@ -2622,29 +2622,58 @@
         function loadClientSettings() {
             const userData = CLIENT_DATA[currentUser.username];
             
-            // Load profile view
+            // Load profile information
+            document.getElementById('displayUsername').textContent = currentUser.username || '-';
+            document.getElementById('displayPassword').textContent = '••••••••';
+            document.getElementById('displayPassword').setAttribute('data-password', userData.password || '');
             document.getElementById('displayFullName').textContent = userData.name || '-';
+            document.getElementById('displayEIN').textContent = userData.ein || 'Not Provided';
             document.getElementById('displayEmail').textContent = userData.email || '-';
-            document.getElementById('displayPhone').textContent = userData.phone || '-';
             
-            const addressParts = [];
-            if (userData.street) addressParts.push(userData.street);
-            if (userData.apt) addressParts.push(userData.apt);
-            if (userData.city || userData.state || userData.zip) {
-                const cityStateZip = [userData.city, userData.state, userData.zip].filter(Boolean).join(', ');
-                if (cityStateZip) addressParts.push(cityStateZip);
+            // Load account manager information
+            document.getElementById('displayAccountManager').textContent = userData.accountManager || 'Not Assigned';
+            
+            const managerPhone = userData.accountManagerPhone || '';
+            const managerPhoneLink = document.getElementById('managerPhoneLink');
+            if (managerPhone) {
+                managerPhoneLink.textContent = managerPhone;
+                managerPhoneLink.href = `tel:${managerPhone}`;
+            } else {
+                managerPhoneLink.textContent = '-';
+                managerPhoneLink.href = '#';
+                managerPhoneLink.style.pointerEvents = 'none';
+                managerPhoneLink.style.color = '#64748b';
             }
-            document.getElementById('displayBillingAddress').textContent = addressParts.length > 0 ? addressParts.join(', ') : '-';
             
-            // Load form fields
-            document.getElementById('clientFullName').value = userData.name || '';
-            document.getElementById('clientEmail').value = userData.email || '';
-            document.getElementById('clientPhone').value = userData.phone || '';
-            document.getElementById('clientStreet').value = userData.street || '';
-            document.getElementById('clientApt').value = userData.apt || '';
-            document.getElementById('clientCity').value = userData.city || '';
-            document.getElementById('clientState').value = userData.state || '';
-            document.getElementById('clientZip').value = userData.zip || '';
+            const managerEmail = userData.accountManagerEmail || '';
+            const managerEmailLink = document.getElementById('managerEmailLink');
+            if (managerEmail) {
+                managerEmailLink.textContent = managerEmail;
+                managerEmailLink.href = `mailto:${managerEmail}`;
+            } else {
+                managerEmailLink.textContent = '-';
+                managerEmailLink.href = '#';
+                managerEmailLink.style.pointerEvents = 'none';
+                managerEmailLink.style.color = '#64748b';
+            }
+        }
+
+        // NEW: Toggle password visibility
+        let passwordVisible = false;
+        function togglePasswordVisibility() {
+            const passwordDisplay = document.getElementById('displayPassword');
+            const toggleText = document.getElementById('passwordToggleText');
+            const actualPassword = passwordDisplay.getAttribute('data-password');
+            
+            passwordVisible = !passwordVisible;
+            
+            if (passwordVisible) {
+                passwordDisplay.textContent = actualPassword;
+                toggleText.textContent = 'Hide';
+            } else {
+                passwordDisplay.textContent = '••••••••';
+                toggleText.textContent = 'Show';
+            }
         }
 
         // NEW: Scroll to settings section
@@ -2652,23 +2681,10 @@
             document.getElementById('accountSettingsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        // NEW: Setup client settings event listeners
+        // Setup event listeners
         function setupClientSettingsListeners() {
-            const personalInfoForm = document.getElementById('personalInfoForm');
-            const changePasswordForm = document.getElementById('changePasswordForm');
-            const sendMessageForm = document.getElementById('sendMessageForm');
-            
-            if (personalInfoForm) {
-                personalInfoForm.addEventListener('submit', handlePersonalInfoSubmit);
-            }
-            
-            if (changePasswordForm) {
-                changePasswordForm.addEventListener('submit', handlePasswordChange);
-            }
-            
-            if (sendMessageForm) {
-                sendMessageForm.addEventListener('submit', handleSendMessage);
-            }
+            // Password change form was removed, so no listener needed
+            console.log('Client settings listeners setup complete');
         }
 
         // NEW: Handle personal info form submission
@@ -3129,8 +3145,20 @@
         }
 
         function initializeChart() {
-            const ctx = document.getElementById('activityChart').getContext('2d');
-            new Chart(ctx, {
+            const canvas = document.getElementById('activityChart');
+            if (!canvas) {
+                console.error('Activity chart canvas not found');
+                return;
+            }
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (window.activityChartInstance) {
+                window.activityChartInstance.destroy();
+            }
+            
+            window.activityChartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
