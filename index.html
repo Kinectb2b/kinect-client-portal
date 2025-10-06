@@ -3,10 +3,10 @@
 <head>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Kinect B2B">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kinect B2B">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kinect B2B - Client Portal</title>
@@ -185,6 +185,7 @@
             display: flex;
             gap: 10px;
             margin-bottom: 30px;
+            flex-wrap: wrap;
         }
 
         .tab-btn {
@@ -392,6 +393,81 @@
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
+        }
+
+        /* NEW: Settings Section Styles */
+        .settings-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .settings-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .settings-card h3 {
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .message-thread {
+            max-height: 400px;
+            overflow-y: auto;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .message-item {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .message-item.admin {
+            border-left-color: #22c55e;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .message-sender {
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .message-time {
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+
+        .message-content {
+            color: #374151;
+            line-height: 1.6;
+        }
+
+        .compose-message {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
         }
 
         .dashboard-grid {
@@ -701,6 +777,10 @@
                 <span id="clientNotificationBadge" class="notification-badge" style="display: none;">0</span>
             </button>
             <button class="tab-btn" onclick="showTab('add-client', this)">Add New Client</button>
+            <button class="tab-btn" onclick="showTab('messages', this)">
+                Messages
+                <span id="messageNotificationBadge" class="notification-badge" style="display: none;">0</span>
+            </button>
             <button class="tab-btn" onclick="showTab('notifications', this)">
                 Notifications
                 <span id="mainNotificationBadge" class="notification-badge" style="display: none;">0</span>
@@ -734,6 +814,14 @@
                             <input type="text" id="newClientPassword" class="form-input" required>
                         </div>
                         <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" id="newClientEmail" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" id="newClientPhone" class="form-input" required>
+                        </div>
+                        <div class="form-group">
                             <label class="form-label">Plan</label>
                             <select id="newClientPlan" class="form-select" required>
                                 <option value="">Select Plan</option>
@@ -765,6 +853,18 @@
                         </div>
                         <button type="submit" class="btn">Add Client</button>
                     </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages Tab (NEW) -->
+        <div id="messagesTab" class="tab-content">
+            <div style="max-width: 1000px; margin: 0 auto;">
+                <div class="client-card">
+                    <h2 style="margin-bottom: 20px;">Client Messages</h2>
+                    <div id="adminMessagesList">
+                        <!-- Messages will be populated here -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -849,6 +949,70 @@
                         <button class="btn btn-primary" onclick="showPlanDetails()">View Plan Details</button>
                         <button class="btn btn-secondary" onclick="showPlanOptions()">Change Plan</button>
                         <button class="btn btn-secondary" onclick="window.open('https://kinectb2b-affiliate.com/', '_blank')">Become an Affiliate</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW: Client Settings Section -->
+            <div class="settings-section">
+                <h2 style="font-size: 1.8rem; color: #1e293b; margin-bottom: 25px;">Account Settings</h2>
+                
+                <div class="settings-card">
+                    <h3>Personal Information</h3>
+                    <form id="personalInfoForm">
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" id="clientFullName" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" id="clientEmail" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" id="clientPhone" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Billing Address</label>
+                            <textarea id="clientBillingAddress" class="form-textarea" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Personal Info</button>
+                    </form>
+                </div>
+                
+                <div class="settings-card">
+                    <h3>Change Password</h3>
+                    <form id="changePasswordForm">
+                        <div class="form-group">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" id="currentPassword" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">New Password</label>
+                            <input type="password" id="newPassword" class="form-input" required minlength="8">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Confirm New Password</label>
+                            <input type="password" id="confirmPassword" class="form-input" required minlength="8">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Change Password</button>
+                    </form>
+                </div>
+                
+                <div class="settings-card">
+                    <h3>Messages</h3>
+                    <div class="message-thread" id="messageThread">
+                        <!-- Messages will be loaded here -->
+                    </div>
+                    
+                    <div class="compose-message">
+                        <form id="sendMessageForm">
+                            <div class="form-group">
+                                <label class="form-label">Send a Message to Admin</label>
+                                <textarea id="messageContent" class="form-textarea" rows="4" placeholder="Type your message here..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Send Message</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -954,6 +1118,18 @@
                 <div class="form-group">
                     <label class="form-label">Password</label>
                     <input type="text" id="editClientPassword" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="editClientEmail" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone</label>
+                    <input type="tel" id="editClientPhone" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Billing Address</label>
+                    <textarea id="editClientBillingAddress" class="form-textarea" rows="3"></textarea>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Plan</label>
@@ -1249,6 +1425,9 @@
             'dynamic-duo': {
                 password: 'kinect2024',
                 name: 'Dynamic Duo',
+                email: 'dynamicduo@example.com',
+                phone: '+1234567890',
+                billingAddress: '123 Main St, City, State 12345',
                 plan: 'Pro Plan 300',
                 status: 'active',
                 nextBilling: '2025-10-22',
@@ -1291,11 +1470,15 @@
                         service: 'Marketing Automation',
                         status: 'Proposal Sent'
                     }
-                ]
+                ],
+                messages: []
             },
             'techstart': {
                 password: 'tech2024',
                 name: 'TechStart Solutions',
+                email: 'techstart@example.com',
+                phone: '+1987654321',
+                billingAddress: '456 Tech Ave, Silicon Valley, CA 94000',
                 plan: 'Pro Plan 500',
                 status: 'active',
                 nextBilling: '2025-11-15',
@@ -1322,7 +1505,8 @@
                         service: 'Sales Pipeline',
                         status: 'Negotiation'
                     }
-                ]
+                ],
+                messages: []
             }
         };
 
@@ -1351,6 +1535,9 @@
                         CLIENT_DATA[client.username] = {
                             password: client.password,
                             name: client.name,
+                            email: client.email || '',
+                            phone: client.phone || '',
+                            billingAddress: client.billing_address || '',
                             plan: client.plan,
                             status: client.status || 'active',
                             nextBilling: client.next_billing,
@@ -1359,7 +1546,8 @@
                             peopleCalled: client.people_called || 0,
                             totalContactPoints: client.total_contact_points || 0,
                             appointments: client.appointments || [],
-                            prospects: client.prospects || []
+                            prospects: client.prospects || [],
+                            messages: client.messages || []
                         };
                     });
                     console.log('Loaded clients from Supabase:', Object.keys(CLIENT_DATA));
@@ -1404,6 +1592,9 @@
                             username: username,
                             password: clientData.password,
                             name: clientData.name,
+                            email: clientData.email || '',
+                            phone: clientData.phone || '',
+                            billing_address: clientData.billingAddress || '',
                             plan: clientData.plan,
                             status: clientData.status || 'active',
                             next_billing: clientData.nextBilling,
@@ -1412,7 +1603,8 @@
                             people_called: clientData.peopleCalled || 0,
                             total_contact_points: clientData.totalContactPoints || 0,
                             appointments: clientData.appointments || [],
-                            prospects: clientData.prospects || []
+                            prospects: clientData.prospects || [],
+                            messages: clientData.messages || []
                         }, {
                             onConflict: 'username'
                         });
@@ -1429,7 +1621,7 @@
             }
         }
 
-        // Add notification to Supabase
+        // Add notification to Supabase - FIXED VERSION
         async function addNotification(type, message, clientName) {
             const notification = {
                 type: type,
@@ -1441,18 +1633,19 @@
             try {
                 const { data, error } = await supabaseClient
                     .from('notifications')
-                    .insert([notification]);
+                    .insert([notification])
+                    .select();
                 
                 if (error) {
                     console.error('Error saving notification:', error);
-                } else {
-                    // Add to local array for immediate UI update
+                } else if (data && data.length > 0) {
+                    // Add to local array for immediate UI update with the ID from Supabase
                     NOTIFICATIONS.unshift({
-                        id: Date.now(),
+                        id: data[0].id,
                         type: type,
                         message: message,
                         clientName: clientName,
-                        timestamp: new Date().toISOString(),
+                        timestamp: data[0].created_at,
                         read: false
                     });
                     updateNotificationBadges();
@@ -1462,13 +1655,13 @@
             }
         }
 
-        // Update notification badges
+        // FIXED: Update notification badges to show correct count
         function updateNotificationBadges() {
             const unreadCount = NOTIFICATIONS.filter(n => !n.read).length;
+            const unreadMessages = countUnreadMessages();
             
             const badges = [
                 document.getElementById('notificationBadge'),
-                document.getElementById('clientNotificationBadge'),
                 document.getElementById('mainNotificationBadge')
             ];
             
@@ -1482,6 +1675,85 @@
                     }
                 }
             });
+            
+            // Update message badge
+            const messageBadge = document.getElementById('messageNotificationBadge');
+            if (messageBadge) {
+                if (unreadMessages > 0) {
+                    messageBadge.textContent = unreadMessages;
+                    messageBadge.style.display = 'inline';
+                } else {
+                    messageBadge.style.display = 'none';
+                }
+            }
+        }
+
+        // Count unread messages from clients
+        function countUnreadMessages() {
+            let count = 0;
+            Object.keys(CLIENT_DATA).forEach(username => {
+                const client = CLIENT_DATA[username];
+                if (client.messages) {
+                    count += client.messages.filter(msg => msg.from !== 'admin' && !msg.read).length;
+                }
+            });
+            return count;
+        }
+
+        // FIXED: Mark notification as read and persist to Supabase
+        async function markAsRead(notificationId) {
+            try {
+                // Update in Supabase
+                const { error } = await supabaseClient
+                    .from('notifications')
+                    .update({ read: true })
+                    .eq('id', notificationId);
+                
+                if (error) {
+                    console.error('Error marking notification as read:', error);
+                    return;
+                }
+                
+                // Update local data
+                const notification = NOTIFICATIONS.find(n => n.id === notificationId);
+                if (notification) {
+                    notification.read = true;
+                }
+                
+                updateNotificationBadges();
+                loadNotificationsList();
+                
+            } catch (error) {
+                console.error('Error marking notification as read:', error);
+            }
+        }
+
+        // FIXED: Clear all notifications and persist to Supabase
+        async function clearAllNotifications() {
+            if (confirm('Clear all notifications?')) {
+                try {
+                    // Delete all notifications from Supabase
+                    const { error } = await supabaseClient
+                        .from('notifications')
+                        .delete()
+                        .neq('id', 0); // Delete all records
+                    
+                    if (error) {
+                        console.error('Error clearing notifications:', error);
+                        alert('Error clearing notifications. Please try again.');
+                        return;
+                    }
+                    
+                    // Clear local data
+                    NOTIFICATIONS.length = 0;
+                    updateNotificationBadges();
+                    loadNotificationsList();
+                    
+                } catch (error) {
+                    console.error('Error clearing notifications:', error);
+                    alert('Error clearing notifications. Please try again.');
+                }
+            }
         }
 
         // Check if user is already logged in
@@ -1560,6 +1832,9 @@
                     CLIENT_DATA[username] = {
                         password: document.getElementById('newClientPassword').value,
                         name: document.getElementById('newClientName').value,
+                        email: document.getElementById('newClientEmail').value,
+                        phone: document.getElementById('newClientPhone').value,
+                        billingAddress: '',
                         plan: document.getElementById('newClientPlan').value,
                         nextBilling: document.getElementById('newClientBilling').value,
                         status: document.getElementById('newClientStatus').value,
@@ -1568,7 +1843,8 @@
                         peopleCalled: 0,
                         totalContactPoints: 0,
                         appointments: [],
-                        prospects: []
+                        prospects: [],
+                        messages: []
                     };
                     
                     saveData();
@@ -1598,6 +1874,9 @@
                         ...CLIENT_DATA[newUsername],
                         name: document.getElementById('editClientName').value,
                         password: document.getElementById('editClientPassword').value,
+                        email: document.getElementById('editClientEmail').value,
+                        phone: document.getElementById('editClientPhone').value,
+                        billingAddress: document.getElementById('editClientBillingAddress').value,
                         plan: document.getElementById('editClientPlan').value,
                         status: document.getElementById('editClientStatus').value,
                         totalAppointments: parseInt(document.getElementById('editTotalAppointments').value),
@@ -1657,6 +1936,7 @@
             
             loadClientGrid();
             loadNotificationsList();
+            loadAdminMessages();
         }
 
         function showClientDashboard() {
@@ -1669,11 +1949,13 @@
             document.getElementById('clientWelcome').textContent = `Welcome, ${userData.name}!`;
             document.getElementById('loggedInUser').textContent = userData.name;
             document.getElementById('currentPlan').textContent = userData.plan;
-            document.getElementById('planPrice').textContent = `$${PLAN_DATA[userData.plan].monthly.toFixed(0)}/month`;
+            document.getElementById('planPrice').textContent = `${PLAN_DATA[userData.plan].monthly.toFixed(0)}/month`;
             document.getElementById('nextBilling').textContent = formatDate(userData.nextBilling);
             
             // Load client-specific data
             loadClientData();
+            loadClientSettings();
+            setupClientSettingsListeners();
         }
 
         function logout() {
@@ -1713,6 +1995,8 @@
             
             if (tabName === 'notifications') {
                 loadNotificationsList();
+            } else if (tabName === 'messages') {
+                loadAdminMessages();
             }
             
             console.log('Switching to tab:', tabName);
@@ -1772,6 +2056,9 @@
             document.getElementById('editClientName').value = client.name;
             document.getElementById('editClientUsername').value = username;
             document.getElementById('editClientPassword').value = client.password;
+            document.getElementById('editClientEmail').value = client.email || '';
+            document.getElementById('editClientPhone').value = client.phone || '';
+            document.getElementById('editClientBillingAddress').value = client.billingAddress || '';
             document.getElementById('editClientPlan').value = client.plan;
             document.getElementById('editTotalAppointments').value = client.totalAppointments;
             document.getElementById('editBusinessesContacted').value = client.businessesContacted;
@@ -1820,6 +2107,91 @@
                     </div>
                 </div>
             `).join('');
+        }
+
+        // NEW: Load all client messages in admin view
+        function loadAdminMessages() {
+            const container = document.getElementById('adminMessagesList');
+            
+            let allMessages = [];
+            
+            // Collect all messages from all clients
+            Object.keys(CLIENT_DATA).forEach(username => {
+                const client = CLIENT_DATA[username];
+                if (client.messages && client.messages.length > 0) {
+                    client.messages.forEach((msg, index) => {
+                        allMessages.push({
+                            ...msg,
+                            clientName: client.name,
+                            clientUsername: username,
+                            messageIndex: index
+                        });
+                    });
+                }
+            });
+            
+            // Sort by timestamp, newest first
+            allMessages.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            if (allMessages.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #64748b; padding: 40px;">No client messages</p>';
+                return;
+            }
+            
+            container.innerHTML = allMessages.map((msg) => `
+                <div class="message-item ${msg.from === 'admin' ? 'admin' : ''}" style="margin-bottom: 15px;">
+                    <div class="message-header">
+                        <div>
+                            <span class="message-sender">${msg.from === 'admin' ? 'Admin Reply' : msg.clientName}</span>
+                            ${!msg.read && msg.from !== 'admin' ? '<span style="background: #fbbf24; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; margin-left: 8px;">NEW</span>' : ''}
+                        </div>
+                        <span class="message-time">${new Date(msg.timestamp).toLocaleString()}</span>
+                    </div>
+                    <div class="message-content">${msg.content}</div>
+                    ${msg.from !== 'admin' ? `
+                        <div style="margin-top: 10px; display: flex; gap: 10px;">
+                            <button class="btn" style="padding: 6px 12px; font-size: 0.85rem;" onclick="replyToMessage('${msg.clientUsername}')">Reply to ${msg.clientName}</button>
+                            ${!msg.read ? `<button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;" onclick="markMessageRead('${msg.clientUsername}', ${msg.messageIndex})">Mark as Read</button>` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // NEW: Reply to client message
+        async function replyToMessage(clientUsername) {
+            const replyContent = prompt('Enter your reply:');
+            
+            if (!replyContent || !replyContent.trim()) {
+                return;
+            }
+            
+            const client = CLIENT_DATA[clientUsername];
+            
+            const reply = {
+                from: 'admin',
+                content: replyContent.trim(),
+                timestamp: new Date().toISOString(),
+                read: false
+            };
+            
+            client.messages.push(reply);
+            await saveData();
+            
+            loadAdminMessages();
+            updateNotificationBadges();
+            alert('Reply sent successfully!');
+        }
+
+        // NEW: Mark message as read
+        async function markMessageRead(clientUsername, messageIndex) {
+            const client = CLIENT_DATA[clientUsername];
+            if (client.messages[messageIndex]) {
+                client.messages[messageIndex].read = true;
+                await saveData();
+                loadAdminMessages();
+                updateNotificationBadges();
+            }
         }
 
         function addAppointment() {
@@ -1875,7 +2247,7 @@
                         <textarea id="newAptNotes" class="form-textarea" placeholder="Any additional notes about this appointment..."></textarea>
                     </div>
                     <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
-                        <button class="btn btn-secondary" onclick="this.closest('div').parentElement.remove()">Cancel</button>
+                        <button class="btn btn-secondary" onclick="this.closest('div').parentElement.parentElement.remove()">Cancel</button>
                         <button class="btn" onclick="saveNewAppointment()">Add Appointment</button>
                     </div>
                 </div>
@@ -1961,6 +2333,7 @@
                     flexibleTime: timeCheckbox
                 });
                 
+                saveData();
                 loadAdminAppointments(CLIENT_DATA[editingClientId].appointments);
                 
                 // Remove the modal
@@ -1990,6 +2363,7 @@
                     status: status || 'Discovery'
                 });
                 
+                saveData();
                 loadAdminProspects(CLIENT_DATA[editingClientId].prospects);
             }
         }
@@ -1997,6 +2371,7 @@
         function removeAppointment(index) {
             if (confirm('Remove this appointment?')) {
                 CLIENT_DATA[editingClientId].appointments.splice(index, 1);
+                saveData();
                 loadAdminAppointments(CLIENT_DATA[editingClientId].appointments);
             }
         }
@@ -2004,6 +2379,7 @@
         function removeProspect(index) {
             if (confirm('Remove this prospect?')) {
                 CLIENT_DATA[editingClientId].prospects.splice(index, 1);
+                saveData();
                 loadAdminProspects(CLIENT_DATA[editingClientId].prospects);
             }
         }
@@ -2056,7 +2432,161 @@
             }
         }
 
-        // Remove the old event listeners that were placed incorrectly
+        // NEW: Load client settings
+        function loadClientSettings() {
+            const userData = CLIENT_DATA[currentUser.username];
+            document.getElementById('clientFullName').value = userData.name || '';
+            document.getElementById('clientEmail').value = userData.email || '';
+            document.getElementById('clientPhone').value = userData.phone || '';
+            document.getElementById('clientBillingAddress').value = userData.billingAddress || '';
+            
+            loadMessages();
+        }
+
+        // NEW: Setup client settings event listeners
+        function setupClientSettingsListeners() {
+            const personalInfoForm = document.getElementById('personalInfoForm');
+            const changePasswordForm = document.getElementById('changePasswordForm');
+            const sendMessageForm = document.getElementById('sendMessageForm');
+            
+            if (personalInfoForm) {
+                personalInfoForm.addEventListener('submit', handlePersonalInfoSubmit);
+            }
+            
+            if (changePasswordForm) {
+                changePasswordForm.addEventListener('submit', handlePasswordChange);
+            }
+            
+            if (sendMessageForm) {
+                sendMessageForm.addEventListener('submit', handleSendMessage);
+            }
+        }
+
+        // NEW: Handle personal info form submission
+        async function handlePersonalInfoSubmit(e) {
+            e.preventDefault();
+            
+            const userData = CLIENT_DATA[currentUser.username];
+            userData.name = document.getElementById('clientFullName').value;
+            userData.email = document.getElementById('clientEmail').value;
+            userData.phone = document.getElementById('clientPhone').value;
+            userData.billingAddress = document.getElementById('clientBillingAddress').value;
+            
+            await saveData();
+            
+            // Send notification to admin
+            await addNotification('info_updated', 
+                `${userData.name} updated their personal information`, 
+                userData.name);
+            
+            // Update the welcome message with new name
+            document.getElementById('clientWelcome').textContent = `Welcome, ${userData.name}!`;
+            document.getElementById('loggedInUser').textContent = userData.name;
+            
+            alert('Personal information updated successfully!');
+        }
+
+        // NEW: Handle password change
+        async function handlePasswordChange(e) {
+            e.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            const userData = CLIENT_DATA[currentUser.username];
+            
+            if (userData.password !== currentPassword) {
+                alert('Current password is incorrect.');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                alert('New passwords do not match.');
+                return;
+            }
+            
+            if (newPassword.length < 8) {
+                alert('New password must be at least 8 characters long.');
+                return;
+            }
+            
+            userData.password = newPassword;
+            await saveData();
+            
+            // Send notification to admin
+            await addNotification('password_changed', 
+                `${userData.name} changed their password`, 
+                userData.name);
+            
+            // Clear form
+            document.getElementById('changePasswordForm').reset();
+            
+            alert('Password changed successfully!');
+        }
+
+        // NEW: Load messages
+        function loadMessages() {
+            const userData = CLIENT_DATA[currentUser.username];
+            const messageThread = document.getElementById('messageThread');
+            
+            if (!userData.messages || userData.messages.length === 0) {
+                messageThread.innerHTML = '<p style="text-align: center; color: #64748b;">No messages yet. Send your first message below!</p>';
+                return;
+            }
+            
+            messageThread.innerHTML = userData.messages.map(msg => `
+                <div class="message-item ${msg.from === 'admin' ? 'admin' : ''}">
+                    <div class="message-header">
+                        <span class="message-sender">${msg.from === 'admin' ? 'Admin' : 'You'}</span>
+                        <span class="message-time">${new Date(msg.timestamp).toLocaleString()}</span>
+                    </div>
+                    <div class="message-content">${msg.content}</div>
+                </div>
+            `).join('');
+            
+            // Scroll to bottom
+            messageThread.scrollTop = messageThread.scrollHeight;
+        }
+
+        // NEW: Handle message submission
+        async function handleSendMessage(e) {
+            e.preventDefault();
+            
+            const content = document.getElementById('messageContent').value.trim();
+            
+            if (!content) {
+                return;
+            }
+            
+            const userData = CLIENT_DATA[currentUser.username];
+            
+            if (!userData.messages) {
+                userData.messages = [];
+            }
+            
+            const message = {
+                from: 'client',
+                content: content,
+                timestamp: new Date().toISOString(),
+                read: false
+            };
+            
+            userData.messages.push(message);
+            await saveData();
+            
+            // Send notification to admin
+            await addNotification('new_message', 
+                `New message from ${userData.name}: "${content.substring(0, 50)}${content.length > 50 ? '...' : ''}"`, 
+                userData.name);
+            
+            // Clear form and reload messages
+            document.getElementById('messageContent').value = '';
+            loadMessages();
+            updateNotificationBadges();
+            
+            alert('Message sent successfully! Admin will respond shortly.');
+        }
         
         function loadClientData() {
             const userData = CLIENT_DATA[currentUser.username];
@@ -2118,77 +2648,26 @@
                     updateAppointments(CLIENT_DATA[currentUser.username].appointments);
                 }
             } else if (action === 'reschedule') {
-                showAppointmentModal(index, 'reschedule');
+                const newDate = prompt('Enter new date (YYYY-MM-DD):', appointment.date);
+                const newTime = prompt('Enter new time:', appointment.time);
+                if (newDate && newTime) {
+                    const oldDate = appointment.date;
+                    const oldTime = appointment.time;
+                    CLIENT_DATA[currentUser.username].appointments[index].date = newDate;
+                    CLIENT_DATA[currentUser.username].appointments[index].time = newTime;
+                    CLIENT_DATA[currentUser.username].appointments[index].status = 'pending';
+                    saveData();
+                    addNotification('appointment_rescheduled', 
+                        `${currentUser.name} rescheduled appointment with ${appointment.company} from ${oldDate} ${oldTime} to ${newDate} ${newTime}`, 
+                        currentUser.name);
+                    updateAppointments(CLIENT_DATA[currentUser.username].appointments);
+                }
             } else if (action === 'confirm') {
                 CLIENT_DATA[currentUser.username].appointments[index].status = 'confirmed';
                 saveData();
                 addNotification('appointment_confirmed', `${currentUser.name} confirmed appointment with ${appointment.company}`, currentUser.name);
                 updateAppointments(CLIENT_DATA[currentUser.username].appointments);
             }
-        }
-
-        function showAppointmentModal(index, action) {
-            const appointment = CLIENT_DATA[currentUser.username].appointments[index];
-            const modal = document.getElementById('appointmentModal');
-            const title = document.getElementById('appointmentModalTitle');
-            const content = document.getElementById('appointmentModalContent');
-            
-            if (action === 'reschedule') {
-                title.textContent = 'Reschedule Appointment';
-                content.innerHTML = `
-                    <div style="margin-bottom: 20px;">
-                        <strong>Current:</strong> ${appointment.company} - ${appointment.date} at ${appointment.time}
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">New Date</label>
-                        <input type="date" id="newAppointmentDate" class="form-input" value="${appointment.date}">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">New Time</label>
-                        <input type="time" id="newAppointmentTime" class="form-input" value="${appointment.time}">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Reason for Reschedule</label>
-                        <textarea id="rescheduleReason" class="form-textarea" placeholder="Why are you rescheduling?"></textarea>
-                    </div>
-                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                        <button class="btn btn-secondary" onclick="closeAppointmentModal()">Cancel</button>
-                        <button class="btn" onclick="confirmReschedule(${index})">Reschedule</button>
-                    </div>
-                `;
-            }
-            
-            modal.style.display = 'block';
-        }
-
-        function confirmReschedule(index) {
-            const newDate = document.getElementById('newAppointmentDate').value;
-            const newTime = document.getElementById('newAppointmentTime').value;
-            const reason = document.getElementById('rescheduleReason').value;
-            
-            if (newDate && newTime) {
-                const appointment = CLIENT_DATA[currentUser.username].appointments[index];
-                const oldDate = appointment.date;
-                const oldTime = appointment.time;
-                
-                CLIENT_DATA[currentUser.username].appointments[index].date = newDate;
-                CLIENT_DATA[currentUser.username].appointments[index].time = newTime;
-                CLIENT_DATA[currentUser.username].appointments[index].status = 'pending';
-                
-                saveData();
-                
-                addNotification('appointment_rescheduled', 
-                    `${currentUser.name} rescheduled appointment with ${appointment.company} from ${oldDate} ${oldTime} to ${newDate} ${newTime}. Reason: ${reason || 'Not specified'}`, 
-                    currentUser.name);
-                
-                updateAppointments(CLIENT_DATA[currentUser.username].appointments);
-                closeAppointmentModal();
-                alert('Appointment rescheduled successfully!');
-            }
-        }
-
-        function closeAppointmentModal() {
-            document.getElementById('appointmentModal').style.display = 'none';
         }
 
         function updateProspects(prospects) {
@@ -2370,25 +2849,6 @@
             `).join('');
         }
 
-        function markAsRead(notificationId) {
-            const notification = NOTIFICATIONS.find(n => n.id === notificationId);
-            if (notification) {
-                notification.read = true;
-                saveData();
-                updateNotificationBadges();
-                loadNotificationsList();
-            }
-        }
-
-        function clearAllNotifications() {
-            if (confirm('Clear all notifications?')) {
-                NOTIFICATIONS.length = 0;
-                saveData();
-                updateNotificationBadges();
-                loadNotificationsList();
-            }
-        }
-
         function formatDate(dateString) {
             return new Date(dateString).toLocaleDateString('en-US', { 
                 year: 'numeric', 
@@ -2520,7 +2980,7 @@
                             NOTIFICATIONS = importedData.notifications;
                         }
                         
-                        // Save to localStorage
+                        // Save to Supabase
                         saveData();
                         
                         // Update UI
@@ -2540,6 +3000,10 @@
             
             // Clear the input so the same file can be imported again
             event.target.value = '';
+        }
+
+        function closeAppointmentModal() {
+            document.getElementById('appointmentModal').style.display = 'none';
         }
 
         // Close modal when clicking outside
