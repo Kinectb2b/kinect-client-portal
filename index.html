@@ -2053,6 +2053,7 @@
             loadClientGrid();
             loadNotificationsList();
             loadAdminMessages();
+            updateNotificationBadges();
         }
 
         function showClientDashboard() {
@@ -2109,10 +2110,14 @@
                 buttonElement.classList.add('active');
             }
             
+            // Load content based on tab
             if (tabName === 'notifications') {
                 loadNotificationsList();
             } else if (tabName === 'messages') {
+                console.log('Loading messages tab...');
                 loadAdminMessages();
+            } else if (tabName === 'clients') {
+                loadClientGrid();
             }
             
             console.log('Switching to tab:', tabName);
@@ -2233,11 +2238,21 @@
         function loadAdminMessages() {
             const container = document.getElementById('adminMessagesList');
             
+            if (!container) {
+                console.error('Admin messages container not found!');
+                return;
+            }
+            
+            console.log('Loading admin messages...');
+            console.log('Current CLIENT_DATA:', CLIENT_DATA);
+            
             let allMessages = [];
             
             // Collect all messages from all clients
             Object.keys(CLIENT_DATA).forEach(username => {
                 const client = CLIENT_DATA[username];
+                console.log(`Checking messages for ${username}:`, client.messages);
+                
                 if (client.messages && client.messages.length > 0) {
                     client.messages.forEach((msg, index) => {
                         allMessages.push({
@@ -2249,6 +2264,8 @@
                     });
                 }
             });
+            
+            console.log('Total messages found:', allMessages.length);
             
             // Sort by timestamp, newest first
             allMessages.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -2276,6 +2293,8 @@
                     ` : ''}
                 </div>
             `).join('');
+            
+            console.log('Admin messages loaded successfully');
         }
 
         // NEW: Reply to client message
@@ -2295,6 +2314,10 @@
                 read: false
             };
             
+            if (!client.messages) {
+                client.messages = [];
+            }
+            
             client.messages.push(reply);
             await saveData();
             
@@ -2306,12 +2329,59 @@
         // NEW: Mark message as read
         async function markMessageRead(clientUsername, messageIndex) {
             const client = CLIENT_DATA[clientUsername];
-            if (client.messages[messageIndex]) {
+            if (client.messages && client.messages[messageIndex]) {
                 client.messages[messageIndex].read = true;
                 await saveData();
                 loadAdminMessages();
                 updateNotificationBadges();
             }
+        }
+
+        // Setup real-time subscriptions for live updates
+        function setupRealtimeSubscriptions() {
+            // Listen for client changes
+            supabaseClient
+                .channel('clients-channel')
+                .on('postgres_changes', 
+                    { event: '*', schema: 'public', table: 'clients' }, 
+                    async (payload) => {
+                        console.log('Client data changed:', payload);
+                        await loadSavedData();
+                        if (isAdmin) {
+                            loadClientGrid();
+                            // Reload messages if on messages tab
+                            if (document.getElementById('messagesTab').classList.contains('active')) {
+                                loadAdminMessages();
+                            }
+                        } else if (currentUser) {
+                            loadClientData();
+                            loadMessages();
+                            updateClientMessageBadge();
+                        }
+                    }
+                )
+                .subscribe();
+                
+            // Listen for notification changes
+            supabaseClient
+                .channel('notifications-channel')
+                .on('postgres_changes', 
+                    { event: '*', schema: 'public', table: 'notifications' }, 
+                    async (payload) => {
+                        console.log('Notifications changed:', payload);
+                        await loadSavedData();
+                        updateNotificationBadges();
+                        if (isAdmin && document.getElementById('notificationsTab').classList.contains('active')) {
+                            loadNotificationsList();
+                        }
+                        
+                        // If it's a new message notification, refresh the messages tab
+                        if (isAdmin && payload.new && payload.new.type === 'new_message') {
+                            loadAdminMessages();
+                        }
+                    }
+                )
+                .subscribe();
         }
 
         function addAppointment() {
