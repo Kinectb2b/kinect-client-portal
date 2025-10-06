@@ -1687,49 +1687,80 @@
         // Save data to Supabase
         async function saveData() {
             try {
-                console.log('Saving data to Supabase...');
+                console.log('=== SAVING DATA TO SUPABASE ===');
                 
                 // Save clients
                 for (const [username, clientData] of Object.entries(CLIENT_DATA)) {
-                    const { data, error } = await supabaseClient
+                    console.log(`Saving client: ${username}`);
+                    console.log('Messages to save:', clientData.messages);
+                    
+                    // First, check if client exists
+                    const { data: existingClient, error: checkError } = await supabaseClient
                         .from('clients')
-                        .upsert({
-                            username: username,
-                            password: clientData.password,
-                            name: clientData.name,
-                            email_address: clientData.email || null,
-                            notification_email: clientData.email || null,
-                            phone: clientData.phone || null,
-                            street: clientData.street || null,
-                            apt: clientData.apt || null,
-                            city: clientData.city || null,
-                            state: clientData.state || null,
-                            zip: clientData.zip || null,
-                            plan: clientData.plan,
-                            status: clientData.status || 'active',
-                            next_billing: clientData.nextBilling,
-                            total_appointments: clientData.totalAppointments || 0,
-                            businesses_contacted: clientData.businessesContacted || 0,
-                            people_called: clientData.peopleCalled || 0,
-                            total_contact_points: clientData.totalContactPoints || 0,
-                            appointments: clientData.appointments || [],
-                            prospects: clientData.prospects || [],
-                            messages: clientData.messages || []
-                        }, {
-                            onConflict: 'username'
-                        });
+                        .select('username')
+                        .eq('username', username)
+                        .single();
+                    
+                    const clientRecord = {
+                        username: username,
+                        password: clientData.password,
+                        name: clientData.name,
+                        email_address: clientData.email || null,
+                        notification_email: clientData.email || null,
+                        phone: clientData.phone || null,
+                        street: clientData.street || null,
+                        apt: clientData.apt || null,
+                        city: clientData.city || null,
+                        state: clientData.state || null,
+                        zip: clientData.zip || null,
+                        plan: clientData.plan,
+                        status: clientData.status || 'active',
+                        next_billing: clientData.nextBilling,
+                        total_appointments: clientData.totalAppointments || 0,
+                        businesses_contacted: clientData.businessesContacted || 0,
+                        people_called: clientData.peopleCalled || 0,
+                        total_contact_points: clientData.totalContactPoints || 0,
+                        appointments: clientData.appointments || [],
+                        prospects: clientData.prospects || [],
+                        messages: clientData.messages || []
+                    };
+                    
+                    console.log('Client record to save:', JSON.stringify(clientRecord, null, 2));
+                    
+                    let result;
+                    if (existingClient) {
+                        // Update existing client
+                        console.log('Client exists, updating...');
+                        result = await supabaseClient
+                            .from('clients')
+                            .update(clientRecord)
+                            .eq('username', username)
+                            .select();
+                    } else {
+                        // Insert new client
+                        console.log('Client does not exist, inserting...');
+                        result = await supabaseClient
+                            .from('clients')
+                            .insert(clientRecord)
+                            .select();
+                    }
+                    
+                    const { data, error } = result;
                     
                     if (error) {
-                        console.error('Error saving client:', username, error);
+                        console.error(`❌ Error saving client ${username}:`, error);
+                        console.error('Error details:', JSON.stringify(error, null, 2));
                     } else {
-                        console.log('Successfully saved client:', username);
+                        console.log(`✅ Successfully saved client ${username}`);
+                        console.log('Saved data:', JSON.stringify(data, null, 2));
                     }
                 }
                 
-                console.log('Data saved to Supabase successfully');
+                console.log('=== DATA SAVE COMPLETE ===');
                 
             } catch (error) {
-                console.error('Error saving data to Supabase:', error);
+                console.error('❌ CRITICAL ERROR saving data to Supabase:', error);
+                console.error('Error stack:', error.stack);
             }
         }
 
@@ -1870,17 +1901,36 @@
 
         // Check if user is already logged in
         document.addEventListener('DOMContentLoaded', async function() {
+            console.log('=== PAGE LOADED ===');
+            console.log('Loading saved data from Supabase...');
+            
             await loadSavedData();
+            
+            console.log('CLIENT_DATA loaded:', Object.keys(CLIENT_DATA));
+            console.log('Full CLIENT_DATA:', JSON.stringify(CLIENT_DATA, null, 2));
+            
             updateNotificationBadges();
             
             const savedUser = localStorage.getItem('kinectb2b_user');
             const savedAdmin = localStorage.getItem('kinectb2b_admin');
             
             if (savedAdmin) {
+                console.log('Auto-login as admin');
                 isAdmin = true;
                 showAdminDashboard();
             } else if (savedUser) {
+                console.log('Auto-login as client:', savedUser);
                 currentUser = JSON.parse(savedUser);
+                
+                // Make sure the client exists in CLIENT_DATA
+                if (!CLIENT_DATA[currentUser.username]) {
+                    console.error('Client not found in CLIENT_DATA!', currentUser.username);
+                    console.log('Available clients:', Object.keys(CLIENT_DATA));
+                    logout();
+                    alert('Session expired. Please log in again.');
+                    return;
+                }
+                
                 showClientDashboard();
             }
             
@@ -1889,6 +1939,8 @@
             
             // Setup real-time subscriptions
             setupRealtimeSubscriptions();
+            
+            console.log('=== INITIALIZATION COMPLETE ===');
         });
         
         // Setup real-time subscriptions for live updates
@@ -2848,13 +2900,19 @@
             const content = document.getElementById('messageContent').value.trim();
             
             if (!content) {
+                alert('Please enter a message');
                 return;
             }
             
+            console.log('=== SENDING MESSAGE ===');
+            
             const userData = CLIENT_DATA[currentUser.username];
+            console.log('Current user:', currentUser.username);
+            console.log('User data before:', JSON.stringify(userData, null, 2));
             
             if (!userData.messages) {
                 userData.messages = [];
+                console.log('Initialized empty messages array');
             }
             
             const message = {
@@ -2864,19 +2922,37 @@
                 read: false
             };
             
-            userData.messages.push(message);
-            await saveData();
+            console.log('New message object:', JSON.stringify(message, null, 2));
+            console.log('Messages array before push:', JSON.stringify(userData.messages, null, 2));
             
-            // Send notification to admin
+            userData.messages.push(message);
+            
+            console.log('Messages array after push:', JSON.stringify(userData.messages, null, 2));
+            console.log('CLIENT_DATA[username].messages:', JSON.stringify(CLIENT_DATA[currentUser.username].messages, null, 2));
+            
+            console.log('Calling saveData()...');
+            await saveData();
+            console.log('saveData() completed');
+            
+            console.log('Sending notification to admin...');
             await addNotification('new_message', 
                 `New message from ${userData.name}: "${content.substring(0, 50)}${content.length > 50 ? '...' : ''}"`, 
                 userData.name);
+            console.log('Notification sent');
             
             // Clear form and reload messages
             document.getElementById('messageContent').value = '';
+            console.log('Form cleared');
+            
             loadMessages();
             updateNotificationBadges();
             updateClientMessageBadge();
+            
+            console.log('Reloading data from Supabase to verify save...');
+            await loadSavedData();
+            console.log('Reloaded CLIENT_DATA[username].messages:', JSON.stringify(CLIENT_DATA[currentUser.username].messages, null, 2));
+            
+            console.log('=== MESSAGE SEND COMPLETE ===');
             
             alert('Message sent successfully! Admin will respond shortly.');
         }
