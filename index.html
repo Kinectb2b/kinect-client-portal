@@ -306,9 +306,10 @@
             color: white;
         }
 
+        
         /* Dashboard Styles */
-        .dashboard {
-    display: none;
+.dashboard {
+    display: none !important;
 }
 
 .dashboard.active {
@@ -1575,11 +1576,13 @@ function showClientDashboard() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminDashboard').style.display = 'none';
     
-    // Show dashboard using class
+    // Show dashboard with inline style (most forceful)
     const dashboardEl = document.getElementById('dashboard');
-    dashboardEl.classList.add('active');
+    dashboardEl.style.display = 'block';
+    dashboardEl.style.visibility = 'visible';
+    dashboardEl.style.opacity = '1';
     
-    console.log('Dashboard classes:', dashboardEl.className);
+    console.log('Dashboard display:', window.getComputedStyle(dashboardEl).display);
     
     // Update welcome message
     if (currentUser && currentUser.username) {
