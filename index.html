@@ -491,6 +491,218 @@
             opacity: 0.5;
         }
 
+        /* Plan Selector Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 32px 32px 24px;
+            border-bottom: 2px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+        }
+
+        .modal-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1e3a8a;
+            margin-bottom: 8px;
+        }
+
+        .modal-subtitle {
+            color: #6b7280;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #f3f4f6;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+            color: #6b7280;
+        }
+
+        .modal-close:hover {
+            background: #e5e7eb;
+        }
+
+        .modal-body {
+            padding: 32px;
+        }
+
+        .plan-selector {
+            margin-bottom: 32px;
+        }
+
+        .plan-dropdown {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .plan-dropdown:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .plan-details-card {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 32px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .plan-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 24px;
+        }
+
+        .plan-details-name {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .plan-details-price {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .plan-details-annual {
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        .plan-features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .plan-feature-item {
+            display: flex;
+            align-items: start;
+            gap: 12px;
+        }
+
+        .plan-feature-icon {
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .plan-feature-text {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .plan-feature-value {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .request-plan-btn {
+            width: 100%;
+            padding: 18px;
+            background: white;
+            color: #1e3a8a;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .request-plan-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .current-plan-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .admin-client-detail {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 16px;
+            display: none;
+        }
+
+        .admin-client-detail.active {
+            display: block;
+        }
+
+        .detail-section {
+            margin-bottom: 24px;
+        }
+
+        .detail-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 12px;
+        }
+
         @media (max-width: 768px) {
             .grid-2 {
                 grid-template-columns: 1fr;
@@ -498,6 +710,10 @@
             
             .client-stats {
                 grid-template-columns: repeat(2, 1fr);
+            }
+
+            .plan-features {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -547,10 +763,17 @@
                 <p class="page-subtitle">Your business growth dashboard</p>
             </div>
 
-            <div class="plan-card">
-                <div class="plan-name" id="planName">Loading...</div>
-                <div class="plan-price" id="planPrice">$0/month</div>
-                <div class="plan-billing">Next billing: <span id="nextBilling">--</span></div>
+            <div class="grid-2">
+                <div class="plan-card">
+                    <div class="plan-name" id="planName">Loading...</div>
+                    <div class="plan-price" id="planPrice">$0/month</div>
+                    <div class="plan-billing">Next billing: <span id="nextBilling">--</span></div>
+                </div>
+                <div class="card" style="display: flex; align-items: center; justify-content: center;">
+                    <button onclick="showPlanSelector()" style="padding: 16px 32px; background: #1e3a8a; color: white; border: none; border-radius: 8px; font-weight: 700; font-size: 16px; cursor: pointer; transition: all 0.2s;">
+                        Change Plan
+                    </button>
+                </div>
             </div>
 
             <div class="grid">
@@ -624,23 +847,42 @@
                 <p class="page-subtitle">Manage all clients and view system data</p>
             </div>
 
-            <div class="admin-tabs">
-                <button class="tab-btn active" onclick="switchTab('clients')">All Clients</button>
-                <button class="tab-btn" onclick="switchTab('appointments')">All Appointments</button>
+            <div class="card">
+                <h2 class="card-title">All Clients</h2>
+                <div id="adminClientsList"></div>
             </div>
+        </div>
+    </div>
 
-            <div id="clientsTab" class="tab-content active">
-                <div class="card">
-                    <h2 class="card-title">Client List</h2>
-                    <div id="adminClientsList"></div>
+    <!-- Plan Selector Modal -->
+    <div id="planModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">Choose Your Plan</h2>
+                    <p class="modal-subtitle">Select a plan to view details and request a change</p>
                 </div>
+                <button class="modal-close" onclick="closePlanSelector()">×</button>
             </div>
-
-            <div id="appointmentsTab" class="tab-content">
-                <div class="card">
-                    <h2 class="card-title">All Appointments</h2>
-                    <div id="adminAppointmentsList"></div>
+            <div class="modal-body">
+                <div class="plan-selector">
+                    <select id="planDropdown" class="plan-dropdown" onchange="updatePlanDetails()">
+                        <option value="">Select a plan to view details...</option>
+                        <option value="Pro Plan 100">Pro Plan 100 - $250/month</option>
+                        <option value="Pro Plan 200">Pro Plan 200 - $500/month</option>
+                        <option value="Pro Plan 300">Pro Plan 300 - $750/month</option>
+                        <option value="Pro Plan 400">Pro Plan 400 - $1,000/month</option>
+                        <option value="Pro Plan 500">Pro Plan 500 - $1,250/month</option>
+                        <option value="Pro Plan 600">Pro Plan 600 - $1,500/month</option>
+                        <option value="Pro Plan 700">Pro Plan 700 - $1,750/month</option>
+                        <option value="Pro Plan 800">Pro Plan 800 - $2,000/month</option>
+                        <option value="Pro Plan 900">Pro Plan 900 - $2,250/month</option>
+                        <option value="Pro Plan 1000">Pro Plan 1000 - $2,500/month</option>
+                        <option value="Pro Plan 1100">Pro Plan 1100 - $2,750/month</option>
+                        <option value="Pro Plan 1200">Pro Plan 1200 - $3,000/month</option>
+                    </select>
                 </div>
+                <div id="planDetailsContainer"></div>
             </div>
         </div>
     </div>
@@ -659,6 +901,21 @@
             'Pro Plan 400': 1000, 'Pro Plan 500': 1250, 'Pro Plan 600': 1500,
             'Pro Plan 700': 1750, 'Pro Plan 800': 2000, 'Pro Plan 900': 2250,
             'Pro Plan 1000': 2500, 'Pro Plan 1100': 2750, 'Pro Plan 1200': 3000
+        };
+
+        const PLAN_DETAILS = {
+            'Pro Plan 100': { guarantees: 5, businesses: 100, people: 300, calls: 900, emails: 900, sms: 900, total: 2700, annual: 3000, annualSavings: 2750 },
+            'Pro Plan 200': { guarantees: 10, businesses: 200, people: 600, calls: 1800, emails: 1800, sms: 1800, total: 5400, annual: 6000, annualSavings: 5500 },
+            'Pro Plan 300': { guarantees: 15, businesses: 300, people: 900, calls: 2700, emails: 2700, sms: 2700, total: 8100, annual: 9000, annualSavings: 8250 },
+            'Pro Plan 400': { guarantees: 20, businesses: 400, people: 1200, calls: 3600, emails: 3600, sms: 3600, total: 10800, annual: 12000, annualSavings: 11000 },
+            'Pro Plan 500': { guarantees: 25, businesses: 500, people: 1500, calls: 4500, emails: 4500, sms: 4500, total: 13500, annual: 15000, annualSavings: 13750 },
+            'Pro Plan 600': { guarantees: 30, businesses: 600, people: 1800, calls: 5400, emails: 5400, sms: 5400, total: 16200, annual: 18000, annualSavings: 16500 },
+            'Pro Plan 700': { guarantees: 35, businesses: 700, people: 2100, calls: 6300, emails: 6300, sms: 6300, total: 18900, annual: 21000, annualSavings: 19250 },
+            'Pro Plan 800': { guarantees: 40, businesses: 800, people: 2400, calls: 7200, emails: 7200, sms: 7200, total: 21600, annual: 24000, annualSavings: 22000 },
+            'Pro Plan 900': { guarantees: 45, businesses: 900, people: 2700, calls: 8100, emails: 8100, sms: 8100, total: 24300, annual: 27000, annualSavings: 24750 },
+            'Pro Plan 1000': { guarantees: 50, businesses: 1000, people: 3000, calls: 9000, emails: 9000, sms: 9000, total: 27000, annual: 30000, annualSavings: 27500 },
+            'Pro Plan 1100': { guarantees: 55, businesses: 1100, people: 3300, calls: 9900, emails: 9900, sms: 9900, total: 29700, annual: 33000, annualSavings: 30250 },
+            'Pro Plan 1200': { guarantees: 60, businesses: 1200, people: 3600, calls: 10800, emails: 10800, sms: 10800, total: 32400, annual: 36000, annualSavings: 33000 }
         };
 
         let currentUser = null;
@@ -826,7 +1083,12 @@
                     <div class="client-card">
                         <div class="client-header">
                             <div class="client-name">${client.name}</div>
-                            <div class="client-plan-badge">${client.plan || 'No Plan'}</div>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <div class="client-plan-badge">${client.plan || 'No Plan'}</div>
+                                <button onclick="toggleClientDetail('${client.username}')" style="padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px;">
+                                    View Details
+                                </button>
+                            </div>
                         </div>
                         <div class="client-stats">
                             <div class="client-stat">
@@ -858,11 +1120,83 @@
                             <span class="info-label">Next Billing</span>
                             <span class="info-value">${formatDate(client.next_billing)}</span>
                         </div>
+                        
+                        <div id="detail-${client.username}" class="admin-client-detail">
+                            <div class="detail-section">
+                                <div class="detail-section-title">📋 Full Client Information</div>
+                                <div class="info-row">
+                                    <span class="info-label">Phone</span>
+                                    <span class="info-value">${client.phone || '--'}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Account Status</span>
+                                    <span class="info-value">${client.status || 'Active'}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">EIN</span>
+                                    <span class="info-value">${client.ein || '--'}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-section">
+                                <div class="detail-section-title">📅 Client Appointments</div>
+                                <div id="client-appointments-${client.username}">Loading...</div>
+                            </div>
+                        </div>
                     </div>
                 `).join('');
                 
             } catch (error) {
                 console.error('Error loading clients:', error);
+            }
+        }
+
+        // Toggle Client Detail View
+        async function toggleClientDetail(username) {
+            const detailDiv = document.getElementById(`detail-${username}`);
+            const isActive = detailDiv.classList.contains('active');
+            
+            // Close all other details
+            document.querySelectorAll('.admin-client-detail').forEach(div => div.classList.remove('active'));
+            
+            if (!isActive) {
+                detailDiv.classList.add('active');
+                await loadClientAppointmentsAdmin(username);
+            }
+        }
+
+        // Load Client Appointments for Admin
+        async function loadClientAppointmentsAdmin(username) {
+            try {
+                const { data: appointments, error } = await supabaseClient
+                    .from('appointments')
+                    .select('*')
+                    .eq('username', username)
+                    .order('appointment_date', { ascending: false });
+                
+                const container = document.getElementById(`client-appointments-${username}`);
+                
+                if (!appointments || appointments.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; padding: 20px; color: #6b7280;">No appointments found</div>';
+                    return;
+                }
+                
+                container.innerHTML = appointments.map(apt => `
+                    <div class="appointment-item" style="margin-bottom: 12px;">
+                        <div class="appointment-header">
+                            <div class="appointment-date">${formatDate(apt.appointment_date)} at ${apt.appointment_time || 'TBD'}</div>
+                            <div class="appointment-status">${apt.status || 'Scheduled'}</div>
+                        </div>
+                        <div class="appointment-company">${apt.business_name || 'TBD'}</div>
+                        <div class="appointment-details">
+                            Contact: ${apt.contact_person || 'TBD'} | Type: ${apt.appointment_type || 'Meeting'}
+                        </div>
+                        ${apt.notes ? `<div class="appointment-notes">${apt.notes}</div>` : ''}
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading client appointments:', error);
             }
         }
 
@@ -911,6 +1245,123 @@
             
             event.target.classList.add('active');
             document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // Show Plan Selector Modal
+        function showPlanSelector() {
+            document.getElementById('planModal').classList.add('active');
+            document.getElementById('planDropdown').value = '';
+            document.getElementById('planDetailsContainer').innerHTML = '';
+        }
+
+        // Close Plan Selector Modal
+        function closePlanSelector() {
+            document.getElementById('planModal').classList.remove('active');
+        }
+
+        // Update Plan Details
+        function updatePlanDetails() {
+            const selectedPlan = document.getElementById('planDropdown').value;
+            const container = document.getElementById('planDetailsContainer');
+            
+            if (!selectedPlan) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            const details = PLAN_DETAILS[selectedPlan];
+            const price = PLAN_PRICING[selectedPlan];
+            const isCurrent = currentUser && currentUser.plan === selectedPlan;
+            
+            container.innerHTML = `
+                <div class="plan-details-card">
+                    <div class="plan-details-header">
+                        <div>
+                            <div class="plan-details-name">${selectedPlan}</div>
+                            <div class="plan-details-price">${price.toLocaleString()}/month</div>
+                            <div class="plan-details-annual">or ${details.annual.toLocaleString()}/year (Save ${details.annualSavings.toLocaleString()})</div>
+                        </div>
+                        ${isCurrent ? '<div class="current-plan-badge">Current Plan</div>' : ''}
+                    </div>
+                    
+                    <div class="plan-features">
+                        <div class="plan-feature-item">
+                            <div class="plan-feature-icon">✓</div>
+                            <div>
+                                <div class="plan-feature-value">${details.guarantees} Guaranteed Appointments</div>
+                                <div class="plan-feature-text">Qualified appointments per month</div>
+                            </div>
+                        </div>
+                        <div class="plan-feature-item">
+                            <div class="plan-feature-icon">🏢</div>
+                            <div>
+                                <div class="plan-feature-value">${details.businesses.toLocaleString()} Different Businesses</div>
+                                <div class="plan-feature-text">Unique companies contacted</div>
+                            </div>
+                        </div>
+                        <div class="plan-feature-item">
+                            <div class="plan-feature-icon">👥</div>
+                            <div>
+                                <div class="plan-feature-value">${details.people.toLocaleString()} People Called</div>
+                                <div class="plan-feature-text">Decision makers reached</div>
+                            </div>
+                        </div>
+                        <div class="plan-feature-item">
+                            <div class="plan-feature-icon">📞</div>
+                            <div>
+                                <div class="plan-feature-value">${details.calls.toLocaleString()} Calls Made</div>
+                                <div class="plan-feature-text">Phone outreach per month</div>
+                            </div>
+                        </div>
+                        <div class="plan-feature-item">
+                            <div class="plan-feature-icon">📧</div>
+                            <div>
+                                <div class="plan-feature-value">${details.emails.toLocaleString()} Emails Sent</div>
+                                <div class="plan-feature-text">Professional email campaigns</div>
+                            </div>
+                        </div>
+                        <div class="plan-feature-item">
+                            <div class="plan-feature-icon">💬</div>
+                            <div>
+                                <div class="plan-feature-value">${details.sms.toLocaleString()} SMS Messages</div>
+                                <div class="plan-feature-text">Text message follow-ups</div>
+                            </div>
+                        </div>
+                        <div class="plan-feature-item">
+                            <div class="plan-feature-icon">📊</div>
+                            <div>
+                                <div class="plan-feature-value">${details.total.toLocaleString()} Total Contact Points</div>
+                                <div class="plan-feature-text">Combined monthly outreach</div>
+                            </div>
+                        </div>
+                        <div class="plan-feature-item">
+                            <div class="plan-feature-icon">🎯</div>
+                            <div>
+                                <div class="plan-feature-value">Dedicated Account Manager</div>
+                                <div class="plan-feature-text">Personal support team</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                ${!isCurrent ? `
+                    <button class="request-plan-btn" onclick="requestPlanChange('${selectedPlan}')">
+                        Request Change to ${selectedPlan}
+                    </button>
+                ` : `
+                    <div style="text-align: center; padding: 20px; color: #6b7280; font-size: 16px;">
+                        This is your current plan
+                    </div>
+                `}
+            `;
+        }
+
+        // Request Plan Change
+        function requestPlanChange(planName) {
+            if (confirm(`Request to change your plan to ${planName}?\n\nOur team will contact you within 24 hours to process this change.`)) {
+                alert(`Thank you! Your request to change to ${planName} has been submitted. We'll contact you shortly at ${currentUser.email_address || 'your registered email'}.`);
+                closePlanSelector();
+            }
         }
 
         // Logout
