@@ -389,39 +389,6 @@
         }
 
         /* Admin Styles */
-        .admin-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 24px;
-            background: white;
-            padding: 8px;
-            border-radius: 12px;
-        }
-
-        .tab-btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: transparent;
-            color: #6b7280;
-        }
-
-        .tab-btn.active {
-            background: #1e3a8a;
-            color: white;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
         .client-card {
             padding: 24px;
             border: 2px solid #e5e7eb;
@@ -897,38 +864,36 @@
         const ADMIN_CREDENTIALS = { username: 'admin', password: 'kinect2024admin' };
         
         const PLAN_PRICING = {
-            'Pro Plan 100': 250, 'Pro Plan 200': 500, 'Pro Plan 300': 750,
-            'Pro Plan 400': 1000, 'Pro Plan 500': 1250, 'Pro Plan 600': 1500,
-            'Pro Plan 700': 1750, 'Pro Plan 800': 2000, 'Pro Plan 900': 2250,
-            'Pro Plan 1000': 2500, 'Pro Plan 1100': 2750, 'Pro Plan 1200': 3000
+            'Annual Pro Plan 100': 250, 'Annual Pro Plan 200': 500, 'Annual Pro Plan 300': 750,
+            'Annual Pro Plan 400': 1000, 'Annual Pro Plan 500': 1250, 'Annual Pro Plan 600': 1500,
+            'Annual Pro Plan 700': 1750, 'Annual Pro Plan 800': 2000, 'Annual Pro Plan 900': 2250,
+            'Annual Pro Plan 1000': 2500, 'Annual Pro Plan 1100': 2750, 'Annual Pro Plan 1200': 3000
         };
 
         const PLAN_DETAILS = {
-            'Pro Plan 100': { guarantees: 5, teamGoal: 25, businesses: 100, people: 300, calls: 900, emails: 900, sms: 900, total: 2700, annual: 3000, annualSavings: 2750 },
-            'Pro Plan 200': { guarantees: 10, teamGoal: 50, businesses: 200, people: 600, calls: 1800, emails: 1800, sms: 1800, total: 5400, annual: 6000, annualSavings: 5500 },
-            'Pro Plan 300': { guarantees: 15, teamGoal: 75, businesses: 300, people: 900, calls: 2700, emails: 2700, sms: 2700, total: 8100, annual: 9000, annualSavings: 8250 },
-            'Pro Plan 400': { guarantees: 20, teamGoal: 100, businesses: 400, people: 1200, calls: 3600, emails: 3600, sms: 3600, total: 10800, annual: 12000, annualSavings: 11000 },
-            'Pro Plan 500': { guarantees: 25, teamGoal: 125, businesses: 500, people: 1500, calls: 4500, emails: 4500, sms: 4500, total: 13500, annual: 15000, annualSavings: 13750 },
-            'Pro Plan 600': { guarantees: 30, teamGoal: 150, businesses: 600, people: 1800, calls: 5400, emails: 5400, sms: 5400, total: 16200, annual: 18000, annualSavings: 16500 },
-            'Pro Plan 700': { guarantees: 35, teamGoal: 175, businesses: 700, people: 2100, calls: 6300, emails: 6300, sms: 6300, total: 18900, annual: 21000, annualSavings: 19250 },
-            'Pro Plan 800': { guarantees: 40, teamGoal: 200, businesses: 800, people: 2400, calls: 7200, emails: 7200, sms: 7200, total: 21600, annual: 24000, annualSavings: 22000 },
-            'Pro Plan 900': { guarantees: 45, teamGoal: 225, businesses: 900, people: 2700, calls: 8100, emails: 8100, sms: 8100, total: 24300, annual: 27000, annualSavings: 24750 },
-            'Pro Plan 1000': { guarantees: 50, teamGoal: 250, businesses: 1000, people: 3000, calls: 9000, emails: 9000, sms: 9000, total: 27000, annual: 30000, annualSavings: 27500 },
-            'Pro Plan 1100': { guarantees: 55, teamGoal: 275, businesses: 1100, people: 3300, calls: 9900, emails: 9900, sms: 9900, total: 29700, annual: 33000, annualSavings: 30250 },
-            'Pro Plan 1200': { guarantees: 60, teamGoal: 300, businesses: 1200, people: 3600, calls: 10800, emails: 10800, sms: 10800, total: 32400, annual: 36000, annualSavings: 33000 }
+            'Annual Pro Plan 100': { guarantees: 5, teamGoal: 25, businesses: 100, people: 300, calls: 900, emails: 900, sms: 900, total: 2700 },
+            'Annual Pro Plan 200': { guarantees: 10, teamGoal: 50, businesses: 200, people: 600, calls: 1800, emails: 1800, sms: 1800, total: 5400 },
+            'Annual Pro Plan 300': { guarantees: 15, teamGoal: 75, businesses: 300, people: 900, calls: 2700, emails: 2700, sms: 2700, total: 8100 },
+            'Annual Pro Plan 400': { guarantees: 20, teamGoal: 100, businesses: 400, people: 1200, calls: 3600, emails: 3600, sms: 3600, total: 10800 },
+            'Annual Pro Plan 500': { guarantees: 25, teamGoal: 125, businesses: 500, people: 1500, calls: 4500, emails: 4500, sms: 4500, total: 13500 },
+            'Annual Pro Plan 600': { guarantees: 30, teamGoal: 150, businesses: 600, people: 1800, calls: 5400, emails: 5400, sms: 5400, total: 16200 },
+            'Annual Pro Plan 700': { guarantees: 35, teamGoal: 175, businesses: 700, people: 2100, calls: 6300, emails: 6300, sms: 6300, total: 18900 },
+            'Annual Pro Plan 800': { guarantees: 40, teamGoal: 200, businesses: 800, people: 2400, calls: 7200, emails: 7200, sms: 7200, total: 21600 },
+            'Annual Pro Plan 900': { guarantees: 45, teamGoal: 225, businesses: 900, people: 2700, calls: 8100, emails: 8100, sms: 8100, total: 24300 },
+            'Annual Pro Plan 1000': { guarantees: 50, teamGoal: 250, businesses: 1000, people: 3000, calls: 9000, emails: 9000, sms: 9000, total: 27000 },
+            'Annual Pro Plan 1100': { guarantees: 55, teamGoal: 275, businesses: 1100, people: 3300, calls: 9900, emails: 9900, sms: 9900, total: 29700 },
+            'Annual Pro Plan 1200': { guarantees: 60, teamGoal: 300, businesses: 1200, people: 3600, calls: 10800, emails: 10800, sms: 10800, total: 32400 }
         };
 
         let currentUser = null;
         let isAdmin = false;
 
-        // Login Handler
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const username = document.getElementById('username').value.toLowerCase().trim();
             const password = document.getElementById('password').value;
             
-            // Check admin
             if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
                 isAdmin = true;
                 localStorage.setItem('kinectb2b_admin', 'true');
@@ -936,7 +901,6 @@
                 return;
             }
             
-            // Check client
             try {
                 const { data: client, error } = await supabaseClient
                     .from('clients')
@@ -967,32 +931,25 @@
             setTimeout(() => errorDiv.style.display = 'none', 5000);
         }
 
-        // Show Client Dashboard
         async function showClientDashboard() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('clientDashboard').style.display = 'block';
             
-            // Set user info
             document.getElementById('welcomeTitle').textContent = `Welcome, ${currentUser.name}!`;
             document.getElementById('navUsername').textContent = currentUser.name;
             document.getElementById('planName').textContent = currentUser.plan || 'Pro Plan';
             document.getElementById('planPrice').textContent = `$${PLAN_PRICING[currentUser.plan] || 0}/month`;
             document.getElementById('nextBilling').textContent = formatDate(currentUser.next_billing);
             
-            // Set stats
             document.getElementById('totalAppointments').textContent = currentUser.total_appointments || 0;
             document.getElementById('businessesContacted').textContent = currentUser.businesses_contacted || 0;
             document.getElementById('peopleCalled').textContent = currentUser.people_called || 0;
             document.getElementById('contactPoints').textContent = (currentUser.total_contact_points || 0).toLocaleString();
             
-            // Load appointments
             await loadClientAppointments();
-            
-            // Load profile
             loadProfile();
         }
 
-        // Load Client Appointments
         async function loadClientAppointments() {
             try {
                 const { data: appointments, error } = await supabaseClient
@@ -1028,7 +985,6 @@
             }
         }
 
-        // Load Profile
         function loadProfile() {
             const container = document.getElementById('profileInfo');
             container.innerHTML = `
@@ -1055,16 +1011,12 @@
             `;
         }
 
-        // Show Admin Dashboard
         async function showAdminDashboard() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('adminDashboard').style.display = 'block';
-            
             await loadAllClients();
-            await loadAllAppointments();
         }
 
-        // Load All Clients (Admin)
         async function loadAllClients() {
             try {
                 const { data: clients, error } = await supabaseClient
@@ -1132,10 +1084,6 @@
                                     <span class="info-label">Account Status</span>
                                     <span class="info-value">${client.status || 'Active'}</span>
                                 </div>
-                                <div class="info-row">
-                                    <span class="info-label">EIN</span>
-                                    <span class="info-value">${client.ein || '--'}</span>
-                                </div>
                             </div>
                             
                             <div class="detail-section">
@@ -1151,12 +1099,10 @@
             }
         }
 
-        // Toggle Client Detail View
         async function toggleClientDetail(username) {
             const detailDiv = document.getElementById(`detail-${username}`);
             const isActive = detailDiv.classList.contains('active');
             
-            // Close all other details
             document.querySelectorAll('.admin-client-detail').forEach(div => div.classList.remove('active'));
             
             if (!isActive) {
@@ -1165,7 +1111,6 @@
             }
         }
 
-        // Load Client Appointments for Admin
         async function loadClientAppointmentsAdmin(username) {
             try {
                 const { data: appointments, error } = await supabaseClient
@@ -1200,66 +1145,16 @@
             }
         }
 
-        // Load All Appointments (Admin)
-        async function loadAllAppointments() {
-            try {
-                const { data: appointments, error } = await supabaseClient
-                    .from('appointments')
-                    .select('*')
-                    .order('appointment_date', { ascending: false })
-                    .limit(50);
-                
-                const container = document.getElementById('adminAppointmentsList');
-                
-                if (!appointments || appointments.length === 0) {
-                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📅</div><p>No appointments found</p></div>';
-                    return;
-                }
-                
-                container.innerHTML = appointments.map(apt => `
-                    <div class="appointment-item">
-                        <div class="appointment-header">
-                            <div>
-                                <div class="appointment-date">${formatDate(apt.appointment_date)} at ${apt.appointment_time || 'TBD'}</div>
-                                <div style="color: #6b7280; font-size: 14px;">Client: ${apt.username}</div>
-                            </div>
-                            <div class="appointment-status">${apt.status || 'Scheduled'}</div>
-                        </div>
-                        <div class="appointment-company">${apt.business_name || 'TBD'}</div>
-                        <div class="appointment-details">
-                            Contact: ${apt.contact_person || 'TBD'} | Type: ${apt.appointment_type || 'Meeting'}
-                        </div>
-                        ${apt.notes ? `<div class="appointment-notes">${apt.notes}</div>` : ''}
-                    </div>
-                `).join('');
-                
-            } catch (error) {
-                console.error('Error loading appointments:', error);
-            }
-        }
-
-        // Switch Admin Tabs
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(tabName + 'Tab').classList.add('active');
-        }
-
-        // Show Plan Selector Modal
         function showPlanSelector() {
             document.getElementById('planModal').classList.add('active');
             document.getElementById('planDropdown').value = '';
             document.getElementById('planDetailsContainer').innerHTML = '';
         }
 
-        // Close Plan Selector Modal
         function closePlanSelector() {
             document.getElementById('planModal').classList.remove('active');
         }
 
-        // Update Plan Details
         function updatePlanDetails() {
             const selectedPlan = document.getElementById('planDropdown').value;
             const container = document.getElementById('planDetailsContainer');
@@ -1277,21 +1172,25 @@
                 <div class="plan-details-card">
                     <div class="plan-details-header">
                         <div>
-                            <div class="plan-details-name">${selectedPlan}</div>
-                            <div class="plan-details-price">${price.toLocaleString()}/month</div>
-                            <div class="plan-details-annual">or ${details.annual.toLocaleString()}/year (Save ${details.annualSavings.toLocaleString()})</div>
+                            <div class="plan-details-name">${selectedPlan} - Annual</div>
+                            <div class="plan-details-price">$${price.toLocaleString()}/month</div>
+                            <div class="plan-details-annual">Pay Annually and Get 1 MONTH FREE!</div>
                         </div>
                         ${isCurrent ? '<div class="current-plan-badge">Current Plan</div>' : ''}
                     </div>
                     
-                    <div class="plan-features">
-                        <div class="plan-feature-item">
-                            <div class="plan-feature-icon">✓</div>
-                            <div>
-                                <div class="plan-feature-value">${details.guarantees} Guaranteed Appointments</div>
-                                <div class="plan-feature-text">Qualified appointments per month</div>
-                            </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                        <div style="padding: 20px; background: rgba(255, 255, 255, 0.15); border-radius: 12px;">
+                            <div style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">✓ ${details.guarantees} Guaranteed Appointments</div>
+                            <div style="font-size: 14px; opacity: 0.9;">Qualified appointments</div>
                         </div>
+                        <div style="padding: 20px; background: rgba(255, 255, 255, 0.15); border-radius: 12px;">
+                            <div style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">🎯 Team Goal: ${details.teamGoal} Appointments</div>
+                            <div style="font-size: 14px; opacity: 0.9;">Annual target</div>
+                        </div>
+                    </div>
+                    
+                    <div class="plan-features">
                         <div class="plan-feature-item">
                             <div class="plan-feature-icon">🏢</div>
                             <div>
@@ -1310,7 +1209,7 @@
                             <div class="plan-feature-icon">📞</div>
                             <div>
                                 <div class="plan-feature-value">${details.calls.toLocaleString()} Calls Made</div>
-                                <div class="plan-feature-text">Phone outreach per month</div>
+                                <div class="plan-feature-text">Phone outreach</div>
                             </div>
                         </div>
                         <div class="plan-feature-item">
@@ -1331,7 +1230,7 @@
                             <div class="plan-feature-icon">📊</div>
                             <div>
                                 <div class="plan-feature-value">${details.total.toLocaleString()} Total Contact Points</div>
-                                <div class="plan-feature-text">Combined monthly outreach</div>
+                                <div class="plan-feature-text">Combined outreach</div>
                             </div>
                         </div>
                         <div class="plan-feature-item">
@@ -1346,7 +1245,7 @@
                 
                 ${!isCurrent ? `
                     <button class="request-plan-btn" onclick="requestPlanChange('${selectedPlan}')">
-                        Request Change to ${selectedPlan}
+                        Request Change to ${selectedPlan} - Annual
                     </button>
                 ` : `
                     <div style="text-align: center; padding: 20px; color: #6b7280; font-size: 16px;">
@@ -1356,15 +1255,13 @@
             `;
         }
 
-        // Request Plan Change
         function requestPlanChange(planName) {
-            if (confirm(`Request to change your plan to ${planName}?\n\nOur team will contact you within 24 hours to process this change.`)) {
-                alert(`Thank you! Your request to change to ${planName} has been submitted. We'll contact you shortly at ${currentUser.email_address || 'your registered email'}.`);
+            if (confirm(`Request to change your plan to ${planName} - Annual?\n\nOur team will contact you within 24 hours to process this change.`)) {
+                alert(`Thank you! Your request to change to ${planName} - Annual has been submitted. We'll contact you shortly at ${currentUser.email_address || 'your registered email'}.`);
                 closePlanSelector();
             }
         }
 
-        // Logout
         function logout() {
             localStorage.removeItem('kinectb2b_user');
             localStorage.removeItem('kinectb2b_admin');
@@ -1375,16 +1272,15 @@
             document.getElementById('adminDashboard').style.display = 'none';
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
+            document.getElementById('loginError').style.display = 'none';
         }
 
-        // Format Date
         function formatDate(dateString) {
             if (!dateString) return '--';
             const date = new Date(dateString);
             return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         }
 
-        // Auto-login on page load
         window.addEventListener('DOMContentLoaded', async () => {
             const savedAdmin = localStorage.getItem('kinectb2b_admin');
             const savedUser = localStorage.getItem('kinectb2b_user');
