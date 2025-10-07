@@ -2940,7 +2940,66 @@
                 addNotification('appointment_confirmed', `${currentUser.name} confirmed appointment with ${appointment.company}`, currentUser.name);
                 updateAppointments(CLIENT_DATA[currentUser.username].appointments);
             }
+            function loadClientData() {
+    const userData = CLIENT_DATA[currentUser.username];
+    
+    // Update metrics
+    document.getElementById('totalAppointments').textContent = userData.totalAppointments;
+    document.getElementById('businessesContacted').textContent = userData.businessesContacted;
+    document.getElementById('peopleCalled').textContent = userData.peopleCalled;
+    document.getElementById('totalContactPoints').textContent = userData.totalContactPoints.toLocaleString();
+    
+    // Load appointments from Supabase instead of hardcoded data
+    loadAppointmentsFromSupabase();  // ADD THIS LINE
+    
+    // Update prospects
+    updateProspects(userData.prospects);
+    
+    // Update last updated time
+    document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+    
+    // Initialize chart
+    initializeChart();
+}
         }
+        // Load appointments from Supabase
+async function loadAppointmentsFromSupabase() {
+    try {
+        const userData = CLIENT_DATA[currentUser.username];
+        
+        // Get client's pipeline ID to match appointments
+        const { data: appointments, error } = await supabaseClient
+            .from('appointments')
+            .select('*')
+            .eq('client_username', currentUser.username)
+            .order('appointment_date', { ascending: true });
+        
+        if (error) {
+            console.error('Error loading appointments:', error);
+            return;
+        }
+        
+        console.log('Loaded appointments from Supabase:', appointments);
+        
+        // Convert Supabase appointments to the format your portal expects
+        const formattedAppointments = appointments.map(apt => ({
+            date: apt.appointment_date,
+            time: apt.appointment_time,
+            company: apt.business_name,
+            contact: apt.contact_person,
+            type: 'Business Meeting',
+            location: apt.business_address || 'TBD',
+            status: 'pending',
+            notes: apt.notes || ''
+        }));
+        
+        // Update the appointments display
+        updateAppointments(formattedAppointments);
+        
+    } catch (error) {
+        console.error('Error loading appointments:', error);
+    }
+}
 
         function updateProspects(prospects) {
             const container = document.getElementById('prospectsList');
