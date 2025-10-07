@@ -2967,7 +2967,7 @@ async function loadAppointmentsFromSupabase() {
         const { data: appointments, error } = await supabaseClient
             .from('appointments')
             .select('*')
-            .eq('client_username', currentUser.username)
+            .eq('username', currentUser.username)
             .order('appointment_date', { ascending: true });
         
         if (error) {
