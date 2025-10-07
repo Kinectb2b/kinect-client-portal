@@ -2880,7 +2880,12 @@
             initializeChart();
         }
 
-        function updateAppointments(appointments) {
+            function updateAppointments(appointments) {
+    console.log('updateAppointments called with:', appointments);
+    console.log('Number of appointments:', appointments ? appointments.length : 0);
+    
+    const container = document.getElementById('appointmentsList');
+    ...
             const container = document.getElementById('appointmentsList');
             
             if (!appointments || appointments.length === 0) {
