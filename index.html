@@ -709,6 +709,16 @@
                 
                 <button type="submit" class="login-button">Sign In</button>
             </form>
+            
+            <div style="text-align: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid #e5e7eb;">
+                <p style="font-size: 14px; color: #6b7280; margin-bottom: 8px;">Need assistance?</p>
+                <p style="font-size: 14px;">
+                    <a href="mailto:accounts@kinectb2b.com" style="color: #1e3a8a; text-decoration: none; font-weight: 600;">accounts@kinectb2b.com</a>
+                </p>
+                <p style="font-size: 14px;">
+                    <a href="tel:219-270-7863" style="color: #1e3a8a; text-decoration: none; font-weight: 600;">219-270-7863</a>
+                </p>
+            </div>
         </div>
     </div>
 
@@ -743,22 +753,10 @@
                 </div>
             </div>
 
-            <div class="grid">
+            <div style="max-width: 400px; margin: 0 auto 24px;">
                 <div class="stat-box">
                     <div class="stat-value" id="totalAppointments">0</div>
                     <div class="stat-label">Total Appointments</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="businessesContacted">0</div>
-                    <div class="stat-label">Businesses Contacted</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="peopleCalled">0</div>
-                    <div class="stat-label">People Called</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="contactPoints">0</div>
-                    <div class="stat-label">Contact Points</div>
                 </div>
             </div>
 
@@ -790,6 +788,19 @@
                         <h3>🚀 Join Our Affiliate Program</h3>
                         <p>Earn commissions by referring businesses to Kinect B2B. It's easy, profitable, and helps other businesses grow!</p>
                         <a href="https://kinectb2b-affiliate.com/" target="_blank" class="affiliate-btn">Sign Up Now</a>
+                    </div>
+
+                    <div class="card" style="margin-top: 24px;">
+                        <h2 class="card-title">
+                            <svg class="card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            Contact Us
+                        </h2>
+                        <div style="text-align: center; padding: 20px;">
+                            <p style="color: #6b7280; margin-bottom: 16px; font-size: 16px;">Need assistance? Contact your account manager</p>
+                            <div id="accountManagerContact"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -942,12 +953,10 @@
             document.getElementById('nextBilling').textContent = formatDate(currentUser.next_billing);
             
             document.getElementById('totalAppointments').textContent = currentUser.total_appointments || 0;
-            document.getElementById('businessesContacted').textContent = currentUser.businesses_contacted || 0;
-            document.getElementById('peopleCalled').textContent = currentUser.people_called || 0;
-            document.getElementById('contactPoints').textContent = (currentUser.total_contact_points || 0).toLocaleString();
             
             await loadClientAppointments();
             loadProfile();
+            loadAccountManagerContact();
         }
 
         async function loadClientAppointments() {
@@ -1007,6 +1016,29 @@
                 <div class="info-row">
                     <span class="info-label">Account Status</span>
                     <span class="info-value">${currentUser.status || 'Active'}</span>
+                </div>
+            `;
+        }
+
+        function loadAccountManagerContact() {
+            const container = document.getElementById('accountManagerContact');
+            const managerName = currentUser.account_manager || 'Support Team';
+            const managerPhone = currentUser.account_manager_phone || '219-270-7863';
+            const managerEmail = currentUser.account_manager_email || 'accounts@kinectb2b.com';
+            
+            container.innerHTML = `
+                <div style="margin-bottom: 12px;">
+                    <div style="font-weight: 700; color: #1e3a8a; font-size: 18px; margin-bottom: 8px;">${managerName}</div>
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <a href="tel:${managerPhone}" style="color: #3b82f6; text-decoration: none; font-weight: 600; font-size: 16px;">
+                        📞 ${managerPhone}
+                    </a>
+                </div>
+                <div>
+                    <a href="mailto:${managerEmail}" style="color: #3b82f6; text-decoration: none; font-weight: 600; font-size: 16px;">
+                        📧 ${managerEmail}
+                    </a>
                 </div>
             `;
         }
