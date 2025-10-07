@@ -2880,18 +2880,17 @@
             initializeChart();
         }
 
-            function updateAppointments(appointments) {
+           function updateAppointments(appointments) {
     console.log('updateAppointments called with:', appointments);
     console.log('Number of appointments:', appointments ? appointments.length : 0);
     
     const container = document.getElementById('appointmentsList');
-    ...
-            const container = document.getElementById('appointmentsList');
-            
-            if (!appointments || appointments.length === 0) {
-                container.innerHTML = '<div style="text-align: center; color: #64748b; padding: 40px;">No upcoming appointments</div>';
-                return;
-            }
+    
+    if (!appointments || appointments.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #64748b; padding: 40px;">No upcoming appointments</div>';
+        return;
+    }
+    
             
             container.innerHTML = appointments.map((apt, index) => `
                 <div class="appointment-item">
