@@ -2996,6 +2996,11 @@ async function loadAppointmentsFromSupabase() {
             notes: apt.notes || ''
         }));
         
+        console.log('Formatted appointments:', formattedAppointments);
+        
+        // Update the appointments display
+        updateAppointments(formattedAppointments);
+        
         // Update the appointments display
         updateAppointments(formattedAppointments);
         
