@@ -2965,9 +2965,7 @@
         // Load appointments from Supabase
 async function loadAppointmentsFromSupabase() {
     try {
-        const userData = CLIENT_DATA[currentUser.username];
-        
-        // Get client's pipeline ID to match appointments
+        // Get appointments for this client
         const { data: appointments, error } = await supabaseClient
             .from('appointments')
             .select('*')
@@ -2981,12 +2979,17 @@ async function loadAppointmentsFromSupabase() {
         
         console.log('Loaded appointments from Supabase:', appointments);
         
-        // Convert Supabase appointments to the format your portal expects
+        if (!appointments || appointments.length === 0) {
+            console.log('No appointments found for', currentUser.username);
+            return;
+        }
+        
+        // Convert Supabase appointments to portal format
         const formattedAppointments = appointments.map(apt => ({
             date: apt.appointment_date,
-            time: apt.appointment_time,
-            company: apt.business_name,
-            contact: apt.contact_person,
+            time: apt.appointment_time || 'TBD',
+            company: apt.business_name || 'TBD',
+            contact: apt.contact_person || 'TBD',
             type: 'Business Meeting',
             location: apt.business_address || 'TBD',
             status: 'pending',
