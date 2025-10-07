@@ -985,6 +985,27 @@
                         <div class="appointment-details">
                             Contact: ${apt.contact_person || 'TBD'} | Type: ${apt.appointment_type || 'Meeting'}
                         </div>
+                        ${apt.phone ? `
+                            <div style="margin-top: 8px;">
+                                <a href="tel:${apt.phone}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">
+                                    📞 ${apt.phone}
+                                </a>
+                            </div>
+                        ` : ''}
+                        ${apt.email ? `
+                            <div style="margin-top: 8px;">
+                                <a href="mailto:${apt.email}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">
+                                    📧 ${apt.email}
+                                </a>
+                            </div>
+                        ` : ''}
+                        ${apt.business_address ? `
+                            <div style="margin-top: 8px;">
+                                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(apt.business_address)}" target="_blank" style="color: #3b82f6; text-decoration: none; font-weight: 600;">
+                                    📍 ${apt.business_address}
+                                </a>
+                            </div>
+                        ` : ''}
                         ${apt.notes ? `<div class="appointment-notes"><strong>Notes:</strong> ${apt.notes}</div>` : ''}
                     </div>
                 `).join('');
@@ -1168,6 +1189,27 @@
                         <div class="appointment-details">
                             Contact: ${apt.contact_person || 'TBD'} | Type: ${apt.appointment_type || 'Meeting'}
                         </div>
+                        ${apt.phone ? `
+                            <div style="margin-top: 8px;">
+                                <a href="tel:${apt.phone}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">
+                                    📞 ${apt.phone}
+                                </a>
+                            </div>
+                        ` : ''}
+                        ${apt.email ? `
+                            <div style="margin-top: 8px;">
+                                <a href="mailto:${apt.email}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">
+                                    📧 ${apt.email}
+                                </a>
+                            </div>
+                        ` : ''}
+                        ${apt.business_address ? `
+                            <div style="margin-top: 8px;">
+                                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(apt.business_address)}" target="_blank" style="color: #3b82f6; text-decoration: none; font-weight: 600;">
+                                    📍 ${apt.business_address}
+                                </a>
+                            </div>
+                        ` : ''}
                         ${apt.notes ? `<div class="appointment-notes">${apt.notes}</div>` : ''}
                     </div>
                 `).join('');
