@@ -3068,12 +3068,7 @@ function setupAppointmentsRealtimeSync() {
         // Update the appointment count
         document.getElementById('totalAppointments').textContent = formattedAppointments.length;
         
-    } catch (error) {
-        console.error('❌ Critical error loading appointments:', error);
-        console.error('Error details:', error.message);
-        updateAppointments([]);
-    }
-}
+
 
         function updateProspects(prospects) {
             const container = document.getElementById('prospectsList');
