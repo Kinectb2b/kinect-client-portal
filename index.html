@@ -949,11 +949,10 @@
             document.getElementById('welcomeTitle').textContent = `Welcome, ${currentUser.name}!`;
             document.getElementById('navUsername').textContent = currentUser.name;
             document.getElementById('planName').textContent = currentUser.plan || 'Pro Plan';
-            document.getElementById('planPrice').textContent = `$${PLAN_PRICING[currentUser.plan] || 0}/month`;
+            document.getElementById('planPrice').textContent = `${PLAN_PRICING[currentUser.plan] || 0}/month`;
             document.getElementById('nextBilling').textContent = formatDate(currentUser.next_billing);
             
-            document.getElementById('totalAppointments').textContent = currentUser.total_appointments || 0;
-            
+            // Load appointments first to get actual count
             await loadClientAppointments();
             loadProfile();
             loadAccountManagerContact();
@@ -965,21 +964,37 @@
                     .from('appointments')
                     .select('*')
                     .eq('username', currentUser.username)
-                    .order('appointment_date', { ascending: true })
-                    .limit(10);
+                    .order('appointment_date', { ascending: true });
                 
                 const container = document.getElementById('appointmentsList');
                 
                 if (!appointments || appointments.length === 0) {
                     container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📅</div><p>No upcoming appointments yet</p></div>';
+                    document.getElementById('totalAppointments').textContent = '0';
                     return;
                 }
                 
-                container.innerHTML = appointments.map(apt => `
+                // Update total appointments count to actual count from Supabase
+                document.getElementById('totalAppointments').textContent = appointments.length;
+                
+                // Count pending appointments
+                const pendingCount = appointments.filter(apt => apt.status !== 'completed').length;
+                
+                // Show pending count if there are any
+                let pendingBadge = '';
+                if (pendingCount > 0) {
+                    pendingBadge = `<div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 12px; margin-bottom: 16px; text-align: center;">
+                        <strong style="color: #92400e;">You have ${pendingCount} pending appointment${pendingCount > 1 ? 's' : ''}</strong>
+                    </div>`;
+                }
+                
+                container.innerHTML = pendingBadge + appointments.map(apt => `
                     <div class="appointment-item">
                         <div class="appointment-header">
                             <div class="appointment-date">${formatDate(apt.appointment_date)} at ${apt.appointment_time || 'TBD'}</div>
-                            <div class="appointment-status">${apt.status || 'Scheduled'}</div>
+                            <div class="appointment-status" style="background: ${apt.status === 'completed' ? '#dcfce7' : '#fef3c7'}; color: ${apt.status === 'completed' ? '#166534' : '#92400e'};">
+                                ${apt.status === 'completed' ? '✓ Completed' : 'Pending'}
+                            </div>
                         </div>
                         <div class="appointment-company">${apt.business_name || 'TBD'}</div>
                         <div class="appointment-details">
@@ -987,31 +1002,60 @@
                         </div>
                         ${apt.phone ? `
                             <div style="margin-top: 8px;">
-                                <a href="tel:${apt.phone}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">
+                                <a href="tel:${apt.phone}" style="color: #3b82f6; text-decoration: none; font-weight: 600; font-size: 14px;">
                                     📞 ${apt.phone}
                                 </a>
                             </div>
                         ` : ''}
                         ${apt.email ? `
                             <div style="margin-top: 8px;">
-                                <a href="mailto:${apt.email}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">
+                                <a href="mailto:${apt.email}" style="color: #3b82f6; text-decoration: none; font-weight: 600; font-size: 14px;">
                                     📧 ${apt.email}
                                 </a>
                             </div>
                         ` : ''}
                         ${apt.business_address ? `
                             <div style="margin-top: 8px;">
-                                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(apt.business_address)}" target="_blank" style="color: #3b82f6; text-decoration: none; font-weight: 600;">
+                                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(apt.business_address)}" target="_blank" style="color: #3b82f6; text-decoration: none; font-weight: 600; font-size: 14px;">
                                     📍 ${apt.business_address}
                                 </a>
                             </div>
                         ` : ''}
                         ${apt.notes ? `<div class="appointment-notes"><strong>Notes:</strong> ${apt.notes}</div>` : ''}
+                        ${apt.status !== 'completed' ? `
+                            <div style="margin-top: 12px;">
+                                <button onclick="markAsCompleted(${apt.id})" style="padding: 10px 20px; background: #22c55e; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                                    ✓ Mark as Completed
+                                </button>
+                            </div>
+                        ` : ''}
                     </div>
                 `).join('');
                 
             } catch (error) {
                 console.error('Error loading appointments:', error);
+            }
+        }
+
+        async function markAsCompleted(appointmentId) {
+            try {
+                const { error } = await supabaseClient
+                    .from('appointments')
+                    .update({ status: 'completed' })
+                    .eq('id', appointmentId);
+                
+                if (error) {
+                    alert('Error marking appointment as completed. Please try again.');
+                    console.error(error);
+                    return;
+                }
+                
+                // Reload appointments to show updated status
+                await loadClientAppointments();
+                
+            } catch (error) {
+                console.error('Error updating appointment:', error);
+                alert('Error marking appointment as completed. Please try again.');
             }
         }
 
