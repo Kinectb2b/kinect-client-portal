@@ -3017,6 +3017,21 @@ function updateAppointments(appointments) {
                 flexibleTime: apt.flexible_time || false
             };
         });
+        
+        console.log('✅ Formatted appointments:', formattedAppointments);
+        
+        // Update the appointments display
+        updateAppointments(formattedAppointments);
+        
+        // Update the appointment count
+        document.getElementById('totalAppointments').textContent = formattedAppointments.length;
+        
+    } catch (error) {
+        console.error('❌ Critical error loading appointments:', error);
+        console.error('Error details:', error.message);
+        updateAppointments([]);
+    }
+}
 
         // Enable real-time updates when new appointments are added
 function setupAppointmentsRealtimeSync() {
