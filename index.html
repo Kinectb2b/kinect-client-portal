@@ -2072,6 +2072,9 @@
             loadClientData();
             loadClientSettings();
             setupClientSettingsListeners();
+
+            // Enable real-time appointment updates
+            setupAppointmentsRealtimeSync();
         }
 
         function logout() {
@@ -2948,17 +2951,21 @@ function updateAppointments(appointments) {
             function loadClientData() {
     const userData = CLIENT_DATA[currentUser.username];
     
-    // Update metrics
-    document.getElementById('totalAppointments').textContent = userData.totalAppointments;
-    document.getElementById('businessesContacted').textContent = userData.businessesContacted;
-    document.getElementById('peopleCalled').textContent = userData.peopleCalled;
-    document.getElementById('totalContactPoints').textContent = userData.totalContactPoints.toLocaleString();
+    console.log('📊 Loading client data for:', currentUser.username);
+    console.log('User data:', userData);
     
-    // Load appointments from Supabase instead of hardcoded data
-    loadAppointmentsFromSupabase();  // ADD THIS LINE
+    // Update metrics
+    document.getElementById('totalAppointments').textContent = userData.totalAppointments || 0;
+    document.getElementById('businessesContacted').textContent = userData.businessesContacted || 0;
+    document.getElementById('peopleCalled').textContent = userData.peopleCalled || 0;
+    document.getElementById('totalContactPoints').textContent = (userData.totalContactPoints || 0).toLocaleString();
+    
+    // Load appointments from Supabase appointments table (populated by automation)
+    console.log('📅 Loading appointments from Supabase appointments table...');
+    loadAppointmentsFromSupabase();
     
     // Update prospects
-    updateProspects(userData.prospects);
+    updateProspects(userData.prospects || []);
     
     // Update last updated time
     document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
@@ -2966,11 +2973,12 @@ function updateAppointments(appointments) {
     // Initialize chart
     initializeChart();
 }
-        }
-        // Load appointments from Supabase
-async function loadAppointmentsFromSupabase() {
+        
+        async function loadAppointmentsFromSupabase() {
     try {
-        // Get appointments for this client
+        console.log('🔍 Fetching appointments from Supabase for:', currentUser.username);
+        
+        // Get appointments for this client from the appointments table
         const { data: appointments, error } = await supabaseClient
             .from('appointments')
             .select('*')
@@ -2978,39 +2986,77 @@ async function loadAppointmentsFromSupabase() {
             .order('appointment_date', { ascending: true });
         
         if (error) {
-            console.error('Error loading appointments:', error);
+            console.error('❌ Error loading appointments:', error);
+            updateAppointments([]);
             return;
         }
         
-        console.log('Loaded appointments from Supabase:', appointments);
+        console.log('✅ Loaded appointments from Supabase:', appointments);
         
         if (!appointments || appointments.length === 0) {
-            console.log('No appointments found for', currentUser.username);
+            console.log('ℹ️ No appointments found for', currentUser.username);
+            updateAppointments([]);
             return;
         }
         
         // Convert Supabase appointments to portal format
-        const formattedAppointments = appointments.map(apt => ({
-            date: apt.appointment_date,
-            time: apt.appointment_time || 'TBD',
-            company: apt.business_name || 'TBD',
-            contact: apt.contact_person || 'TBD',
-            type: 'Business Meeting',
-            location: apt.business_address || 'TBD',
-            status: 'pending',
-            notes: apt.notes || ''
-        }));
+        const formattedAppointments = appointments.map(apt => {
+            console.log('Processing appointment:', apt);
+            
+            return {
+                date: apt.appointment_date || 'TBD',
+                time: apt.appointment_time || 'TBD',
+                company: apt.business_name || 'TBD',
+                contact: apt.contact_person || 'TBD',
+                type: apt.appointment_type || 'Business Meeting',
+                location: apt.business_address || apt.location || 'TBD',
+                status: apt.status || 'pending',
+                notes: apt.notes || '',
+                email: apt.email || '',
+                flexibleDate: apt.flexible_date || false,
+                flexibleTime: apt.flexible_time || false
+            };
+        });
+
+        // Enable real-time updates when new appointments are added
+function setupAppointmentsRealtimeSync() {
+    console.log('🔄 Setting up real-time appointment sync...');
+    
+    supabaseClient
+        .channel('appointments-realtime')
+        .on('postgres_changes', 
+            { 
+                event: '*', 
+                schema: 'public', 
+                table: 'appointments',
+                filter: `username=eq.${currentUser.username}`
+            }, 
+            (payload) => {
+                console.log('📬 Appointment change detected:', payload);
+                loadAppointmentsFromSupabase();
+            }
+        )
+        .subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+                console.log('✅ Real-time appointment sync active');
+            } else {
+                console.log('🔄 Subscription status:', status);
+            }
+        });
+}
         
-        console.log('Formatted appointments:', formattedAppointments);
+        console.log('✅ Formatted appointments:', formattedAppointments);
         
         // Update the appointments display
         updateAppointments(formattedAppointments);
         
-        // Update the appointments display
-        updateAppointments(formattedAppointments);
+        // Update the appointment count
+        document.getElementById('totalAppointments').textContent = formattedAppointments.length;
         
     } catch (error) {
-        console.error('Error loading appointments:', error);
+        console.error('❌ Critical error loading appointments:', error);
+        console.error('Error details:', error.message);
+        updateAppointments([]);
     }
 }
 
