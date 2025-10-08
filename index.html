@@ -1036,7 +1036,7 @@
                         <div class="appointment-details">
                             Contact: ${apt.contact_person || 'TBD'} | Type: ${apt.appointment_type || 'Meeting'}
                         </div>
-                        ${apt.address ? `<div class="appointment-details">📍 ${apt.address}</div>` : ''}
+                        ${apt.business_address ? `<div class="appointment-details">📍 ${apt.business_address}</div>` : ''}
                         ${contactInfo.length > 0 ? `<div class="appointment-details">${contactInfo.join(' | ')}</div>` : ''}
                         ${apt.notes ? `<div class="appointment-notes"><strong>Notes:</strong> ${apt.notes}</div>` : ''}
                         
@@ -1277,7 +1277,7 @@
                         <div class="appointment-details">
                             Contact: ${apt.contact_person || 'TBD'} | Type: ${apt.appointment_type || 'Meeting'}
                         </div>
-                        ${apt.address ? `<div class="appointment-details">📍 ${apt.address}</div>` : ''}
+                        ${apt.business_address ? `<div class="appointment-details">📍 ${apt.business_address}</div>` : ''}
                         ${contactInfo.length > 0 ? `<div class="appointment-details">${contactInfo.join(' | ')}</div>` : ''}
                         ${apt.notes ? `<div class="appointment-notes">${apt.notes}</div>` : ''}
                     </div>
