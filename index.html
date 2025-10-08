@@ -709,16 +709,6 @@
                 
                 <button type="submit" class="login-button">Sign In</button>
             </form>
-            
-            <div style="text-align: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid #e5e7eb;">
-                <p style="font-size: 14px; color: #6b7280; margin-bottom: 8px;">Need assistance?</p>
-                <p style="font-size: 14px;">
-                    <a href="mailto:accounts@kinectb2b.com" style="color: #1e3a8a; text-decoration: none; font-weight: 600;">accounts@kinectb2b.com</a>
-                </p>
-                <p style="font-size: 14px;">
-                    <a href="tel:219-270-7863" style="color: #1e3a8a; text-decoration: none; font-weight: 600;">219-270-7863</a>
-                </p>
-            </div>
         </div>
     </div>
 
@@ -753,10 +743,22 @@
                 </div>
             </div>
 
-            <div style="max-width: 400px; margin: 0 auto 24px;">
+            <div class="grid">
                 <div class="stat-box">
                     <div class="stat-value" id="totalAppointments">0</div>
                     <div class="stat-label">Total Appointments</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="businessesContacted">0</div>
+                    <div class="stat-label">Businesses Contacted</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="peopleCalled">0</div>
+                    <div class="stat-label">People Called</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="contactPoints">0</div>
+                    <div class="stat-label">Contact Points</div>
                 </div>
             </div>
 
@@ -788,19 +790,6 @@
                         <h3>🚀 Join Our Affiliate Program</h3>
                         <p>Earn commissions by referring businesses to Kinect B2B. It's easy, profitable, and helps other businesses grow!</p>
                         <a href="https://kinectb2b-affiliate.com/" target="_blank" class="affiliate-btn">Sign Up Now</a>
-                    </div>
-
-                    <div class="card" style="margin-top: 24px;">
-                        <h2 class="card-title">
-                            <svg class="card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                            </svg>
-                            Contact Us
-                        </h2>
-                        <div style="text-align: center; padding: 20px;">
-                            <p style="color: #6b7280; margin-bottom: 16px; font-size: 16px;">Need assistance? Contact your account manager</p>
-                            <div id="accountManagerContact"></div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -949,13 +938,16 @@
             document.getElementById('welcomeTitle').textContent = `Welcome, ${currentUser.name}!`;
             document.getElementById('navUsername').textContent = currentUser.name;
             document.getElementById('planName').textContent = currentUser.plan || 'Pro Plan';
-            document.getElementById('planPrice').textContent = `${PLAN_PRICING[currentUser.plan] || 0}/month`;
+            document.getElementById('planPrice').textContent = `$${PLAN_PRICING[currentUser.plan] || 0}/month`;
             document.getElementById('nextBilling').textContent = formatDate(currentUser.next_billing);
             
-            // Load appointments first to get actual count
+            document.getElementById('totalAppointments').textContent = currentUser.total_appointments || 0;
+            document.getElementById('businessesContacted').textContent = currentUser.businesses_contacted || 0;
+            document.getElementById('peopleCalled').textContent = currentUser.people_called || 0;
+            document.getElementById('contactPoints').textContent = (currentUser.total_contact_points || 0).toLocaleString();
+            
             await loadClientAppointments();
             loadProfile();
-            loadAccountManagerContact();
         }
 
         async function loadClientAppointments() {
@@ -964,98 +956,69 @@
                     .from('appointments')
                     .select('*')
                     .eq('username', currentUser.username)
-                    .order('appointment_date', { ascending: true });
+                    .order('appointment_date', { ascending: true })
+                    .limit(10);
                 
                 const container = document.getElementById('appointmentsList');
                 
                 if (!appointments || appointments.length === 0) {
                     container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📅</div><p>No upcoming appointments yet</p></div>';
-                    document.getElementById('totalAppointments').textContent = '0';
                     return;
                 }
                 
-                // Update total appointments count to actual count from Supabase
-                document.getElementById('totalAppointments').textContent = appointments.length;
-                
-                // Count pending appointments
-                const pendingCount = appointments.filter(apt => apt.status !== 'completed').length;
-                
-                // Show pending count if there are any
-                let pendingBadge = '';
-                if (pendingCount > 0) {
-                    pendingBadge = `<div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 12px; margin-bottom: 16px; text-align: center;">
-                        <strong style="color: #92400e;">You have ${pendingCount} pending appointment${pendingCount > 1 ? 's' : ''}</strong>
-                    </div>`;
-                }
-                
-                container.innerHTML = pendingBadge + appointments.map(apt => `
+                container.innerHTML = `
+                    <div style="background: #fef3c7; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-weight: 600; color: #92400e; text-align: center;">
+                        You have ${appointments.length} pending appointment${appointments.length !== 1 ? 's' : ''}
+                    </div>
+                ` + appointments.map(apt => {
+                    const contactInfo = [];
+                    if (apt.contact_email) contactInfo.push(`📧 ${apt.contact_email}`);
+                    if (apt.contact_phone) contactInfo.push(`📞 ${apt.contact_phone}`);
+                    
+                    return `
                     <div class="appointment-item">
                         <div class="appointment-header">
                             <div class="appointment-date">${formatDate(apt.appointment_date)} at ${apt.appointment_time || 'TBD'}</div>
-                            <div class="appointment-status" style="background: ${apt.status === 'completed' ? '#dcfce7' : '#fef3c7'}; color: ${apt.status === 'completed' ? '#166534' : '#92400e'};">
-                                ${apt.status === 'completed' ? '✓ Completed' : 'Pending'}
-                            </div>
+                            <div class="appointment-status">${apt.status || 'Pending'}</div>
                         </div>
                         <div class="appointment-company">${apt.business_name || 'TBD'}</div>
                         <div class="appointment-details">
                             Contact: ${apt.contact_person || 'TBD'} | Type: ${apt.appointment_type || 'Meeting'}
                         </div>
-                        ${apt.phone ? `
-                            <div style="margin-top: 8px;">
-                                <a href="tel:${apt.phone}" style="color: #3b82f6; text-decoration: none; font-weight: 600; font-size: 14px;">
-                                    📞 ${apt.phone}
-                                </a>
-                            </div>
-                        ` : ''}
-                        ${apt.email ? `
-                            <div style="margin-top: 8px;">
-                                <a href="mailto:${apt.email}" style="color: #3b82f6; text-decoration: none; font-weight: 600; font-size: 14px;">
-                                    📧 ${apt.email}
-                                </a>
-                            </div>
-                        ` : ''}
-                        ${apt.business_address ? `
-                            <div style="margin-top: 8px;">
-                                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(apt.business_address)}" target="_blank" style="color: #3b82f6; text-decoration: none; font-weight: 600; font-size: 14px;">
-                                    📍 ${apt.business_address}
-                                </a>
-                            </div>
-                        ` : ''}
+                        ${apt.address ? `<div class="appointment-details">📍 ${apt.address}</div>` : ''}
+                        ${contactInfo.length > 0 ? `<div class="appointment-details">${contactInfo.join(' | ')}</div>` : ''}
                         ${apt.notes ? `<div class="appointment-notes"><strong>Notes:</strong> ${apt.notes}</div>` : ''}
-                        ${apt.status !== 'completed' ? `
-                            <div style="margin-top: 12px;">
-                                <button onclick="markAsCompleted(${apt.id})" style="padding: 10px 20px; background: #22c55e; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
-                                    ✓ Mark as Completed
-                                </button>
-                            </div>
-                        ` : ''}
+                        <button onclick="markCompleted(${apt.id})" style="margin-top: 12px; padding: 10px 20px; background: #10b981; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%;">
+                            ✓ Mark as Completed
+                        </button>
                     </div>
-                `).join('');
+                `;
+                }).join('');
                 
             } catch (error) {
                 console.error('Error loading appointments:', error);
             }
         }
-
-        async function markAsCompleted(appointmentId) {
+        
+        async function markCompleted(appointmentId) {
             try {
                 const { error } = await supabaseClient
                     .from('appointments')
-                    .update({ status: 'completed' })
+                    .update({ status: 'Completed' })
                     .eq('id', appointmentId);
                 
                 if (error) {
-                    alert('Error marking appointment as completed. Please try again.');
-                    console.error(error);
+                    alert('Unable to update appointment. The status column may not exist in your database. Please contact support.');
+                    console.error('Error updating appointment:', error);
                     return;
                 }
                 
-                // Reload appointments to show updated status
                 await loadClientAppointments();
+                alert('Appointment marked as completed!');
                 
             } catch (error) {
-                console.error('Error updating appointment:', error);
-                alert('Error marking appointment as completed. Please try again.');
+                alert('Error updating appointment. Please try again.');
+                console.error('Error:', error);
             }
         }
 
@@ -1081,29 +1044,6 @@
                 <div class="info-row">
                     <span class="info-label">Account Status</span>
                     <span class="info-value">${currentUser.status || 'Active'}</span>
-                </div>
-            `;
-        }
-
-        function loadAccountManagerContact() {
-            const container = document.getElementById('accountManagerContact');
-            const managerName = currentUser.account_manager || 'Support Team';
-            const managerPhone = currentUser.account_manager_phone || '219-270-7863';
-            const managerEmail = currentUser.account_manager_email || 'accounts@kinectb2b.com';
-            
-            container.innerHTML = `
-                <div style="margin-bottom: 12px;">
-                    <div style="font-weight: 700; color: #1e3a8a; font-size: 18px; margin-bottom: 8px;">${managerName}</div>
-                </div>
-                <div style="margin-bottom: 8px;">
-                    <a href="tel:${managerPhone}" style="color: #3b82f6; text-decoration: none; font-weight: 600; font-size: 16px;">
-                        📞 ${managerPhone}
-                    </a>
-                </div>
-                <div>
-                    <a href="mailto:${managerEmail}" style="color: #3b82f6; text-decoration: none; font-weight: 600; font-size: 16px;">
-                        📧 ${managerEmail}
-                    </a>
                 </div>
             `;
         }
@@ -1223,40 +1163,27 @@
                     return;
                 }
                 
-                container.innerHTML = appointments.map(apt => `
+                container.innerHTML = appointments.map(apt => {
+                    const contactInfo = [];
+                    if (apt.contact_email) contactInfo.push(`📧 ${apt.contact_email}`);
+                    if (apt.contact_phone) contactInfo.push(`📞 ${apt.contact_phone}`);
+                    
+                    return `
                     <div class="appointment-item" style="margin-bottom: 12px;">
                         <div class="appointment-header">
                             <div class="appointment-date">${formatDate(apt.appointment_date)} at ${apt.appointment_time || 'TBD'}</div>
-                            <div class="appointment-status">${apt.status || 'Scheduled'}</div>
+                            <div class="appointment-status">${apt.status || 'Pending'}</div>
                         </div>
                         <div class="appointment-company">${apt.business_name || 'TBD'}</div>
                         <div class="appointment-details">
                             Contact: ${apt.contact_person || 'TBD'} | Type: ${apt.appointment_type || 'Meeting'}
                         </div>
-                        ${apt.phone ? `
-                            <div style="margin-top: 8px;">
-                                <a href="tel:${apt.phone}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">
-                                    📞 ${apt.phone}
-                                </a>
-                            </div>
-                        ` : ''}
-                        ${apt.email ? `
-                            <div style="margin-top: 8px;">
-                                <a href="mailto:${apt.email}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">
-                                    📧 ${apt.email}
-                                </a>
-                            </div>
-                        ` : ''}
-                        ${apt.business_address ? `
-                            <div style="margin-top: 8px;">
-                                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(apt.business_address)}" target="_blank" style="color: #3b82f6; text-decoration: none; font-weight: 600;">
-                                    📍 ${apt.business_address}
-                                </a>
-                            </div>
-                        ` : ''}
+                        ${apt.address ? `<div class="appointment-details">📍 ${apt.address}</div>` : ''}
+                        ${contactInfo.length > 0 ? `<div class="appointment-details">${contactInfo.join(' | ')}</div>` : ''}
                         ${apt.notes ? `<div class="appointment-notes">${apt.notes}</div>` : ''}
                     </div>
-                `).join('');
+                `;
+                }).join('');
                 
             } catch (error) {
                 console.error('Error loading client appointments:', error);
