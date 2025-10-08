@@ -999,7 +999,7 @@
                     .from('appointments')
                     .select('*')
                     .eq('username', currentUser.username)
-                    .order('appointment_date', { ascending: true });
+                    .order('appointment_date', { ascending: false });
                 
                 const container = document.getElementById('appointmentsList');
                 
