@@ -279,6 +279,14 @@
             border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
+        }
+
+        .appointment-status.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .appointment-status.completed {
             background: #dcfce7;
             color: #166534;
         }
@@ -293,6 +301,18 @@
         .appointment-details {
             color: #6b7280;
             font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .appointment-details a {
+            color: #3b82f6;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .appointment-details a:hover {
+            color: #1e40af;
+            text-decoration: underline;
         }
 
         .appointment-notes {
@@ -302,6 +322,35 @@
             border-radius: 8px;
             font-size: 14px;
             color: #374151;
+        }
+
+        .appointment-button {
+            margin-top: 12px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .appointment-button.complete {
+            background: #10b981;
+            color: white;
+        }
+
+        .appointment-button.complete:hover {
+            background: #059669;
+        }
+
+        .appointment-button.pending-btn {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .appointment-button.pending-btn:hover {
+            background: #d97706;
         }
 
         /* Profile Info */
@@ -670,6 +719,16 @@
             margin-bottom: 12px;
         }
 
+        .pending-banner {
+            background: #fef3c7;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-weight: 600;
+            color: #92400e;
+            text-align: center;
+        }
+
         @media (max-width: 768px) {
             .grid-2 {
                 grid-template-columns: 1fr;
@@ -743,22 +802,11 @@
                 </div>
             </div>
 
+            <!-- Single stat box for Total Appointments -->
             <div class="grid">
                 <div class="stat-box">
                     <div class="stat-value" id="totalAppointments">0</div>
                     <div class="stat-label">Total Appointments</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="businessesContacted">0</div>
-                    <div class="stat-label">Businesses Contacted</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="peopleCalled">0</div>
-                    <div class="stat-label">People Called</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="contactPoints">0</div>
-                    <div class="stat-label">Contact Points</div>
                 </div>
             </div>
 
@@ -941,11 +989,6 @@
             document.getElementById('planPrice').textContent = `$${PLAN_PRICING[currentUser.plan] || 0}/month`;
             document.getElementById('nextBilling').textContent = formatDate(currentUser.next_billing);
             
-            document.getElementById('totalAppointments').textContent = currentUser.total_appointments || 0;
-            document.getElementById('businessesContacted').textContent = currentUser.businesses_contacted || 0;
-            document.getElementById('peopleCalled').textContent = currentUser.people_called || 0;
-            document.getElementById('contactPoints').textContent = (currentUser.total_contact_points || 0).toLocaleString();
-            
             await loadClientAppointments();
             loadProfile();
         }
@@ -956,30 +999,38 @@
                     .from('appointments')
                     .select('*')
                     .eq('username', currentUser.username)
-                    .order('appointment_date', { ascending: true })
-                    .limit(10);
+                    .order('appointment_date', { ascending: true });
                 
                 const container = document.getElementById('appointmentsList');
                 
                 if (!appointments || appointments.length === 0) {
-                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📅</div><p>No upcoming appointments yet</p></div>';
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📅</div><p>No appointments yet</p></div>';
+                    document.getElementById('totalAppointments').textContent = '0';
                     return;
                 }
                 
+                // Update total appointments count
+                document.getElementById('totalAppointments').textContent = appointments.length;
+                
+                // Count pending appointments
+                const pendingCount = appointments.filter(apt => apt.status !== 'Completed').length;
+                
                 container.innerHTML = `
-                    <div style="background: #fef3c7; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-weight: 600; color: #92400e; text-align: center;">
-                        You have ${appointments.length} pending appointment${appointments.length !== 1 ? 's' : ''}
+                    <div class="pending-banner">
+                        You have ${pendingCount} pending appointment${pendingCount !== 1 ? 's' : ''}
                     </div>
                 ` + appointments.map(apt => {
                     const contactInfo = [];
-                    if (apt.contact_email) contactInfo.push(`📧 ${apt.contact_email}`);
-                    if (apt.contact_phone) contactInfo.push(`📞 ${apt.contact_phone}`);
+                    if (apt.contact_email) contactInfo.push(`📧 <a href="mailto:${apt.contact_email}">${apt.contact_email}</a>`);
+                    if (apt.contact_phone) contactInfo.push(`📞 <a href="tel:${apt.contact_phone}">${apt.contact_phone}</a>`);
+                    
+                    const isCompleted = apt.status === 'Completed';
                     
                     return `
                     <div class="appointment-item">
                         <div class="appointment-header">
                             <div class="appointment-date">${formatDate(apt.appointment_date)} at ${apt.appointment_time || 'TBD'}</div>
-                            <div class="appointment-status">${apt.status || 'Pending'}</div>
+                            <div class="appointment-status ${isCompleted ? 'completed' : 'pending'}">${apt.status || 'Pending'}</div>
                         </div>
                         <div class="appointment-company">${apt.business_name || 'TBD'}</div>
                         <div class="appointment-details">
@@ -988,9 +1039,16 @@
                         ${apt.address ? `<div class="appointment-details">📍 ${apt.address}</div>` : ''}
                         ${contactInfo.length > 0 ? `<div class="appointment-details">${contactInfo.join(' | ')}</div>` : ''}
                         ${apt.notes ? `<div class="appointment-notes"><strong>Notes:</strong> ${apt.notes}</div>` : ''}
-                        <button onclick="markCompleted(${apt.id})" style="margin-top: 12px; padding: 10px 20px; background: #10b981; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%;">
-                            ✓ Mark as Completed
-                        </button>
+                        
+                        ${!isCompleted ? `
+                            <button onclick="markCompleted(${apt.id})" class="appointment-button complete">
+                                ✓ Mark as Completed
+                            </button>
+                        ` : `
+                            <button onclick="markPending(${apt.id})" class="appointment-button pending-btn">
+                                ↻ Mark as Pending
+                            </button>
+                        `}
                     </div>
                 `;
                 }).join('');
@@ -1008,13 +1066,33 @@
                     .eq('id', appointmentId);
                 
                 if (error) {
-                    alert('Unable to update appointment. The status column may not exist in your database. Please contact support.');
+                    alert('Unable to update appointment. Please contact support.');
                     console.error('Error updating appointment:', error);
                     return;
                 }
                 
                 await loadClientAppointments();
-                alert('Appointment marked as completed!');
+                
+            } catch (error) {
+                alert('Error updating appointment. Please try again.');
+                console.error('Error:', error);
+            }
+        }
+
+        async function markPending(appointmentId) {
+            try {
+                const { error } = await supabaseClient
+                    .from('appointments')
+                    .update({ status: 'Pending' })
+                    .eq('id', appointmentId);
+                
+                if (error) {
+                    alert('Unable to update appointment. Please contact support.');
+                    console.error('Error updating appointment:', error);
+                    return;
+                }
+                
+                await loadClientAppointments();
                 
             } catch (error) {
                 alert('Error updating appointment. Please try again.');
@@ -1081,7 +1159,7 @@
                         </div>
                         <div class="client-stats">
                             <div class="client-stat">
-                                <div class="client-stat-value">${client.total_appointments || 0}</div>
+                                <div class="client-stat-value" id="admin-appt-count-${client.username}">0</div>
                                 <div class="client-stat-label">Appointments</div>
                             </div>
                             <div class="client-stat">
@@ -1130,9 +1208,30 @@
                         </div>
                     </div>
                 `).join('');
+
+                // Load appointment counts for each client
+                for (const client of clients) {
+                    await loadClientAppointmentCount(client.username);
+                }
                 
             } catch (error) {
                 console.error('Error loading clients:', error);
+            }
+        }
+
+        async function loadClientAppointmentCount(username) {
+            try {
+                const { data: appointments, error } = await supabaseClient
+                    .from('appointments')
+                    .select('*')
+                    .eq('username', username);
+                
+                const countElement = document.getElementById(`admin-appt-count-${username}`);
+                if (countElement && appointments) {
+                    countElement.textContent = appointments.length;
+                }
+            } catch (error) {
+                console.error('Error loading appointment count:', error);
             }
         }
 
@@ -1165,14 +1264,14 @@
                 
                 container.innerHTML = appointments.map(apt => {
                     const contactInfo = [];
-                    if (apt.contact_email) contactInfo.push(`📧 ${apt.contact_email}`);
-                    if (apt.contact_phone) contactInfo.push(`📞 ${apt.contact_phone}`);
+                    if (apt.contact_email) contactInfo.push(`📧 <a href="mailto:${apt.contact_email}">${apt.contact_email}</a>`);
+                    if (apt.contact_phone) contactInfo.push(`📞 <a href="tel:${apt.contact_phone}">${apt.contact_phone}</a>`);
                     
                     return `
                     <div class="appointment-item" style="margin-bottom: 12px;">
                         <div class="appointment-header">
                             <div class="appointment-date">${formatDate(apt.appointment_date)} at ${apt.appointment_time || 'TBD'}</div>
-                            <div class="appointment-status">${apt.status || 'Pending'}</div>
+                            <div class="appointment-status ${apt.status === 'Completed' ? 'completed' : 'pending'}">${apt.status || 'Pending'}</div>
                         </div>
                         <div class="appointment-company">${apt.business_name || 'TBD'}</div>
                         <div class="appointment-details">
