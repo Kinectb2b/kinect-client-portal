@@ -966,17 +966,14 @@
                     return;
                 }
                 
-                // Count only pending appointments
-                const pendingCount = appointments.filter(apt => apt.status === 'Pending' || !apt.status).length;
-                
                 container.innerHTML = `
                     <div style="background: #fef3c7; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-weight: 600; color: #92400e; text-align: center;">
-                        You have ${pendingCount} pending appointment${pendingCount !== 1 ? 's' : ''}
+                        You have ${appointments.length} pending appointment${appointments.length !== 1 ? 's' : ''}
                     </div>
                 ` + appointments.map(apt => {
                     const contactInfo = [];
-                    if (apt.contact_email) contactInfo.push(`📧 <a href="mailto:${apt.contact_email}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">${apt.contact_email}</a>`);
-                    if (apt.contact_phone) contactInfo.push(`📞 <a href="tel:${apt.contact_phone}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">${apt.contact_phone}</a>`);
+                    if (apt.contact_email) contactInfo.push(`📧 ${apt.contact_email}`);
+                    if (apt.contact_phone) contactInfo.push(`📞 ${apt.contact_phone}`);
                     
                     return `
                     <div class="appointment-item">
@@ -1168,8 +1165,8 @@
                 
                 container.innerHTML = appointments.map(apt => {
                     const contactInfo = [];
-                    if (apt.contact_email) contactInfo.push(`📧 <a href="mailto:${apt.contact_email}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">${apt.contact_email}</a>`);
-                    if (apt.contact_phone) contactInfo.push(`📞 <a href="tel:${apt.contact_phone}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">${apt.contact_phone}</a>`);
+                    if (apt.contact_email) contactInfo.push(`📧 ${apt.contact_email}`);
+                    if (apt.contact_phone) contactInfo.push(`📞 ${apt.contact_phone}`);
                     
                     return `
                     <div class="appointment-item" style="margin-bottom: 12px;">
