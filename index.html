@@ -1036,7 +1036,7 @@
                         <div class="appointment-details">
                             Contact: ${apt.contact_person || 'TBD'} | Type: ${apt.appointment_type || 'Meeting'}
                         </div>
-                        ${apt.business_address ? `<div class="appointment-details">📍 ${apt.business_address}</div>` : ''}
+                        ${apt.business_address ? `<div class="appointment-details">📍 <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(apt.business_address)}" target="_blank">${apt.business_address}</a></div>` : ''}
                         ${contactInfo.length > 0 ? `<div class="appointment-details">${contactInfo.join(' | ')}</div>` : ''}
                         ${apt.notes ? `<div class="appointment-notes"><strong>Notes:</strong> ${apt.notes}</div>` : ''}
                         
@@ -1277,7 +1277,7 @@
                         <div class="appointment-details">
                             Contact: ${apt.contact_person || 'TBD'} | Type: ${apt.appointment_type || 'Meeting'}
                         </div>
-                        ${apt.business_address ? `<div class="appointment-details">📍 ${apt.business_address}</div>` : ''}
+                        ${apt.business_address ? `<div class="appointment-details">📍 <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(apt.business_address)}" target="_blank">${apt.business_address}</a></div>` : ''}
                         ${contactInfo.length > 0 ? `<div class="appointment-details">${contactInfo.join(' | ')}</div>` : ''}
                         ${apt.notes ? `<div class="appointment-notes">${apt.notes}</div>` : ''}
                     </div>
