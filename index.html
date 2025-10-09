@@ -1678,23 +1678,51 @@
         }
 
         async function showClientDashboard() {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('clientDashboard').style.display = 'block';
-            document.getElementById('adminDashboard').style.display = 'none';
-            
-            if (currentUser) {
-                const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
-                document.getElementById('userAvatar').textContent = initials;
-                document.getElementById('welcomeTitle').textContent = `Welcome, ${currentUser.name}!`;
-                document.getElementById('navUsername').textContent = currentUser.name;
-                document.getElementById('planName').textContent = currentUser.plan || 'Pro Plan';
-                document.getElementById('planPrice').textContent = `${PLAN_PRICING[currentUser.plan] || 0}/month`;
-                document.getElementById('nextBilling').textContent = formatDate(currentUser.next_billing);
-                
-                await loadClientAppointments();
-                loadProfile();
-            }
-        }
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('clientDashboard').style.display = 'block';
+    document.getElementById('adminDashboard').style.display = 'none';
+    
+    if (currentUser) {
+        const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+        document.getElementById('userAvatar').textContent = initials;
+        document.getElementById('welcomeTitle').textContent = `Welcome, ${currentUser.name}!`;
+        document.getElementById('navUsername').textContent = currentUser.name;
+        document.getElementById('planName').textContent = currentUser.plan || 'Pro Plan';
+        document.getElementById('planPrice').textContent = `$${PLAN_PRICING[currentUser.plan] || 0}/month`;
+        document.getElementById('nextBilling').textContent = formatDate(currentUser.next_billing);
+        
+        // Load Account Manager Info
+        loadAccountManager();
+        
+        await loadClientAppointments();
+        loadProfile();
+    }
+}
+
+function loadAccountManager() {
+    // Set account manager name
+    const managerName = currentUser.account_manager || 'Not Assigned';
+    const managerPhone = currentUser.account_manager_phone || '(219) 207-7863';
+    const managerEmail = currentUser.account_manager_email || 'accounts@kinectb2b.com';
+    
+    document.getElementById('managerName').textContent = managerName;
+    
+    // Create initials for avatar
+    const initials = managerName !== 'Not Assigned' 
+        ? managerName.split(' ').map(n => n[0]).join('').toUpperCase() 
+        : 'AM';
+    document.getElementById('managerAvatar').textContent = initials;
+    
+    // Set phone link
+    const phoneLink = document.getElementById('managerPhoneLink');
+    phoneLink.textContent = managerPhone;
+    phoneLink.href = `tel:${managerPhone.replace(/\D/g, '')}`;
+    
+    // Set email link
+    const emailLink = document.getElementById('managerEmailLink');
+    emailLink.textContent = managerEmail;
+    emailLink.href = `mailto:${managerEmail}`;
+}
 
         async function showAdminDashboard() {
             document.getElementById('loginScreen').style.display = 'none';
