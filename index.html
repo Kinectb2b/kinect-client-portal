@@ -1026,6 +1026,10 @@
                 display: none;
             }
 
+            .sync-indicator {
+                display: none;
+            }
+
             .card {
                 padding: 20px;
             }
@@ -1037,6 +1041,79 @@
 
             .modal-title {
                 font-size: 24px;
+            }
+
+            .login-card {
+                padding: 32px 24px;
+            }
+
+            .logo-icon {
+                width: 56px;
+                height: 56px;
+                font-size: 28px;
+            }
+
+            .logo h1 {
+                font-size: 28px;
+            }
+
+            .nav-brand {
+                font-size: 20px;
+            }
+
+            .nav-brand-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
+            }
+
+            .stat-value {
+                font-size: 36px;
+            }
+
+            .appointment-item {
+                padding: 16px;
+            }
+
+            .appointment-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .appointment-company {
+                font-size: 17px;
+            }
+
+            .plan-card,
+            .affiliate-banner {
+                padding: 24px;
+            }
+
+            .plan-name {
+                font-size: 24px;
+            }
+
+            .affiliate-banner h3 {
+                font-size: 22px;
+            }
+
+            /* Mobile-specific admin styles */
+            .admin-client-stats-mobile {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .admin-client-full-stats {
+                display: none !important;
+            }
+        }
+
+        /* Desktop-only admin stats */
+        @media (min-width: 769px) {
+            .admin-client-stats-mobile {
+                display: none;
             }
         }
     </style>
@@ -1389,7 +1466,7 @@
                     const initials = client.name.split(' ').map(n => n[0]).join('').toUpperCase();
                     return `
                     <div class="appointment-item" style="margin-bottom: 24px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
                             <div style="display: flex; align-items: center; gap: 16px;">
                                 <div class="user-avatar" style="width: 48px; height: 48px; font-size: 18px;">${initials}</div>
                                 <div>
@@ -1402,7 +1479,7 @@
                             </div>
                         </div>
                         
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px;">
                             <div style="background: #f9fafb; padding: 16px; border-radius: 12px;">
                                 <div style="font-size: 12px; color: #6b7280; font-weight: 600; margin-bottom: 4px;">Plan</div>
                                 <div style="font-size: 16px; font-weight: 700; color: #1e3a8a;">${client.plan || 'No Plan'}</div>
@@ -1417,7 +1494,16 @@
                             </div>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+                        <!-- Mobile: Only Appointments -->
+                        <div class="admin-client-stats-mobile">
+                            <div style="text-align: center; padding: 16px; background: linear-gradient(135deg, #3b82f6, #1e40af); color: white; border-radius: 12px;">
+                                <div style="font-size: 28px; font-weight: 800;" id="admin-appt-mobile-${client.username}">0</div>
+                                <div style="font-size: 13px; opacity: 0.95; font-weight: 600;">Total Appointments</div>
+                            </div>
+                        </div>
+
+                        <!-- Desktop: All Stats -->
+                        <div class="admin-client-full-stats" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
                             <div style="text-align: center; padding: 12px; background: #f9fafb; border-radius: 10px;">
                                 <div style="font-size: 20px; font-weight: 700; color: #3b82f6;" id="admin-appt-${client.username}">0</div>
                                 <div style="font-size: 11px; color: #6b7280; font-weight: 600;">Appointments</div>
@@ -1457,9 +1543,17 @@
                     .select('id')
                     .eq('username', username);
                 
+                const count = appointments ? appointments.length : 0;
+                
+                // Update both desktop and mobile counters
                 const countElement = document.getElementById(`admin-appt-${username}`);
-                if (countElement && appointments) {
-                    countElement.textContent = appointments.length;
+                const countElementMobile = document.getElementById(`admin-appt-mobile-${username}`);
+                
+                if (countElement) {
+                    countElement.textContent = count;
+                }
+                if (countElementMobile) {
+                    countElementMobile.textContent = count;
                 }
             } catch (error) {
                 console.error('Error loading appointment count:', error);
@@ -1712,7 +1806,33 @@
         }
 
         function requestPlanChange(planName) {
+            if (!currentUser) return;
+            
+            const currentPlan = currentUser.plan || 'No Plan';
+            const clientName = currentUser.name;
+            const clientEmail = currentUser.email_address;
+            const clientUsername = currentUser.username;
+            
             if (confirm(`Request to change your plan to ${planName} - Annual?\n\nOur team will contact you within 24 hours to process this change.`)) {
+                // Create the email subject and body
+                const subject = encodeURIComponent(`Plan Change Request - ${clientName}`);
+                const body = encodeURIComponent(`Plan Change Request
+
+Client Name: ${clientName}
+Username: ${clientUsername}
+Email: ${clientEmail}
+
+Current Plan: ${currentPlan}
+Requested Plan: ${planName} - Annual
+
+Please contact this client within 24 hours to process the plan change.
+
+Date Requested: ${new Date().toLocaleString()}`);
+                
+                // Open email client with pre-filled information
+                // You can change this email to your support email address
+                window.location.href = `mailto:support@kinectb2b.com?subject=${subject}&body=${body}`;
+                
                 showToast(`Plan change request submitted for ${planName}!`, 'success');
                 closePlanSelector();
             }
