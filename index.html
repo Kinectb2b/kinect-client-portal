@@ -1555,25 +1555,25 @@
             e.preventDefault();
             
             const loginButton = document.getElementById('loginButton');
+            const buttonText = loginButton.querySelector('span');
             loginButton.classList.add('loading');
-            loginButton.querySelector('span').textContent = '';
+            buttonText.style.opacity = '0';
             
             const username = document.getElementById('username').value.toLowerCase().trim();
             const password = document.getElementById('password').value;
             
-            // Simulate loading for better UX
-            await new Promise(resolve => setTimeout(resolve, 800));
-            
+            // Check admin first
             if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
                 isAdmin = true;
                 localStorage.setItem('kinectb2b_admin', 'true');
                 showToast('Welcome back, Admin!', 'success');
-                showAdminDashboard();
+                await showAdminDashboard();
                 loginButton.classList.remove('loading');
-                loginButton.querySelector('span').textContent = 'Sign In';
+                buttonText.style.opacity = '1';
                 return;
             }
             
+            // Check client login
             try {
                 const { data: client, error } = await supabaseClient
                     .from('clients')
@@ -1584,7 +1584,7 @@
                 
                 if (error || !client) {
                     loginButton.classList.remove('loading');
-                    loginButton.querySelector('span').textContent = 'Sign In';
+                    buttonText.style.opacity = '1';
                     showError('Invalid username or password');
                     showToast('Login failed. Please check your credentials.', 'error');
                     return;
@@ -1593,13 +1593,13 @@
                 currentUser = client;
                 localStorage.setItem('kinectb2b_user', JSON.stringify(currentUser));
                 showToast(`Welcome back, ${client.name}!`, 'success');
-                showClientDashboard();
+                await showClientDashboard();
                 loginButton.classList.remove('loading');
-                loginButton.querySelector('span').textContent = 'Sign In';
+                buttonText.style.opacity = '1';
                 
             } catch (error) {
                 loginButton.classList.remove('loading');
-                loginButton.querySelector('span').textContent = 'Sign In';
+                buttonText.style.opacity = '1';
                 showError('Login failed. Please try again.');
                 showToast('An error occurred. Please try again.', 'error');
                 console.error(error);
