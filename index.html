@@ -1725,6 +1725,7 @@
                 
                 container.innerHTML = clients.map(client => {
                     const initials = client.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                    const safeUsername = client.username.replace(/'/g, "\\'"); // Escape single quotes
                     return `
                     <div class="appointment-item" style="margin-bottom: 24px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
@@ -1739,7 +1740,7 @@
                                 <div class="appointment-status ${client.status === 'Active' ? 'completed' : 'pending'}">
                                     ${client.status || 'Active'}
                                 </div>
-                                <button onclick="toggleClientDetail('${client.username}')" class="view-details-btn" id="btn-${client.username}">
+                                <button onclick="toggleClientDetail('${safeUsername}')" class="view-details-btn" id="btn-${safeUsername}">
                                     View Details
                                 </button>
                             </div>
@@ -1763,7 +1764,7 @@
                         <!-- Mobile: Only Appointments -->
                         <div class="admin-client-stats-mobile">
                             <div style="text-align: center; padding: 16px; background: linear-gradient(135deg, #3b82f6, #1e40af); color: white; border-radius: 12px;">
-                                <div style="font-size: 28px; font-weight: 800;" id="admin-appt-mobile-${client.username}">0</div>
+                                <div style="font-size: 28px; font-weight: 800;" id="admin-appt-mobile-${safeUsername}">0</div>
                                 <div style="font-size: 13px; opacity: 0.95; font-weight: 600;">Total Appointments</div>
                             </div>
                         </div>
@@ -1771,7 +1772,7 @@
                         <!-- Desktop: All Stats -->
                         <div class="admin-client-full-stats" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
                             <div style="text-align: center; padding: 12px; background: #f9fafb; border-radius: 10px;">
-                                <div style="font-size: 20px; font-weight: 700; color: #3b82f6;" id="admin-appt-${client.username}">0</div>
+                                <div style="font-size: 20px; font-weight: 700; color: #3b82f6;" id="admin-appt-${safeUsername}">0</div>
                                 <div style="font-size: 11px; color: #6b7280; font-weight: 600;">Appointments</div>
                             </div>
                             <div style="text-align: center; padding: 12px; background: #f9fafb; border-radius: 10px;">
@@ -1789,7 +1790,7 @@
                         </div>
 
                         <!-- Client Details Section -->
-                        <div class="admin-client-detail" id="detail-${client.username}">
+                        <div class="admin-client-detail" id="detail-${safeUsername}">
                             <div class="detail-section">
                                 <div class="detail-section-title">
                                     <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1818,7 +1819,7 @@
                                     </svg>
                                     Client Appointments
                                 </div>
-                                <div id="client-appointments-${client.username}">
+                                <div id="client-appointments-${safeUsername}">
                                     <div style="text-align: center; padding: 20px; color: #6b7280;">Loading appointments...</div>
                                 </div>
                             </div>
@@ -1841,6 +1842,13 @@
         async function toggleClientDetail(username) {
             const detailDiv = document.getElementById(`detail-${username}`);
             const button = document.getElementById(`btn-${username}`);
+            
+            if (!detailDiv || !button) {
+                console.error('Could not find detail div or button for:', username);
+                showToast('Error loading client details', 'error');
+                return;
+            }
+            
             const isActive = detailDiv.classList.contains('active');
             
             // Close all other detail sections
@@ -1851,10 +1859,13 @@
             });
             
             if (!isActive) {
+                console.log('Opening details for:', username);
                 detailDiv.classList.add('active');
                 button.classList.add('active');
                 button.textContent = 'Hide Details';
                 await loadClientAppointmentsAdmin(username);
+            } else {
+                console.log('Closing details for:', username);
             }
         }
 
@@ -2223,7 +2234,7 @@ Date Requested: ${new Date().toLocaleString()}`);
                 
                 // Open email client with pre-filled information
                 // You can change this email to your support email address
-                window.location.href = `mailto:Robert@kinectb2b.com?subject=${subject}&body=${body}`;
+                window.location.href = `mailto:support@kinectb2b.com?subject=${subject}&body=${body}`;
                 
                 showToast(`Plan change request submitted for ${planName}!`, 'success');
                 closePlanSelector();
@@ -2260,10 +2271,29 @@ Date Requested: ${new Date().toLocaleString()}`);
                 await showAdminDashboard();
             } else if (savedUser) {
                 try {
+                    // Parse saved user data
                     currentUser = JSON.parse(savedUser);
                     isAdmin = false;
+                    
+                    // IMPORTANT: Fetch fresh data from Supabase to get latest account manager info
+                    console.log('Fetching fresh user data from Supabase...');
+                    const { data: freshUser, error } = await supabaseClient
+                        .from('clients')
+                        .select('*')
+                        .eq('username', currentUser.username)
+                        .single();
+                    
+                    if (!error && freshUser) {
+                        currentUser = freshUser;
+                        localStorage.setItem('kinectb2b_user', JSON.stringify(freshUser));
+                        console.log('Fresh user data loaded:', freshUser);
+                    } else {
+                        console.log('Using cached user data');
+                    }
+                    
                     await showClientDashboard();
                 } catch (error) {
+                    console.error('Error loading user:', error);
                     localStorage.removeItem('kinectb2b_user');
                 }
             }
