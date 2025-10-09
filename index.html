@@ -39,30 +39,6 @@
             z-index: 0;
         }
 
-        /* Skeleton Loader */
-        @keyframes shimmer {
-            0% { background-position: -1000px 0; }
-            100% { background-position: 1000px 0; }
-        }
-
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 1000px 100%;
-            animation: shimmer 2s infinite;
-            border-radius: 8px;
-        }
-
-        .skeleton-text {
-            height: 16px;
-            margin-bottom: 8px;
-        }
-
-        .skeleton-title {
-            height: 24px;
-            width: 60%;
-            margin-bottom: 16px;
-        }
-
         /* Toast Notifications */
         .toast-container {
             position: fixed;
@@ -218,23 +194,6 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .login-button:hover::before {
-            left: 100%;
         }
 
         .login-button:hover {
@@ -244,30 +203,6 @@
 
         .login-button:active {
             transform: translateY(0);
-        }
-
-        .login-button.loading {
-            pointer-events: none;
-            opacity: 0.7;
-        }
-
-        .login-button.loading::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            top: 50%;
-            left: 50%;
-            margin-left: -10px;
-            margin-top: -10px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
         }
 
         .login-error {
@@ -810,79 +745,6 @@
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
         }
 
-        /* Admin Styles */
-        .client-card {
-            padding: 28px;
-            border: 2px solid #e5e7eb;
-            border-radius: 16px;
-            margin-bottom: 16px;
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        .client-card:hover {
-            border-color: #3b82f6;
-            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.15);
-            transform: translateY(-2px);
-        }
-
-        .client-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .client-name {
-            font-size: 22px;
-            font-weight: 700;
-            color: #1f2937;
-            letter-spacing: -0.3px;
-        }
-
-        .client-plan-badge {
-            padding: 8px 16px;
-            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-            color: white;
-            border-radius: 10px;
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-        }
-
-        .client-stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-
-        .client-stat {
-            text-align: center;
-            padding: 16px;
-            background: #f9fafb;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
-
-        .client-stat:hover {
-            background: #f3f4f6;
-            transform: scale(1.05);
-        }
-
-        .client-stat-value {
-            font-size: 28px;
-            font-weight: 700;
-            color: #3b82f6;
-            margin-bottom: 4px;
-        }
-
-        .client-stat-label {
-            font-size: 12px;
-            color: #6b7280;
-            font-weight: 600;
-        }
-
         .empty-state {
             text-align: center;
             padding: 80px 20px;
@@ -904,6 +766,17 @@
 
         .empty-state p {
             font-size: 14px;
+        }
+
+        .pending-banner {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #92400e;
+            text-align: center;
+            border-left: 4px solid #f59e0b;
         }
 
         /* Plan Selector Modal */
@@ -1136,116 +1009,9 @@
             letter-spacing: 0.3px;
         }
 
-        .admin-client-detail {
-            background: #f9fafb;
-            border-radius: 16px;
-            padding: 28px;
-            margin-top: 20px;
-            display: none;
-            animation: fadeInUp 0.3s ease;
-        }
-
-        .admin-client-detail.active {
-            display: block;
-        }
-
-        .detail-section {
-            margin-bottom: 28px;
-        }
-
-        .detail-section:last-child {
-            margin-bottom: 0;
-        }
-
-        .detail-section-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1f2937;
-            margin-bottom: 16px;
-            letter-spacing: -0.3px;
-        }
-
-        .pending-banner {
-            background: linear-gradient(135deg, #fef3c7, #fde68a);
-            padding: 14px 18px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            font-weight: 600;
-            color: #92400e;
-            text-align: center;
-            border-left: 4px solid #f59e0b;
-        }
-
-        /* Tooltip */
-        .tooltip {
-            position: relative;
-            display: inline-block;
-            cursor: help;
-        }
-
-        .tooltip:hover::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 8px 12px;
-            background: #1f2937;
-            color: white;
-            border-radius: 8px;
-            font-size: 12px;
-            white-space: nowrap;
-            z-index: 1000;
-            margin-bottom: 8px;
-        }
-
-        .tooltip:hover::before {
-            content: '';
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 6px solid transparent;
-            border-top-color: #1f2937;
-            z-index: 1000;
-            margin-bottom: 2px;
-        }
-
-        /* Loading Overlay */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 9998;
-        }
-
-        .loading-overlay.active {
-            display: flex;
-        }
-
-        .loader {
-            width: 60px;
-            height: 60px;
-            border: 4px solid #e5e7eb;
-            border-top-color: #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
         @media (max-width: 768px) {
             .grid-2 {
                 grid-template-columns: 1fr;
-            }
-            
-            .client-stats {
-                grid-template-columns: repeat(2, 1fr);
             }
 
             .plan-features {
@@ -1273,30 +1039,11 @@
                 font-size: 24px;
             }
         }
-
-        /* Print Styles */
-        @media print {
-            .navbar,
-            .logout-btn,
-            .affiliate-banner,
-            .appointment-button {
-                display: none;
-            }
-
-            .card {
-                break-inside: avoid;
-            }
-        }
     </style>
 </head>
 <body>
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
-
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loader"></div>
-    </div>
 
     <!-- Login Screen -->
     <div id="loginScreen" class="login-container">
@@ -1320,9 +1067,7 @@
                     <input type="password" id="password" class="form-input" required autocomplete="current-password" placeholder="Enter your password">
                 </div>
                 
-                <button type="submit" class="login-button" id="loginButton">
-                    <span>Sign In</span>
-                </button>
+                <button type="submit" class="login-button">Sign In</button>
             </form>
         </div>
     </div>
@@ -1368,7 +1113,6 @@
                 </div>
             </div>
 
-            <!-- Single stat box for Total Appointments -->
             <div class="grid">
                 <div class="stat-box">
                     <div class="stat-value" id="totalAppointments">0</div>
@@ -1388,7 +1132,6 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
                             Upcoming Appointments
-                            <span class="tooltip" data-tooltip="View and manage your scheduled appointments">ⓘ</span>
                         </h2>
                         <div id="appointmentsList"></div>
                     </div>
@@ -1411,41 +1154,6 @@
                         <a href="https://kinectb2b-affiliate.com/" target="_blank" class="affiliate-btn">Sign Up Now</a>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Admin Dashboard -->
-    <div id="adminDashboard" class="dashboard">
-        <nav class="navbar">
-            <div class="nav-container">
-                <div class="nav-brand">
-                    <div class="nav-brand-icon">K</div>
-                    Kinect B2B Admin
-                </div>
-                <div class="nav-user">
-                    <div class="sync-indicator">
-                        <div class="sync-dot"></div>
-                        <span>Synced</span>
-                    </div>
-                    <div class="nav-username">
-                        <div class="user-avatar">A</div>
-                        <span>Admin</span>
-                    </div>
-                    <button class="logout-btn" onclick="logout()">Logout</button>
-                </div>
-            </div>
-        </nav>
-
-        <div class="container">
-            <div class="page-header">
-                <h1 class="page-title">Admin Dashboard</h1>
-                <p class="page-subtitle">Manage all clients and view system data</p>
-            </div>
-
-            <div class="card">
-                <h2 class="card-title">All Clients</h2>
-                <div id="adminClientsList"></div>
             </div>
         </div>
     </div>
@@ -1542,38 +1250,22 @@
             }, 3000);
         }
 
-        // Loading Overlay
-        function showLoading() {
-            document.getElementById('loadingOverlay').classList.add('active');
-        }
-
-        function hideLoading() {
-            document.getElementById('loadingOverlay').classList.remove('active');
-        }
-
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const loginButton = document.getElementById('loginButton');
-            const buttonText = loginButton.querySelector('span');
-            loginButton.classList.add('loading');
-            buttonText.style.opacity = '0';
             
             const username = document.getElementById('username').value.toLowerCase().trim();
             const password = document.getElementById('password').value;
             
-            // Check admin first
+            // Check admin credentials
             if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
                 isAdmin = true;
                 localStorage.setItem('kinectb2b_admin', 'true');
                 showToast('Welcome back, Admin!', 'success');
-                await showAdminDashboard();
-                loginButton.classList.remove('loading');
-                buttonText.style.opacity = '1';
+                showClientDashboard(); // For now, show client dashboard as admin view wasn't in original
                 return;
             }
             
-            // Check client login
+            // Check client credentials
             try {
                 const { data: client, error } = await supabaseClient
                     .from('clients')
@@ -1583,8 +1275,6 @@
                     .single();
                 
                 if (error || !client) {
-                    loginButton.classList.remove('loading');
-                    buttonText.style.opacity = '1';
                     showError('Invalid username or password');
                     showToast('Login failed. Please check your credentials.', 'error');
                     return;
@@ -1593,13 +1283,9 @@
                 currentUser = client;
                 localStorage.setItem('kinectb2b_user', JSON.stringify(currentUser));
                 showToast(`Welcome back, ${client.name}!`, 'success');
-                await showClientDashboard();
-                loginButton.classList.remove('loading');
-                buttonText.style.opacity = '1';
+                showClientDashboard();
                 
             } catch (error) {
-                loginButton.classList.remove('loading');
-                buttonText.style.opacity = '1';
                 showError('Login failed. Please try again.');
                 showToast('An error occurred. Please try again.', 'error');
                 console.error(error);
@@ -1617,16 +1303,18 @@
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('clientDashboard').style.display = 'block';
             
-            const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
-            document.getElementById('userAvatar').textContent = initials;
-            document.getElementById('welcomeTitle').textContent = `Welcome, ${currentUser.name}!`;
-            document.getElementById('navUsername').textContent = currentUser.name;
-            document.getElementById('planName').textContent = currentUser.plan || 'Pro Plan';
-            document.getElementById('planPrice').textContent = `$${PLAN_PRICING[currentUser.plan] || 0}/month`;
-            document.getElementById('nextBilling').textContent = formatDate(currentUser.next_billing);
-            
-            await loadClientAppointments();
-            loadProfile();
+            if (currentUser) {
+                const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                document.getElementById('userAvatar').textContent = initials;
+                document.getElementById('welcomeTitle').textContent = `Welcome, ${currentUser.name}!`;
+                document.getElementById('navUsername').textContent = currentUser.name;
+                document.getElementById('planName').textContent = currentUser.plan || 'Pro Plan';
+                document.getElementById('planPrice').textContent = `$${PLAN_PRICING[currentUser.plan] || 0}/month`;
+                document.getElementById('nextBilling').textContent = formatDate(currentUser.next_billing);
+                
+                await loadClientAppointments();
+                loadProfile();
+            }
         }
 
         async function loadClientAppointments() {
@@ -1702,7 +1390,6 @@
         }
         
         async function markCompleted(appointmentId) {
-            showLoading();
             try {
                 const { error } = await supabaseClient
                     .from('appointments')
@@ -1721,13 +1408,10 @@
             } catch (error) {
                 showToast('Error updating appointment', 'error');
                 console.error('Error:', error);
-            } finally {
-                hideLoading();
             }
         }
 
         async function markPending(appointmentId) {
-            showLoading();
             try {
                 const { error } = await supabaseClient
                     .from('appointments')
@@ -1740,4 +1424,182 @@
                     return;
                 }
                 
-                showToast('Appointment marked as
+                showToast('Appointment marked as pending!', 'success');
+                await loadClientAppointments();
+                
+            } catch (error) {
+                showToast('Error updating appointment', 'error');
+                console.error('Error:', error);
+            }
+        }
+
+        function loadProfile() {
+            const container = document.getElementById('profileInfo');
+            container.innerHTML = `
+                <div class="info-row">
+                    <span class="info-label">Username</span>
+                    <span class="info-value">${currentUser.username}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Full Name</span>
+                    <span class="info-value">${currentUser.name || '--'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Email</span>
+                    <span class="info-value">${currentUser.email_address || '--'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Phone</span>
+                    <span class="info-value">${currentUser.phone || '--'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Account Status</span>
+                    <span class="info-value">${currentUser.status || 'Active'}</span>
+                </div>
+            `;
+        }
+
+        function showPlanSelector() {
+            document.getElementById('planModal').classList.add('active');
+            document.getElementById('planDropdown').value = '';
+            document.getElementById('planDetailsContainer').innerHTML = '';
+        }
+
+        function closePlanSelector() {
+            document.getElementById('planModal').classList.remove('active');
+        }
+
+        function updatePlanDetails() {
+            const selectedPlan = document.getElementById('planDropdown').value;
+            const container = document.getElementById('planDetailsContainer');
+            
+            if (!selectedPlan) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            const details = PLAN_DETAILS[selectedPlan];
+            const price = PLAN_PRICING[selectedPlan];
+            const isCurrent = currentUser && currentUser.plan === selectedPlan;
+            
+            container.innerHTML = `
+                <div class="plan-details-card">
+                    <div class="plan-details-header">
+                        <div>
+                            <div class="plan-details-name">${selectedPlan} - Annual</div>
+                            <div class="plan-details-price">$${price.toLocaleString()}/month</div>
+                            <div class="plan-details-annual">Pay Annually and Get 1 MONTH FREE!</div>
+                        </div>
+                        ${isCurrent ? '<div class="current-plan-badge">Current Plan</div>' : ''}
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; position: relative; z-index: 1;">
+                        <div style="padding: 20px; background: rgba(255, 255, 255, 0.15); border-radius: 12px;">
+                            <div style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">✓ ${details.guarantees} Guaranteed Appointments</div>
+                            <div style="font-size: 14px; opacity: 0.9;">Qualified appointments</div>
+                        </div>
+                        <div style="padding: 20px; background: rgba(255, 255, 255, 0.15); border-radius: 12px;">
+                            <div style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">🎯 Team Goal: ${details.teamGoal} Appointments</div>
+                            <div style="font-size: 14px; opacity: 0.9;">Annual target</div>
+                        </div>
+                    </div>
+                    
+                    <div class="plan-features">
+                        <div class="plan-feature-item">
+                            <div class="plan-feature-icon">🏢</div>
+                            <div>
+                                <div class="plan-feature-value">${details.businesses.toLocaleString()} Different Businesses</div>
+                                <div class="plan-feature-text">Unique companies contacted</div>
+                            </div>
+                        </div>
+                        <div class="plan-feature-item">
+                            <div class="plan-feature-icon">👥</div>
+                            <div>
+                                <div class="plan-feature-value">${details.people.toLocaleString()} People Called</div>
+                                <div class="plan-feature-text">Decision makers reached</div>
+                            </div>
+                        </div>
+                        <div class="plan-feature-item">
+                            <div class="plan-feature-icon">📞</div>
+                            <div>
+                                <div class="plan-feature-value">${details.calls.toLocaleString()} Calls Made</div>
+                                <div class="plan-feature-text">Phone outreach</div>
+                            </div>
+                        </div>
+                        <div class="plan-feature-item">
+                            <div class="plan-feature-icon">📧</div>
+                            <div>
+                                <div class="plan-feature-value">${details.emails.toLocaleString()} Emails Sent</div>
+                                <div class="plan-feature-text">Professional email campaigns</div>
+                            </div>
+                        </div>
+                        <div class="plan-feature-item">
+                            <div class="plan-feature-icon">💬</div>
+                            <div>
+                                <div class="plan-feature-value">${details.sms.toLocaleString()} SMS Messages</div>
+                                <div class="plan-feature-text">Text message follow-ups</div>
+                            </div>
+                        </div>
+                        <div class="plan-feature-item">
+                            <div class="plan-feature-icon">📊</div>
+                            <div>
+                                <div class="plan-feature-value">${details.total.toLocaleString()} Total Contact Points</div>
+                                <div class="plan-feature-text">Combined outreach</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                ${!isCurrent ? `
+                    <button class="request-plan-btn" onclick="requestPlanChange('${selectedPlan}')">
+                        Request Change to ${selectedPlan} - Annual
+                    </button>
+                ` : `
+                    <div style="text-align: center; padding: 20px; color: #6b7280; font-size: 16px;">
+                        This is your current plan
+                    </div>
+                `}
+            `;
+        }
+
+        function requestPlanChange(planName) {
+            if (confirm(`Request to change your plan to ${planName} - Annual?\n\nOur team will contact you within 24 hours to process this change.`)) {
+                showToast(`Plan change request submitted for ${planName}!`, 'success');
+                closePlanSelector();
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('kinectb2b_user');
+            localStorage.removeItem('kinectb2b_admin');
+            currentUser = null;
+            isAdmin = false;
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('clientDashboard').style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('loginError').style.display = 'none';
+            showToast('Successfully logged out', 'info');
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '--';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const savedUser = localStorage.getItem('kinectb2b_user');
+            
+            if (savedUser) {
+                try {
+                    currentUser = JSON.parse(savedUser);
+                    await showClientDashboard();
+                } catch (error) {
+                    localStorage.removeItem('kinectb2b_user');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
