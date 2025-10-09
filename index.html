@@ -1158,7 +1158,45 @@
         </div>
     </div>
 
-    <!-- Plan Selector Modal -->
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="dashboard">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <div class="nav-brand-icon">K</div>
+                    Kinect B2B Admin
+                </div>
+                <div class="nav-user">
+                    <div class="sync-indicator">
+                        <div class="sync-dot"></div>
+                        <span>Synced</span>
+                    </div>
+                    <div class="nav-username">
+                        <div class="user-avatar" style="background: linear-gradient(135deg, #dc2626, #b91c1c);">A</div>
+                        <span>Admin</span>
+                    </div>
+                    <button class="logout-btn" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">Admin Dashboard</h1>
+                <p class="page-subtitle">Manage all clients and view system data</p>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">
+                    <svg class="card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    All Clients
+                </h2>
+                <div id="adminClientsList"></div>
+            </div>
+        </div>
+    </div>
     <div id="planModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -1259,9 +1297,11 @@
             // Check admin credentials
             if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
                 isAdmin = true;
+                currentUser = null;
                 localStorage.setItem('kinectb2b_admin', 'true');
+                localStorage.removeItem('kinectb2b_user');
                 showToast('Welcome back, Admin!', 'success');
-                showClientDashboard(); // For now, show client dashboard as admin view wasn't in original
+                showAdminDashboard();
                 return;
             }
             
@@ -1302,6 +1342,7 @@
         async function showClientDashboard() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('clientDashboard').style.display = 'block';
+            document.getElementById('adminDashboard').style.display = 'none';
             
             if (currentUser) {
                 const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -1309,11 +1350,119 @@
                 document.getElementById('welcomeTitle').textContent = `Welcome, ${currentUser.name}!`;
                 document.getElementById('navUsername').textContent = currentUser.name;
                 document.getElementById('planName').textContent = currentUser.plan || 'Pro Plan';
-                document.getElementById('planPrice').textContent = `$${PLAN_PRICING[currentUser.plan] || 0}/month`;
+                document.getElementById('planPrice').textContent = `${PLAN_PRICING[currentUser.plan] || 0}/month`;
                 document.getElementById('nextBilling').textContent = formatDate(currentUser.next_billing);
                 
                 await loadClientAppointments();
                 loadProfile();
+            }
+        }
+
+        async function showAdminDashboard() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('clientDashboard').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'block';
+            await loadAllClients();
+        }
+
+        async function loadAllClients() {
+            try {
+                const { data: clients, error } = await supabaseClient
+                    .from('clients')
+                    .select('*')
+                    .order('name', { ascending: true });
+                
+                const container = document.getElementById('adminClientsList');
+                
+                if (!clients || clients.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">👥</div>
+                            <h3>No clients found</h3>
+                            <p>Client accounts will appear here once created</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = clients.map(client => {
+                    const initials = client.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                    return `
+                    <div class="appointment-item" style="margin-bottom: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <div class="user-avatar" style="width: 48px; height: 48px; font-size: 18px;">${initials}</div>
+                                <div>
+                                    <div class="appointment-company">${client.name}</div>
+                                    <div class="appointment-details">@${client.username} • ${client.email_address || 'No email'}</div>
+                                </div>
+                            </div>
+                            <div class="appointment-status ${client.status === 'Active' ? 'completed' : 'pending'}">
+                                ${client.status || 'Active'}
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                            <div style="background: #f9fafb; padding: 16px; border-radius: 12px;">
+                                <div style="font-size: 12px; color: #6b7280; font-weight: 600; margin-bottom: 4px;">Plan</div>
+                                <div style="font-size: 16px; font-weight: 700; color: #1e3a8a;">${client.plan || 'No Plan'}</div>
+                            </div>
+                            <div style="background: #f9fafb; padding: 16px; border-radius: 12px;">
+                                <div style="font-size: 12px; color: #6b7280; font-weight: 600; margin-bottom: 4px;">Next Billing</div>
+                                <div style="font-size: 16px; font-weight: 700; color: #1f2937;">${formatDate(client.next_billing)}</div>
+                            </div>
+                            <div style="background: #f9fafb; padding: 16px; border-radius: 12px;">
+                                <div style="font-size: 12px; color: #6b7280; font-weight: 600; margin-bottom: 4px;">Phone</div>
+                                <div style="font-size: 16px; font-weight: 700; color: #1f2937;">${client.phone || 'N/A'}</div>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+                            <div style="text-align: center; padding: 12px; background: #f9fafb; border-radius: 10px;">
+                                <div style="font-size: 20px; font-weight: 700; color: #3b82f6;" id="admin-appt-${client.username}">0</div>
+                                <div style="font-size: 11px; color: #6b7280; font-weight: 600;">Appointments</div>
+                            </div>
+                            <div style="text-align: center; padding: 12px; background: #f9fafb; border-radius: 10px;">
+                                <div style="font-size: 20px; font-weight: 700; color: #3b82f6;">${client.businesses_contacted || 0}</div>
+                                <div style="font-size: 11px; color: #6b7280; font-weight: 600;">Businesses</div>
+                            </div>
+                            <div style="text-align: center; padding: 12px; background: #f9fafb; border-radius: 10px;">
+                                <div style="font-size: 20px; font-weight: 700; color: #3b82f6;">${client.people_called || 0}</div>
+                                <div style="font-size: 11px; color: #6b7280; font-weight: 600;">People</div>
+                            </div>
+                            <div style="text-align: center; padding: 12px; background: #f9fafb; border-radius: 10px;">
+                                <div style="font-size: 20px; font-weight: 700; color: #3b82f6;">${(client.total_contact_points || 0).toLocaleString()}</div>
+                                <div style="font-size: 11px; color: #6b7280; font-weight: 600;">Contacts</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                }).join('');
+
+                // Load appointment counts for each client
+                for (const client of clients) {
+                    loadClientAppointmentCount(client.username);
+                }
+                
+            } catch (error) {
+                console.error('Error loading clients:', error);
+                showToast('Error loading clients', 'error');
+            }
+        }
+
+        async function loadClientAppointmentCount(username) {
+            try {
+                const { data: appointments, error } = await supabaseClient
+                    .from('appointments')
+                    .select('id')
+                    .eq('username', username);
+                
+                const countElement = document.getElementById(`admin-appt-${username}`);
+                if (countElement && appointments) {
+                    countElement.textContent = appointments.length;
+                }
+            } catch (error) {
+                console.error('Error loading appointment count:', error);
             }
         }
 
@@ -1576,6 +1725,7 @@
             isAdmin = false;
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('clientDashboard').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'none';
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
             document.getElementById('loginError').style.display = 'none';
@@ -1589,11 +1739,17 @@
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
+            const savedAdmin = localStorage.getItem('kinectb2b_admin');
             const savedUser = localStorage.getItem('kinectb2b_user');
             
-            if (savedUser) {
+            if (savedAdmin === 'true') {
+                isAdmin = true;
+                currentUser = null;
+                await showAdminDashboard();
+            } else if (savedUser) {
                 try {
                     currentUser = JSON.parse(savedUser);
+                    isAdmin = false;
                     await showClientDashboard();
                 } catch (error) {
                     localStorage.removeItem('kinectb2b_user');
