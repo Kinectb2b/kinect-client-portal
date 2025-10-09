@@ -1641,7 +1641,7 @@
                 return;
             }
             
-            // Check client credentials
+            // Check client credentials - ALWAYS fetch fresh data from Supabase
             try {
                 const { data: client, error } = await supabaseClient
                     .from('clients')
@@ -1657,7 +1657,9 @@
                 }
                 
                 currentUser = client;
+                // Always save fresh data to localStorage
                 localStorage.setItem('kinectb2b_user', JSON.stringify(currentUser));
+                console.log('Fresh user data loaded:', currentUser);
                 showToast(`Welcome back, ${client.name}!`, 'success');
                 showClientDashboard();
                 
@@ -1857,17 +1859,41 @@
         }
 
         async function loadClientAppointmentsAdmin(username) {
+            const container = document.getElementById(`client-appointments-${username}`);
+            
+            if (!container) {
+                console.error('Container not found for username:', username);
+                return;
+            }
+            
             try {
+                console.log('Loading appointments for:', username);
+                
                 const { data: appointments, error } = await supabaseClient
                     .from('appointments')
                     .select('*')
                     .eq('username', username)
                     .order('appointment_date', { ascending: false });
                 
-                const container = document.getElementById(`client-appointments-${username}`);
+                if (error) {
+                    console.error('Supabase error:', error);
+                    container.innerHTML = `<div style="text-align: center; padding: 20px; color: #dc2626;">
+                        <div style="font-weight: 600; margin-bottom: 8px;">Error loading appointments</div>
+                        <div style="font-size: 14px;">${error.message}</div>
+                    </div>`;
+                    return;
+                }
+                
+                console.log('Appointments loaded:', appointments ? appointments.length : 0);
                 
                 if (!appointments || appointments.length === 0) {
-                    container.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;"><div style="font-size: 48px; margin-bottom: 12px; opacity: 0.3;">📅</div><div style="font-weight: 600;">No appointments found</div></div>';
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #6b7280;">
+                            <div style="font-size: 48px; margin-bottom: 12px; opacity: 0.3;">📅</div>
+                            <div style="font-weight: 600; margin-bottom: 4px;">No appointments found</div>
+                            <div style="font-size: 14px;">This client has no appointments yet</div>
+                        </div>
+                    `;
                     return;
                 }
                 
@@ -1895,8 +1921,10 @@
                 
             } catch (error) {
                 console.error('Error loading client appointments:', error);
-                const container = document.getElementById(`client-appointments-${username}`);
-                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #dc2626;">Error loading appointments</div>';
+                container.innerHTML = `<div style="text-align: center; padding: 20px; color: #dc2626;">
+                    <div style="font-weight: 600;">Unexpected error</div>
+                    <div style="font-size: 14px; margin-top: 8px;">Please check the console for details</div>
+                </div>`;
             }
         }
 
@@ -2195,7 +2223,7 @@ Date Requested: ${new Date().toLocaleString()}`);
                 
                 // Open email client with pre-filled information
                 // You can change this email to your support email address
-                window.location.href = `mailto:support@kinectb2b.com?subject=${subject}&body=${body}`;
+                window.location.href = `mailto:Robert@kinectb2b.com?subject=${subject}&body=${body}`;
                 
                 showToast(`Plan change request submitted for ${planName}!`, 'success');
                 closePlanSelector();
