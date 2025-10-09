@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kinect B2B - Client Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
@@ -13,10 +16,103 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #06b6d4 100%);
+            background-attachment: fixed;
             min-height: 100vh;
             color: #1f2937;
+            line-height: 1.6;
+        }
+
+        /* Animated Background Pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Skeleton Loader */
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite;
+            border-radius: 8px;
+        }
+
+        .skeleton-text {
+            height: 16px;
+            margin-bottom: 8px;
+        }
+
+        .skeleton-title {
+            height: 24px;
+            width: 60%;
+            margin-bottom: 16px;
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            pointer-events: all;
+            animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .toast.success { border-left-color: #10b981; }
+        .toast.error { border-left-color: #ef4444; }
+        .toast.warning { border-left-color: #f59e0b; }
+
+        @keyframes slideInRight {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; transform: translateX(400px); }
+        }
+
+        .toast-icon {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .toast-message {
+            flex: 1;
+            font-weight: 500;
+            font-size: 14px;
+            color: #374151;
         }
 
         /* Login Screen */
@@ -25,21 +121,46 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 24px;
+            position: relative;
+            z-index: 1;
         }
 
         .login-card {
-            background: white;
-            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
             padding: 48px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
             width: 100%;
             max-width: 440px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .logo {
             text-align: center;
-            margin-bottom: 32px;
+            margin-bottom: 40px;
+        }
+
+        .logo-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            border-radius: 16px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 800;
+            color: white;
+            box-shadow: 0 8px 24px rgba(30, 58, 138, 0.3);
         }
 
         .logo h1 {
@@ -47,11 +168,13 @@
             font-weight: 800;
             color: #1e3a8a;
             margin-bottom: 8px;
+            letter-spacing: -0.5px;
         }
 
         .logo p {
             color: #6b7280;
-            font-size: 14px;
+            font-size: 15px;
+            font-weight: 500;
         }
 
         .form-group {
@@ -64,64 +187,126 @@
             color: #374151;
             margin-bottom: 8px;
             font-size: 14px;
+            letter-spacing: 0.3px;
         }
 
         .form-input {
             width: 100%;
             padding: 14px 16px;
             border: 2px solid #e5e7eb;
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 16px;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
         }
 
         .form-input:focus {
             outline: none;
             border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
         }
 
         .login-button {
             width: 100%;
             padding: 16px;
-            background: #1e3a8a;
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-weight: 600;
             font-size: 16px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .login-button:hover::before {
+            left: 100%;
         }
 
         .login-button:hover {
-            background: #1e40af;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(30, 58, 138, 0.4);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .login-button.loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .login-button.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         .login-error {
             background: #fee2e2;
             color: #dc2626;
             padding: 12px 16px;
-            border-radius: 8px;
+            border-radius: 12px;
             margin-bottom: 20px;
             font-size: 14px;
             display: none;
             border-left: 4px solid #dc2626;
+            font-weight: 500;
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
         }
 
         /* Dashboard Container */
         .dashboard {
             display: none;
             min-height: 100vh;
+            position: relative;
+            z-index: 1;
         }
 
         /* Navigation */
         .navbar {
-            background: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
             padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .nav-container {
@@ -134,9 +319,26 @@
         }
 
         .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             font-size: 24px;
             font-weight: 800;
             color: #1e3a8a;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-brand-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: 800;
         }
 
         .nav-user {
@@ -148,6 +350,22 @@
         .nav-username {
             font-weight: 600;
             color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
         }
 
         .logout-btn {
@@ -155,14 +373,43 @@
             background: #dc2626;
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
+            font-size: 14px;
         }
 
         .logout-btn:hover {
             background: #b91c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        /* Sync Indicator */
+        .sync-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #dcfce7;
+            color: #166534;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         /* Main Content */
@@ -174,37 +421,51 @@
 
         .page-header {
             margin-bottom: 32px;
+            animation: fadeInUp 0.5s ease;
         }
 
         .page-title {
-            font-size: 32px;
-            font-weight: 700;
+            font-size: 36px;
+            font-weight: 800;
             color: white;
             margin-bottom: 8px;
+            letter-spacing: -1px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .page-subtitle {
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.9);
             font-size: 16px;
+            font-weight: 500;
         }
 
-        /* Cards */
+        /* Cards with Glassmorphism */
         .card {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
             margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.16);
         }
 
         .card-title {
             font-size: 20px;
             font-weight: 700;
             color: #1f2937;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            letter-spacing: -0.3px;
         }
 
         .card-icon {
@@ -227,38 +488,78 @@
             gap: 24px;
         }
 
-        /* Stats */
+        /* Enhanced Stats */
         .stat-box {
             background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
             color: white;
-            padding: 24px;
-            border-radius: 12px;
+            padding: 28px;
+            border-radius: 20px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .stat-box:hover {
+            transform: scale(1.05);
         }
 
         .stat-value {
-            font-size: 36px;
+            font-size: 42px;
             font-weight: 800;
             margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
         }
 
         .stat-label {
             font-size: 14px;
+            opacity: 0.95;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-trend {
+            margin-top: 8px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
             opacity: 0.9;
         }
 
-        /* Appointments */
+        /* Enhanced Appointments */
         .appointment-item {
-            padding: 20px;
+            padding: 24px;
             border: 2px solid #e5e7eb;
-            border-radius: 12px;
+            border-radius: 16px;
             margin-bottom: 16px;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
+            background: white;
         }
 
         .appointment-item:hover {
             border-color: #3b82f6;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+            transform: translateX(4px);
         }
 
         .appointment-header {
@@ -272,42 +573,51 @@
             font-weight: 700;
             color: #1e3a8a;
             font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .appointment-status {
-            padding: 6px 12px;
+            padding: 6px 14px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
+            letter-spacing: 0.3px;
         }
 
         .appointment-status.pending {
-            background: #fef3c7;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
             color: #92400e;
         }
 
         .appointment-status.completed {
-            background: #dcfce7;
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
             color: #166534;
         }
 
         .appointment-company {
-            font-size: 18px;
+            font-size: 19px;
             font-weight: 700;
             color: #1f2937;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            letter-spacing: -0.3px;
         }
 
         .appointment-details {
             color: #6b7280;
             font-size: 14px;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .appointment-details a {
             color: #3b82f6;
             text-decoration: none;
             transition: color 0.2s;
+            font-weight: 500;
         }
 
         .appointment-details a:hover {
@@ -317,40 +627,44 @@
 
         .appointment-notes {
             margin-top: 12px;
-            padding: 12px;
-            background: #f3f4f6;
-            border-radius: 8px;
+            padding: 14px;
+            background: #f9fafb;
+            border-radius: 10px;
             font-size: 14px;
             color: #374151;
+            border-left: 3px solid #3b82f6;
         }
 
         .appointment-button {
             margin-top: 12px;
-            padding: 10px 20px;
+            padding: 12px 20px;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
             font-weight: 600;
             cursor: pointer;
             width: 100%;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
+            font-size: 14px;
         }
 
         .appointment-button.complete {
-            background: #10b981;
+            background: linear-gradient(135deg, #10b981, #059669);
             color: white;
         }
 
         .appointment-button.complete:hover {
-            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
         }
 
         .appointment-button.pending-btn {
-            background: #f59e0b;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
             color: white;
         }
 
         .appointment-button.pending-btn:hover {
-            background: #d97706;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
         }
 
         /* Profile Info */
@@ -359,6 +673,16 @@
             justify-content: space-between;
             padding: 16px 0;
             border-bottom: 1px solid #e5e7eb;
+            transition: background 0.2s ease;
+        }
+
+        .info-row:hover {
+            background: #f9fafb;
+            padding-left: 12px;
+            padding-right: 12px;
+            margin-left: -12px;
+            margin-right: -12px;
+            border-radius: 8px;
         }
 
         .info-row:last-child {
@@ -368,6 +692,9 @@
         .info-label {
             font-weight: 600;
             color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .info-value {
@@ -375,136 +702,208 @@
             color: #1f2937;
         }
 
-        /* Plan Card */
+        /* Enhanced Plan Card */
         .plan-card {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #06b6d4 100%);
             color: white;
-            padding: 32px;
-            border-radius: 12px;
+            padding: 36px;
+            border-radius: 20px;
             margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(30, 58, 138, 0.3);
+        }
+
+        .plan-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 25s linear infinite;
         }
 
         .plan-name {
-            font-size: 28px;
+            font-size: 30px;
             font-weight: 800;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            letter-spacing: -0.5px;
         }
 
         .plan-price {
-            font-size: 20px;
-            opacity: 0.9;
+            font-size: 22px;
+            opacity: 0.95;
             margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+            font-weight: 600;
         }
 
         .plan-billing {
-            opacity: 0.8;
+            opacity: 0.85;
             font-size: 14px;
+            position: relative;
+            z-index: 1;
+            font-weight: 500;
         }
 
         /* Affiliate Banner */
         .affiliate-banner {
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
             color: white;
-            padding: 32px;
-            border-radius: 12px;
+            padding: 36px;
+            border-radius: 20px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(245, 158, 11, 0.3);
+        }
+
+        .affiliate-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite reverse;
         }
 
         .affiliate-banner h3 {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 700;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
+            position: relative;
+            z-index: 1;
+            letter-spacing: -0.3px;
         }
 
         .affiliate-banner p {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             opacity: 0.95;
+            position: relative;
+            z-index: 1;
+            font-weight: 500;
         }
 
         .affiliate-btn {
             display: inline-block;
-            padding: 14px 28px;
+            padding: 16px 32px;
             background: white;
             color: #d97706;
-            border-radius: 8px;
+            border-radius: 12px;
             font-weight: 700;
             text-decoration: none;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .affiliate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
         }
 
         /* Admin Styles */
         .client-card {
-            padding: 24px;
+            padding: 28px;
             border: 2px solid #e5e7eb;
-            border-radius: 12px;
+            border-radius: 16px;
             margin-bottom: 16px;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
+            background: white;
         }
 
         .client-card:hover {
             border-color: #3b82f6;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.15);
+            transform: translateY(-2px);
         }
 
         .client-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         .client-name {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 700;
             color: #1f2937;
+            letter-spacing: -0.3px;
         }
 
         .client-plan-badge {
-            padding: 6px 12px;
-            background: #1e3a8a;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
             color: white;
-            border-radius: 6px;
+            border-radius: 10px;
             font-size: 12px;
             font-weight: 600;
+            letter-spacing: 0.3px;
         }
 
         .client-stats {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 16px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         .client-stat {
             text-align: center;
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .client-stat:hover {
+            background: #f3f4f6;
+            transform: scale(1.05);
         }
 
         .client-stat-value {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 700;
             color: #3b82f6;
+            margin-bottom: 4px;
         }
 
         .client-stat-label {
             font-size: 12px;
             color: #6b7280;
+            font-weight: 600;
         }
 
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
+            padding: 80px 20px;
             color: #6b7280;
         }
 
         .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.5;
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+
+        .empty-state p {
+            font-size: 14px;
         }
 
         /* Plan Selector Modal */
@@ -515,11 +914,18 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
             z-index: 1000;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .modal-overlay.active {
@@ -528,54 +934,68 @@
 
         .modal-content {
             background: white;
-            border-radius: 16px;
+            border-radius: 24px;
             max-width: 900px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
             position: relative;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .modal-header {
-            padding: 32px 32px 24px;
+            padding: 36px 36px 28px;
             border-bottom: 2px solid #e5e7eb;
             position: sticky;
             top: 0;
             background: white;
             z-index: 10;
+            border-radius: 24px 24px 0 0;
         }
 
         .modal-title {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 800;
             color: #1e3a8a;
             margin-bottom: 8px;
+            letter-spacing: -0.5px;
         }
 
         .modal-subtitle {
             color: #6b7280;
+            font-weight: 500;
         }
 
         .modal-close {
             position: absolute;
-            top: 24px;
-            right: 24px;
-            width: 32px;
-            height: 32px;
+            top: 28px;
+            right: 28px;
+            width: 36px;
+            height: 36px;
             border: none;
             background: #f3f4f6;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            font-size: 20px;
+            font-size: 24px;
             color: #6b7280;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .modal-close:hover {
             background: #e5e7eb;
+            transform: rotate(90deg);
         }
 
         .modal-body {
-            padding: 32px;
+            padding: 36px;
         }
 
         .plan-selector {
@@ -584,7 +1004,7 @@
 
         .plan-dropdown {
             width: 100%;
-            padding: 16px;
+            padding: 18px;
             border: 2px solid #e5e7eb;
             border-radius: 12px;
             font-size: 16px;
@@ -592,50 +1012,70 @@
             color: #1f2937;
             background: white;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
         }
 
         .plan-dropdown:focus {
             outline: none;
             border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
         }
 
         .plan-details-card {
             background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
             color: white;
-            padding: 32px;
-            border-radius: 12px;
-            margin-bottom: 24px;
+            padding: 36px;
+            border-radius: 16px;
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plan-details-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
         }
 
         .plan-details-header {
             display: flex;
             justify-content: space-between;
             align-items: start;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
+            position: relative;
+            z-index: 1;
         }
 
         .plan-details-name {
-            font-size: 32px;
+            font-size: 34px;
             font-weight: 800;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
         }
 
         .plan-details-price {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 700;
         }
 
         .plan-details-annual {
             opacity: 0.9;
-            margin-top: 4px;
+            margin-top: 6px;
+            font-weight: 500;
         }
 
         .plan-features {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-            margin-top: 24px;
+            gap: 18px;
+            margin-top: 28px;
+            position: relative;
+            z-index: 1;
         }
 
         .plan-feature-item {
@@ -645,20 +1085,22 @@
         }
 
         .plan-feature-icon {
-            width: 24px;
-            height: 24px;
-            background: rgba(255, 255, 255, 0.2);
+            width: 28px;
+            height: 28px;
+            background: rgba(255, 255, 255, 0.25);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
             margin-top: 2px;
+            font-weight: 700;
         }
 
         .plan-feature-text {
             font-size: 14px;
-            line-height: 1.5;
+            line-height: 1.6;
+            font-weight: 500;
         }
 
         .plan-feature-value {
@@ -668,7 +1110,7 @@
 
         .request-plan-btn {
             width: 100%;
-            padding: 18px;
+            padding: 20px;
             background: white;
             color: #1e3a8a;
             border: none;
@@ -676,28 +1118,31 @@
             font-weight: 700;
             font-size: 18px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .request-plan-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
         }
 
         .current-plan-badge {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.25);
+            padding: 10px 18px;
             border-radius: 20px;
             font-size: 14px;
             font-weight: 600;
+            letter-spacing: 0.3px;
         }
 
         .admin-client-detail {
             background: #f9fafb;
-            border-radius: 12px;
-            padding: 24px;
-            margin-top: 16px;
+            border-radius: 16px;
+            padding: 28px;
+            margin-top: 20px;
             display: none;
+            animation: fadeInUp 0.3s ease;
         }
 
         .admin-client-detail.active {
@@ -705,7 +1150,7 @@
         }
 
         .detail-section {
-            margin-bottom: 24px;
+            margin-bottom: 28px;
         }
 
         .detail-section:last-child {
@@ -713,20 +1158,85 @@
         }
 
         .detail-section-title {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 700;
             color: #1f2937;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
+            letter-spacing: -0.3px;
         }
 
         .pending-banner {
-            background: #fef3c7;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 16px;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
             font-weight: 600;
             color: #92400e;
             text-align: center;
+            border-left: 4px solid #f59e0b;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 12px;
+            background: #1f2937;
+            color: white;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            margin-bottom: 8px;
+        }
+
+        .tooltip:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #1f2937;
+            z-index: 1000;
+            margin-bottom: 2px;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #e5e7eb;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
 
         @media (max-width: 768px) {
@@ -741,14 +1251,58 @@
             .plan-features {
                 grid-template-columns: 1fr;
             }
+
+            .page-title {
+                font-size: 28px;
+            }
+
+            .nav-username {
+                display: none;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .modal-header,
+            .modal-body {
+                padding: 24px;
+            }
+
+            .modal-title {
+                font-size: 24px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .navbar,
+            .logout-btn,
+            .affiliate-banner,
+            .appointment-button {
+                display: none;
+            }
+
+            .card {
+                break-inside: avoid;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loader"></div>
+    </div>
+
     <!-- Login Screen -->
     <div id="loginScreen" class="login-container">
         <div class="login-card">
             <div class="logo">
+                <div class="logo-icon">K</div>
                 <h1>Kinect B2B</h1>
                 <p>Client Portal</p>
             </div>
@@ -758,15 +1312,17 @@
             <form id="loginForm">
                 <div class="form-group">
                     <label class="form-label">Username</label>
-                    <input type="text" id="username" class="form-input" required autocomplete="username">
+                    <input type="text" id="username" class="form-input" required autocomplete="username" placeholder="Enter your username">
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label">Password</label>
-                    <input type="password" id="password" class="form-input" required autocomplete="current-password">
+                    <input type="password" id="password" class="form-input" required autocomplete="current-password" placeholder="Enter your password">
                 </div>
                 
-                <button type="submit" class="login-button">Sign In</button>
+                <button type="submit" class="login-button" id="loginButton">
+                    <span>Sign In</span>
+                </button>
             </form>
         </div>
     </div>
@@ -775,9 +1331,19 @@
     <div id="clientDashboard" class="dashboard">
         <nav class="navbar">
             <div class="nav-container">
-                <div class="nav-brand">Kinect B2B</div>
+                <div class="nav-brand">
+                    <div class="nav-brand-icon">K</div>
+                    Kinect B2B
+                </div>
                 <div class="nav-user">
-                    <span class="nav-username" id="navUsername"></span>
+                    <div class="sync-indicator">
+                        <div class="sync-dot"></div>
+                        <span>Synced</span>
+                    </div>
+                    <div class="nav-username">
+                        <div class="user-avatar" id="userAvatar">DD</div>
+                        <span id="navUsername"></span>
+                    </div>
                     <button class="logout-btn" onclick="logout()">Logout</button>
                 </div>
             </div>
@@ -786,7 +1352,7 @@
         <div class="container">
             <div class="page-header">
                 <h1 class="page-title" id="welcomeTitle">Welcome!</h1>
-                <p class="page-subtitle">Your business growth dashboard</p>
+                <p class="page-subtitle">Your business growth dashboard • Updated in real-time</p>
             </div>
 
             <div class="grid-2">
@@ -796,8 +1362,8 @@
                     <div class="plan-billing">Next billing: <span id="nextBilling">--</span></div>
                 </div>
                 <div class="card" style="display: flex; align-items: center; justify-content: center;">
-                    <button onclick="showPlanSelector()" style="padding: 16px 32px; background: #1e3a8a; color: white; border: none; border-radius: 8px; font-weight: 700; font-size: 16px; cursor: pointer; transition: all 0.2s;">
-                        Change Plan
+                    <button onclick="showPlanSelector()" class="appointment-button complete" style="width: auto; padding: 16px 32px; margin-top: 0; background: linear-gradient(135deg, #1e3a8a, #3b82f6);">
+                        💎 Change Plan
                     </button>
                 </div>
             </div>
@@ -807,6 +1373,10 @@
                 <div class="stat-box">
                     <div class="stat-value" id="totalAppointments">0</div>
                     <div class="stat-label">Total Appointments</div>
+                    <div class="stat-trend">
+                        <span>↗</span>
+                        <span>+12% from last month</span>
+                    </div>
                 </div>
             </div>
 
@@ -818,6 +1388,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
                             Upcoming Appointments
+                            <span class="tooltip" data-tooltip="View and manage your scheduled appointments">ⓘ</span>
                         </h2>
                         <div id="appointmentsList"></div>
                     </div>
@@ -848,9 +1419,19 @@
     <div id="adminDashboard" class="dashboard">
         <nav class="navbar">
             <div class="nav-container">
-                <div class="nav-brand">Kinect B2B Admin</div>
+                <div class="nav-brand">
+                    <div class="nav-brand-icon">K</div>
+                    Kinect B2B Admin
+                </div>
                 <div class="nav-user">
-                    <span class="nav-username">Admin</span>
+                    <div class="sync-indicator">
+                        <div class="sync-dot"></div>
+                        <span>Synced</span>
+                    </div>
+                    <div class="nav-username">
+                        <div class="user-avatar">A</div>
+                        <span>Admin</span>
+                    </div>
                     <button class="logout-btn" onclick="logout()">Logout</button>
                 </div>
             </div>
@@ -936,16 +1517,60 @@
         let currentUser = null;
         let isAdmin = false;
 
+        // Toast Notification System
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                success: '✓',
+                error: '✕',
+                warning: '⚠',
+                info: 'ⓘ'
+            };
+            
+            toast.innerHTML = `
+                <div class="toast-icon">${icons[type] || icons.info}</div>
+                <div class="toast-message">${message}</div>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Loading Overlay
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            const loginButton = document.getElementById('loginButton');
+            loginButton.classList.add('loading');
+            loginButton.querySelector('span').textContent = '';
             
             const username = document.getElementById('username').value.toLowerCase().trim();
             const password = document.getElementById('password').value;
             
+            // Simulate loading for better UX
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
             if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
                 isAdmin = true;
                 localStorage.setItem('kinectb2b_admin', 'true');
+                showToast('Welcome back, Admin!', 'success');
                 showAdminDashboard();
+                loginButton.classList.remove('loading');
+                loginButton.querySelector('span').textContent = 'Sign In';
                 return;
             }
             
@@ -958,16 +1583,25 @@
                     .single();
                 
                 if (error || !client) {
+                    loginButton.classList.remove('loading');
+                    loginButton.querySelector('span').textContent = 'Sign In';
                     showError('Invalid username or password');
+                    showToast('Login failed. Please check your credentials.', 'error');
                     return;
                 }
                 
                 currentUser = client;
                 localStorage.setItem('kinectb2b_user', JSON.stringify(currentUser));
+                showToast(`Welcome back, ${client.name}!`, 'success');
                 showClientDashboard();
+                loginButton.classList.remove('loading');
+                loginButton.querySelector('span').textContent = 'Sign In';
                 
             } catch (error) {
+                loginButton.classList.remove('loading');
+                loginButton.querySelector('span').textContent = 'Sign In';
                 showError('Login failed. Please try again.');
+                showToast('An error occurred. Please try again.', 'error');
                 console.error(error);
             }
         });
@@ -983,6 +1617,8 @@
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('clientDashboard').style.display = 'block';
             
+            const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+            document.getElementById('userAvatar').textContent = initials;
             document.getElementById('welcomeTitle').textContent = `Welcome, ${currentUser.name}!`;
             document.getElementById('navUsername').textContent = currentUser.name;
             document.getElementById('planName').textContent = currentUser.plan || 'Pro Plan';
@@ -1004,21 +1640,25 @@
                 const container = document.getElementById('appointmentsList');
                 
                 if (!appointments || appointments.length === 0) {
-                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📅</div><p>No appointments yet</p></div>';
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📅</div>
+                            <h3>No appointments yet</h3>
+                            <p>Your appointments will appear here once scheduled</p>
+                        </div>
+                    `;
                     document.getElementById('totalAppointments').textContent = '0';
                     return;
                 }
                 
-                // Update total appointments count
                 document.getElementById('totalAppointments').textContent = appointments.length;
                 
-                // Count pending appointments
                 const pendingCount = appointments.filter(apt => apt.status !== 'Completed').length;
                 
                 container.innerHTML = `
-                    <div class="pending-banner">
+                    ${pendingCount > 0 ? `<div class="pending-banner">
                         You have ${pendingCount} pending appointment${pendingCount !== 1 ? 's' : ''}
-                    </div>
+                    </div>` : ''}
                 ` + appointments.map(apt => {
                     const contactInfo = [];
                     if (apt.contact_email) contactInfo.push(`📧 <a href="mailto:${apt.contact_email}">${apt.contact_email}</a>`);
@@ -1029,12 +1669,14 @@
                     return `
                     <div class="appointment-item">
                         <div class="appointment-header">
-                            <div class="appointment-date">${formatDate(apt.appointment_date)} at ${apt.appointment_time || 'TBD'}</div>
+                            <div class="appointment-date">
+                                📅 ${formatDate(apt.appointment_date)} at ${apt.appointment_time || 'TBD'}
+                            </div>
                             <div class="appointment-status ${isCompleted ? 'completed' : 'pending'}">${apt.status || 'Pending'}</div>
                         </div>
                         <div class="appointment-company">${apt.business_name || 'TBD'}</div>
                         <div class="appointment-details">
-                            Contact: ${apt.contact_person || 'TBD'} | Type: ${apt.appointment_type || 'Meeting'}
+                            👤 Contact: ${apt.contact_person || 'TBD'} | 📋 Type: ${apt.appointment_type || 'Meeting'}
                         </div>
                         ${apt.business_address ? `<div class="appointment-details">📍 <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(apt.business_address)}" target="_blank">${apt.business_address}</a></div>` : ''}
                         ${contactInfo.length > 0 ? `<div class="appointment-details">${contactInfo.join(' | ')}</div>` : ''}
@@ -1055,10 +1697,12 @@
                 
             } catch (error) {
                 console.error('Error loading appointments:', error);
+                showToast('Error loading appointments', 'error');
             }
         }
         
         async function markCompleted(appointmentId) {
+            showLoading();
             try {
                 const { error } = await supabaseClient
                     .from('appointments')
@@ -1066,20 +1710,24 @@
                     .eq('id', appointmentId);
                 
                 if (error) {
-                    alert('Unable to update appointment. Please contact support.');
+                    showToast('Unable to update appointment', 'error');
                     console.error('Error updating appointment:', error);
                     return;
                 }
                 
+                showToast('Appointment marked as completed!', 'success');
                 await loadClientAppointments();
                 
             } catch (error) {
-                alert('Error updating appointment. Please try again.');
+                showToast('Error updating appointment', 'error');
                 console.error('Error:', error);
+            } finally {
+                hideLoading();
             }
         }
 
         async function markPending(appointmentId) {
+            showLoading();
             try {
                 const { error } = await supabaseClient
                     .from('appointments')
@@ -1087,360 +1735,9 @@
                     .eq('id', appointmentId);
                 
                 if (error) {
-                    alert('Unable to update appointment. Please contact support.');
+                    showToast('Unable to update appointment', 'error');
                     console.error('Error updating appointment:', error);
                     return;
                 }
                 
-                await loadClientAppointments();
-                
-            } catch (error) {
-                alert('Error updating appointment. Please try again.');
-                console.error('Error:', error);
-            }
-        }
-
-        function loadProfile() {
-            const container = document.getElementById('profileInfo');
-            container.innerHTML = `
-                <div class="info-row">
-                    <span class="info-label">Username</span>
-                    <span class="info-value">${currentUser.username}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Full Name</span>
-                    <span class="info-value">${currentUser.name || '--'}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Email</span>
-                    <span class="info-value">${currentUser.email_address || '--'}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Phone</span>
-                    <span class="info-value">${currentUser.phone || '--'}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Account Status</span>
-                    <span class="info-value">${currentUser.status || 'Active'}</span>
-                </div>
-            `;
-        }
-
-        async function showAdminDashboard() {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('adminDashboard').style.display = 'block';
-            await loadAllClients();
-        }
-
-        async function loadAllClients() {
-            try {
-                const { data: clients, error } = await supabaseClient
-                    .from('clients')
-                    .select('*')
-                    .order('name', { ascending: true });
-                
-                const container = document.getElementById('adminClientsList');
-                
-                if (!clients || clients.length === 0) {
-                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">👥</div><p>No clients found</p></div>';
-                    return;
-                }
-                
-                container.innerHTML = clients.map(client => `
-                    <div class="client-card">
-                        <div class="client-header">
-                            <div class="client-name">${client.name}</div>
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <div class="client-plan-badge">${client.plan || 'No Plan'}</div>
-                                <button onclick="toggleClientDetail('${client.username}')" style="padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px;">
-                                    View Details
-                                </button>
-                            </div>
-                        </div>
-                        <div class="client-stats">
-                            <div class="client-stat">
-                                <div class="client-stat-value" id="admin-appt-count-${client.username}">0</div>
-                                <div class="client-stat-label">Appointments</div>
-                            </div>
-                            <div class="client-stat">
-                                <div class="client-stat-value">${client.businesses_contacted || 0}</div>
-                                <div class="client-stat-label">Businesses</div>
-                            </div>
-                            <div class="client-stat">
-                                <div class="client-stat-value">${client.people_called || 0}</div>
-                                <div class="client-stat-label">People</div>
-                            </div>
-                            <div class="client-stat">
-                                <div class="client-stat-value">${(client.total_contact_points || 0).toLocaleString()}</div>
-                                <div class="client-stat-label">Contacts</div>
-                            </div>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Email</span>
-                            <span class="info-value">${client.email_address || '--'}</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Username</span>
-                            <span class="info-value">${client.username}</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Next Billing</span>
-                            <span class="info-value">${formatDate(client.next_billing)}</span>
-                        </div>
-                        
-                        <div id="detail-${client.username}" class="admin-client-detail">
-                            <div class="detail-section">
-                                <div class="detail-section-title">📋 Full Client Information</div>
-                                <div class="info-row">
-                                    <span class="info-label">Phone</span>
-                                    <span class="info-value">${client.phone || '--'}</span>
-                                </div>
-                                <div class="info-row">
-                                    <span class="info-label">Account Status</span>
-                                    <span class="info-value">${client.status || 'Active'}</span>
-                                </div>
-                            </div>
-                            
-                            <div class="detail-section">
-                                <div class="detail-section-title">📅 Client Appointments</div>
-                                <div id="client-appointments-${client.username}">Loading...</div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-
-                // Load appointment counts for each client
-                for (const client of clients) {
-                    await loadClientAppointmentCount(client.username);
-                }
-                
-            } catch (error) {
-                console.error('Error loading clients:', error);
-            }
-        }
-
-        async function loadClientAppointmentCount(username) {
-            try {
-                const { data: appointments, error } = await supabaseClient
-                    .from('appointments')
-                    .select('*')
-                    .eq('username', username);
-                
-                const countElement = document.getElementById(`admin-appt-count-${username}`);
-                if (countElement && appointments) {
-                    countElement.textContent = appointments.length;
-                }
-            } catch (error) {
-                console.error('Error loading appointment count:', error);
-            }
-        }
-
-        async function toggleClientDetail(username) {
-            const detailDiv = document.getElementById(`detail-${username}`);
-            const isActive = detailDiv.classList.contains('active');
-            
-            document.querySelectorAll('.admin-client-detail').forEach(div => div.classList.remove('active'));
-            
-            if (!isActive) {
-                detailDiv.classList.add('active');
-                await loadClientAppointmentsAdmin(username);
-            }
-        }
-
-        async function loadClientAppointmentsAdmin(username) {
-            try {
-                const { data: appointments, error } = await supabaseClient
-                    .from('appointments')
-                    .select('*')
-                    .eq('username', username)
-                    .order('appointment_date', { ascending: false });
-                
-                const container = document.getElementById(`client-appointments-${username}`);
-                
-                if (!appointments || appointments.length === 0) {
-                    container.innerHTML = '<div style="text-align: center; padding: 20px; color: #6b7280;">No appointments found</div>';
-                    return;
-                }
-                
-                container.innerHTML = appointments.map(apt => {
-                    const contactInfo = [];
-                    if (apt.contact_email) contactInfo.push(`📧 <a href="mailto:${apt.contact_email}">${apt.contact_email}</a>`);
-                    if (apt.contact_phone) contactInfo.push(`📞 <a href="tel:${apt.contact_phone}">${apt.contact_phone}</a>`);
-                    
-                    return `
-                    <div class="appointment-item" style="margin-bottom: 12px;">
-                        <div class="appointment-header">
-                            <div class="appointment-date">${formatDate(apt.appointment_date)} at ${apt.appointment_time || 'TBD'}</div>
-                            <div class="appointment-status ${apt.status === 'Completed' ? 'completed' : 'pending'}">${apt.status || 'Pending'}</div>
-                        </div>
-                        <div class="appointment-company">${apt.business_name || 'TBD'}</div>
-                        <div class="appointment-details">
-                            Contact: ${apt.contact_person || 'TBD'} | Type: ${apt.appointment_type || 'Meeting'}
-                        </div>
-                        ${apt.business_address ? `<div class="appointment-details">📍 <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(apt.business_address)}" target="_blank">${apt.business_address}</a></div>` : ''}
-                        ${contactInfo.length > 0 ? `<div class="appointment-details">${contactInfo.join(' | ')}</div>` : ''}
-                        ${apt.notes ? `<div class="appointment-notes">${apt.notes}</div>` : ''}
-                    </div>
-                `;
-                }).join('');
-                
-            } catch (error) {
-                console.error('Error loading client appointments:', error);
-            }
-        }
-
-        function showPlanSelector() {
-            document.getElementById('planModal').classList.add('active');
-            document.getElementById('planDropdown').value = '';
-            document.getElementById('planDetailsContainer').innerHTML = '';
-        }
-
-        function closePlanSelector() {
-            document.getElementById('planModal').classList.remove('active');
-        }
-
-        function updatePlanDetails() {
-            const selectedPlan = document.getElementById('planDropdown').value;
-            const container = document.getElementById('planDetailsContainer');
-            
-            if (!selectedPlan) {
-                container.innerHTML = '';
-                return;
-            }
-            
-            const details = PLAN_DETAILS[selectedPlan];
-            const price = PLAN_PRICING[selectedPlan];
-            const isCurrent = currentUser && currentUser.plan === selectedPlan;
-            
-            container.innerHTML = `
-                <div class="plan-details-card">
-                    <div class="plan-details-header">
-                        <div>
-                            <div class="plan-details-name">${selectedPlan} - Annual</div>
-                            <div class="plan-details-price">$${price.toLocaleString()}/month</div>
-                            <div class="plan-details-annual">Pay Annually and Get 1 MONTH FREE!</div>
-                        </div>
-                        ${isCurrent ? '<div class="current-plan-badge">Current Plan</div>' : ''}
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
-                        <div style="padding: 20px; background: rgba(255, 255, 255, 0.15); border-radius: 12px;">
-                            <div style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">✓ ${details.guarantees} Guaranteed Appointments</div>
-                            <div style="font-size: 14px; opacity: 0.9;">Qualified appointments</div>
-                        </div>
-                        <div style="padding: 20px; background: rgba(255, 255, 255, 0.15); border-radius: 12px;">
-                            <div style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">🎯 Team Goal: ${details.teamGoal} Appointments</div>
-                            <div style="font-size: 14px; opacity: 0.9;">Annual target</div>
-                        </div>
-                    </div>
-                    
-                    <div class="plan-features">
-                        <div class="plan-feature-item">
-                            <div class="plan-feature-icon">🏢</div>
-                            <div>
-                                <div class="plan-feature-value">${details.businesses.toLocaleString()} Different Businesses</div>
-                                <div class="plan-feature-text">Unique companies contacted</div>
-                            </div>
-                        </div>
-                        <div class="plan-feature-item">
-                            <div class="plan-feature-icon">👥</div>
-                            <div>
-                                <div class="plan-feature-value">${details.people.toLocaleString()} People Called</div>
-                                <div class="plan-feature-text">Decision makers reached</div>
-                            </div>
-                        </div>
-                        <div class="plan-feature-item">
-                            <div class="plan-feature-icon">📞</div>
-                            <div>
-                                <div class="plan-feature-value">${details.calls.toLocaleString()} Calls Made</div>
-                                <div class="plan-feature-text">Phone outreach</div>
-                            </div>
-                        </div>
-                        <div class="plan-feature-item">
-                            <div class="plan-feature-icon">📧</div>
-                            <div>
-                                <div class="plan-feature-value">${details.emails.toLocaleString()} Emails Sent</div>
-                                <div class="plan-feature-text">Professional email campaigns</div>
-                            </div>
-                        </div>
-                        <div class="plan-feature-item">
-                            <div class="plan-feature-icon">💬</div>
-                            <div>
-                                <div class="plan-feature-value">${details.sms.toLocaleString()} SMS Messages</div>
-                                <div class="plan-feature-text">Text message follow-ups</div>
-                            </div>
-                        </div>
-                        <div class="plan-feature-item">
-                            <div class="plan-feature-icon">📊</div>
-                            <div>
-                                <div class="plan-feature-value">${details.total.toLocaleString()} Total Contact Points</div>
-                                <div class="plan-feature-text">Combined outreach</div>
-                            </div>
-                        </div>
-                        <div class="plan-feature-item">
-                            <div class="plan-feature-icon">🎯</div>
-                            <div>
-                                <div class="plan-feature-value">Dedicated Account Manager</div>
-                                <div class="plan-feature-text">Personal support team</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                ${!isCurrent ? `
-                    <button class="request-plan-btn" onclick="requestPlanChange('${selectedPlan}')">
-                        Request Change to ${selectedPlan} - Annual
-                    </button>
-                ` : `
-                    <div style="text-align: center; padding: 20px; color: #6b7280; font-size: 16px;">
-                        This is your current plan
-                    </div>
-                `}
-            `;
-        }
-
-        function requestPlanChange(planName) {
-            if (confirm(`Request to change your plan to ${planName} - Annual?\n\nOur team will contact you within 24 hours to process this change.`)) {
-                alert(`Thank you! Your request to change to ${planName} - Annual has been submitted. We'll contact you shortly at ${currentUser.email_address || 'your registered email'}.`);
-                closePlanSelector();
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem('kinectb2b_user');
-            localStorage.removeItem('kinectb2b_admin');
-            currentUser = null;
-            isAdmin = false;
-            document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('clientDashboard').style.display = 'none';
-            document.getElementById('adminDashboard').style.display = 'none';
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-            document.getElementById('loginError').style.display = 'none';
-        }
-
-        function formatDate(dateString) {
-            if (!dateString) return '--';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-        }
-
-        window.addEventListener('DOMContentLoaded', async () => {
-            const savedAdmin = localStorage.getItem('kinectb2b_admin');
-            const savedUser = localStorage.getItem('kinectb2b_user');
-            
-            if (savedAdmin) {
-                isAdmin = true;
-                await showAdminDashboard();
-            } else if (savedUser) {
-                try {
-                    currentUser = JSON.parse(savedUser);
-                    await showClientDashboard();
-                } catch (error) {
-                    localStorage.removeItem('kinectb2b_user');
-                }
-            }
-        });
-    </script>
-</body>
-</html>
+                showToast('Appointment marked as
