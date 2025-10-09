@@ -745,6 +745,201 @@
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
         }
 
+        /* Contact Section */
+        .contact-card {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 32px;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(30, 58, 138, 0.3);
+        }
+
+        .contact-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 25s linear infinite;
+        }
+
+        .contact-card h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .contact-manager {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .contact-manager-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .contact-avatar {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .contact-manager-info {
+            flex: 1;
+        }
+
+        .contact-manager-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .contact-manager-role {
+            font-size: 13px;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .contact-details {
+            display: grid;
+            gap: 10px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .contact-item a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .contact-item a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        .contact-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .contact-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.2);
+            margin: 20px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .contact-direct {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .contact-direct-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .contact-direct-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: white;
+            color: #1e3a8a;
+            border-radius: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 15px;
+        }
+
+        .contact-direct-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Login Footer */
+        .login-footer {
+            text-align: center;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .login-footer-title {
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .login-footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .login-footer-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #1e3a8a;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .login-footer-link:hover {
+            color: #3b82f6;
+            transform: translateX(2px);
+        }
+
+        .login-footer-icon {
+            width: 16px;
+            height: 16px;
+        }
+
         .empty-state {
             text-align: center;
             padding: 80px 20px;
@@ -1146,6 +1341,24 @@
                 
                 <button type="submit" class="login-button">Sign In</button>
             </form>
+
+            <div class="login-footer">
+                <div class="login-footer-title">Need Help?</div>
+                <div class="login-footer-links">
+                    <a href="mailto:accounts@kinectb2b.com" class="login-footer-link">
+                        <svg class="login-footer-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        accounts@kinectb2b.com
+                    </a>
+                    <a href="tel:+12192077863" class="login-footer-link">
+                        <svg class="login-footer-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                        </svg>
+                        (219) 207-7863
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1225,6 +1438,52 @@
                 </div>
 
                 <div>
+                    <div class="contact-card">
+                        <h3>
+                            <svg style="width: 28px; height: 28px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                            </svg>
+                            Your Account Manager
+                        </h3>
+                        
+                        <div class="contact-manager">
+                            <div class="contact-manager-header">
+                                <div class="contact-avatar" id="managerAvatar">AM</div>
+                                <div class="contact-manager-info">
+                                    <div class="contact-manager-name" id="managerName">Loading...</div>
+                                    <div class="contact-manager-role">Dedicated Account Manager</div>
+                                </div>
+                            </div>
+                            
+                            <div class="contact-details">
+                                <div class="contact-item">
+                                    <svg class="contact-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                                    </svg>
+                                    <a href="#" id="managerPhoneLink">Loading...</a>
+                                </div>
+                                <div class="contact-item">
+                                    <svg class="contact-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                    </svg>
+                                    <a href="#" id="managerEmailLink">Loading...</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="contact-divider"></div>
+
+                        <div class="contact-direct">
+                            <div class="contact-direct-label">Or contact us directly</div>
+                            <a href="mailto:accounts@kinectb2b.com" class="contact-direct-link">
+                                <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                                accounts@kinectb2b.com
+                            </a>
+                        </div>
+                    </div>
+
                     <div class="affiliate-banner">
                         <h3>🚀 Join Our Affiliate Program</h3>
                         <p>Earn commissions by referring businesses to Kinect B2B. It's easy, profitable, and helps other businesses grow!</p>
@@ -1831,7 +2090,7 @@ Date Requested: ${new Date().toLocaleString()}`);
                 
                 // Open email client with pre-filled information
                 // You can change this email to your support email address
-                window.location.href = `mailto:support@kinectb2b.com?subject=${subject}&body=${body}`;
+                window.location.href = `mailto:Robert@kinectb2b.com?subject=${subject}&body=${body}`;
                 
                 showToast(`Plan change request submitted for ${planName}!`, 'success');
                 closePlanSelector();
